@@ -12,6 +12,7 @@ import '../../../core/widgets/add_control.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/product_image.dart';
 import '../../../core/widgets/small_widgets.dart';
+import '../../address/providers/address_providers.dart';
 import '../../orders/providers/order_providers.dart';
 import '../models/cart_models.dart';
 import '../providers/cart_providers.dart';
@@ -56,16 +57,20 @@ class CartScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _Card(child: _Bill(summary: summary)),
                 const SizedBox(height: 16),
-                const _Card(
+                _Card(
                   child: Row(
                     children: [
-                      Icon(Icons.location_on_outlined, color: AppColors.primary),
-                      SizedBox(width: 10),
+                      const Icon(Icons.location_on_outlined, color: AppColors.primary),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          defaultDeliveryAddress,
-                          style: TextStyle(fontWeight: FontWeight.w500),
+                          ref.watch(selectedAddressProvider).fullText,
+                          style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
+                      ),
+                      TextButton(
+                        onPressed: () => context.push(Routes.addresses),
+                        child: const Text('Change'),
                       ),
                     ],
                   ),

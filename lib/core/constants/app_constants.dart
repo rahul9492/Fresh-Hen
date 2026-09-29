@@ -5,6 +5,7 @@ abstract final class AppConstants {
   static const mockOtp = '1234';
   static const freeDeliveryThreshold = 499;
   static const deliveryFee = 40;
+  static const filterPriceMax = 900;
   static const mockLatency = Duration(milliseconds: 450);
 }
 

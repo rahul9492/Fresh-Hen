@@ -12,6 +12,10 @@ abstract final class Routes {
   static const search = '/search';
   static const products = '/products';
   static const orderSuccess = '/order-success';
+  static const product = '/product';
+  static const addresses = '/addresses';
+  static const help = '/help';
+  static const terms = '/terms';
 
   static const publicRoutes = {root, onboarding, login, otp, profileSetup};
 
@@ -28,6 +32,8 @@ abstract final class Routes {
           'section': ?section,
         },
       ).toString();
+
+  static String productFor(String id) => '$product/$id';
 
   static String orderSuccessFor(String orderId) =>
       Uri(path: orderSuccess, queryParameters: {'id': orderId}).toString();

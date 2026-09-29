@@ -1,12 +1,11 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../address/providers/address_providers.dart';
 import '../../cart/providers/cart_providers.dart';
 import '../models/order_models.dart';
 import '../repositories/order_repository.dart';
 
 part 'order_providers.g.dart';
-
-const defaultDeliveryAddress = 'Home • Koramangala, Bengaluru 560034';
 
 @Riverpod(keepAlive: true)
 OrderRepository orderRepository(Ref ref) => MockOrderRepository();
@@ -34,7 +33,7 @@ class PlaceOrder extends _$PlaceOrder {
       () => ref.read(orderRepositoryProvider).place(
             lines: lines,
             total: summary.grandTotal,
-            address: defaultDeliveryAddress,
+            address: ref.read(selectedAddressProvider).fullText,
           ),
     );
     final order = state.value;

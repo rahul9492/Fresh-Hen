@@ -126,7 +126,7 @@ final class PlaceOrderProvider
   PlaceOrder create() => PlaceOrder();
 }
 
-String _$placeOrderHash() => r'3dc60807a4f2f141fdec493f24cd1fd9894e4e69';
+String _$placeOrderHash() => r'eaddfbb95235e2f02ff942d7a9777b857c8a7901';
 
 abstract class _$PlaceOrder extends $AsyncNotifier<Order?> {
   FutureOr<Order?> build();

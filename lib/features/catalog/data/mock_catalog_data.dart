@@ -83,7 +83,13 @@ List<ProductVariant> _weights(String id, int p500, {int? mrp500}) => [
       ProductVariant(id: '$id-1000', label: '1 kg', price: (p500 * 1.9).round()),
     ];
 
-final mockProducts = <Product>[
+const _photos = [Assets.boneless, Assets.curry, Assets.drumstick, Assets.splash3, Assets.splash1];
+
+List<String> _galleryFor(String main) => _photos.where((p) => p != main).take(3).toList();
+
+final mockProducts = _products.map((p) => p.copyWith(gallery: _galleryFor(p.image))).toList();
+
+final _products = <Product>[
   Product(
     id: 'chicken-curry-cut',
     name: 'Chicken Curry Cut',

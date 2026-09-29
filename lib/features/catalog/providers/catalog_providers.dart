@@ -19,6 +19,12 @@ Future<List<Product>> products(Ref ref) => ref.watch(catalogRepositoryProvider).
 Future<List<PromoBanner>> banners(Ref ref) => ref.watch(catalogRepositoryProvider).banners();
 
 @riverpod
+Future<Product?> productById(Ref ref, String id) async {
+  final all = await ref.watch(productsProvider.future);
+  return all.where((p) => p.id == id).firstOrNull;
+}
+
+@riverpod
 Future<List<Product>> filteredProducts(Ref ref, ProductQuery query) async {
   final all = await ref.watch(productsProvider.future);
   final needle = query.search.trim().toLowerCase();
@@ -27,6 +33,9 @@ Future<List<Product>> filteredProducts(Ref ref, ProductQuery query) async {
     if (query.categoryId != null && p.categoryId != query.categoryId) return false;
     if (query.popularOnly && !p.isPopular) return false;
     if (query.recommendedOnly && !p.isRecommended) return false;
+    final price = p.defaultVariant.price;
+    if (query.minPrice != null && price < query.minPrice!) return false;
+    if (query.maxPrice != null && price > query.maxPrice!) return false;
     return needle.isEmpty || p.name.toLowerCase().contains(needle);
   }).toList();
 

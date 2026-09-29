@@ -840,7 +840,7 @@ as String,
 /// @nodoc
 mixin _$Product {
 
- String get id; String get name; String get categoryId; String get image; double get rating; int get ratingCount; List<ProductVariant> get variants; List<Accompaniment> get accompaniments; bool get isPopular; bool get isRecommended;
+ String get id; String get name; String get categoryId; String get image; List<String> get gallery; double get rating; int get ratingCount; List<ProductVariant> get variants; List<Accompaniment> get accompaniments; bool get isPopular; bool get isRecommended;
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -852,20 +852,20 @@ $ProductCopyWith<Product> get copyWith => _$ProductCopyWithImpl<Product>(this as
 @override
 bool operator ==(Object other) {
   final _this = this as Product;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Product&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.categoryId, _this.categoryId) || other.categoryId == _this.categoryId)&&(identical(other.image, _this.image) || other.image == _this.image)&&(identical(other.rating, _this.rating) || other.rating == _this.rating)&&(identical(other.ratingCount, _this.ratingCount) || other.ratingCount == _this.ratingCount)&&const DeepCollectionEquality().equals(other.variants, _this.variants)&&const DeepCollectionEquality().equals(other.accompaniments, _this.accompaniments)&&(identical(other.isPopular, _this.isPopular) || other.isPopular == _this.isPopular)&&(identical(other.isRecommended, _this.isRecommended) || other.isRecommended == _this.isRecommended));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Product&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.categoryId, _this.categoryId) || other.categoryId == _this.categoryId)&&(identical(other.image, _this.image) || other.image == _this.image)&&const DeepCollectionEquality().equals(other.gallery, _this.gallery)&&(identical(other.rating, _this.rating) || other.rating == _this.rating)&&(identical(other.ratingCount, _this.ratingCount) || other.ratingCount == _this.ratingCount)&&const DeepCollectionEquality().equals(other.variants, _this.variants)&&const DeepCollectionEquality().equals(other.accompaniments, _this.accompaniments)&&(identical(other.isPopular, _this.isPopular) || other.isPopular == _this.isPopular)&&(identical(other.isRecommended, _this.isRecommended) || other.isRecommended == _this.isRecommended));
 }
 
 
 @override
 int get hashCode {
   final _this = this as Product;
-  return Object.hash(runtimeType,_this.id,_this.name,_this.categoryId,_this.image,_this.rating,_this.ratingCount,const DeepCollectionEquality().hash(_this.variants),const DeepCollectionEquality().hash(_this.accompaniments),_this.isPopular,_this.isRecommended);
+  return Object.hash(runtimeType,_this.id,_this.name,_this.categoryId,_this.image,const DeepCollectionEquality().hash(_this.gallery),_this.rating,_this.ratingCount,const DeepCollectionEquality().hash(_this.variants),const DeepCollectionEquality().hash(_this.accompaniments),_this.isPopular,_this.isRecommended);
 }
 
 @override
 String toString() {
   final _this = this as Product;
-  return 'Product(id: ${_this.id}, name: ${_this.name}, categoryId: ${_this.categoryId}, image: ${_this.image}, rating: ${_this.rating}, ratingCount: ${_this.ratingCount}, variants: ${_this.variants}, accompaniments: ${_this.accompaniments}, isPopular: ${_this.isPopular}, isRecommended: ${_this.isRecommended})';
+  return 'Product(id: ${_this.id}, name: ${_this.name}, categoryId: ${_this.categoryId}, image: ${_this.image}, gallery: ${_this.gallery}, rating: ${_this.rating}, ratingCount: ${_this.ratingCount}, variants: ${_this.variants}, accompaniments: ${_this.accompaniments}, isPopular: ${_this.isPopular}, isRecommended: ${_this.isRecommended})';
 }
 
 
@@ -876,7 +876,7 @@ abstract mixin class $ProductCopyWith<$Res>  {
   factory $ProductCopyWith(Product value, $Res Function(Product) _then) = _$ProductCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String categoryId, String image, double rating, int ratingCount, List<ProductVariant> variants, List<Accompaniment> accompaniments, bool isPopular, bool isRecommended
+ String id, String name, String categoryId, String image, List<String> gallery, double rating, int ratingCount, List<ProductVariant> variants, List<Accompaniment> accompaniments, bool isPopular, bool isRecommended
 });
 
 
@@ -893,13 +893,14 @@ class _$ProductCopyWithImpl<$Res>
 
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? categoryId = null,Object? image = null,Object? rating = null,Object? ratingCount = null,Object? variants = null,Object? accompaniments = null,Object? isPopular = null,Object? isRecommended = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? categoryId = null,Object? image = null,Object? gallery = null,Object? rating = null,Object? ratingCount = null,Object? variants = null,Object? accompaniments = null,Object? isPopular = null,Object? isRecommended = null,}) {
   return _then(Product(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
 as String,image: null == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
-as String,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
+as String,gallery: null == gallery ? _self.gallery : gallery // ignore: cast_nullable_to_non_nullable
+as List<String>,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
 as double,ratingCount: null == ratingCount ? _self.ratingCount : ratingCount // ignore: cast_nullable_to_non_nullable
 as int,variants: null == variants ? _self.variants : variants // ignore: cast_nullable_to_non_nullable
 as List<ProductVariant>,accompaniments: null == accompaniments ? _self.accompaniments : accompaniments // ignore: cast_nullable_to_non_nullable
@@ -990,10 +991,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String categoryId,  String image,  double rating,  int ratingCount,  List<ProductVariant> variants,  List<Accompaniment> accompaniments,  bool isPopular,  bool isRecommended)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String categoryId,  String image,  List<String> gallery,  double rating,  int ratingCount,  List<ProductVariant> variants,  List<Accompaniment> accompaniments,  bool isPopular,  bool isRecommended)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Product() when $default != null:
-return $default(_that.id,_that.name,_that.categoryId,_that.image,_that.rating,_that.ratingCount,_that.variants,_that.accompaniments,_that.isPopular,_that.isRecommended);case _:
+return $default(_that.id,_that.name,_that.categoryId,_that.image,_that.gallery,_that.rating,_that.ratingCount,_that.variants,_that.accompaniments,_that.isPopular,_that.isRecommended);case _:
   return orElse();
 
 }
@@ -1011,10 +1012,10 @@ return $default(_that.id,_that.name,_that.categoryId,_that.image,_that.rating,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String categoryId,  String image,  double rating,  int ratingCount,  List<ProductVariant> variants,  List<Accompaniment> accompaniments,  bool isPopular,  bool isRecommended)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String categoryId,  String image,  List<String> gallery,  double rating,  int ratingCount,  List<ProductVariant> variants,  List<Accompaniment> accompaniments,  bool isPopular,  bool isRecommended)  $default,) {final _that = this;
 switch (_that) {
 case _Product():
-return $default(_that.id,_that.name,_that.categoryId,_that.image,_that.rating,_that.ratingCount,_that.variants,_that.accompaniments,_that.isPopular,_that.isRecommended);case _:
+return $default(_that.id,_that.name,_that.categoryId,_that.image,_that.gallery,_that.rating,_that.ratingCount,_that.variants,_that.accompaniments,_that.isPopular,_that.isRecommended);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1031,10 +1032,10 @@ return $default(_that.id,_that.name,_that.categoryId,_that.image,_that.rating,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String categoryId,  String image,  double rating,  int ratingCount,  List<ProductVariant> variants,  List<Accompaniment> accompaniments,  bool isPopular,  bool isRecommended)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String categoryId,  String image,  List<String> gallery,  double rating,  int ratingCount,  List<ProductVariant> variants,  List<Accompaniment> accompaniments,  bool isPopular,  bool isRecommended)?  $default,) {final _that = this;
 switch (_that) {
 case _Product() when $default != null:
-return $default(_that.id,_that.name,_that.categoryId,_that.image,_that.rating,_that.ratingCount,_that.variants,_that.accompaniments,_that.isPopular,_that.isRecommended);case _:
+return $default(_that.id,_that.name,_that.categoryId,_that.image,_that.gallery,_that.rating,_that.ratingCount,_that.variants,_that.accompaniments,_that.isPopular,_that.isRecommended);case _:
   return null;
 
 }
@@ -1046,13 +1047,20 @@ return $default(_that.id,_that.name,_that.categoryId,_that.image,_that.rating,_t
 
 
 class _Product extends Product {
-  const _Product({required this.id, required this.name, required this.categoryId, required this.image, required this.rating, required this.ratingCount, required  List<ProductVariant> variants,  List<Accompaniment> accompaniments = const <Accompaniment>[], this.isPopular = false, this.isRecommended = false}): _variants = variants,_accompaniments = accompaniments,super._();
+  const _Product({required this.id, required this.name, required this.categoryId, required this.image,  List<String> gallery = const <String>[], required this.rating, required this.ratingCount, required  List<ProductVariant> variants,  List<Accompaniment> accompaniments = const <Accompaniment>[], this.isPopular = false, this.isRecommended = false}): _gallery = gallery,_variants = variants,_accompaniments = accompaniments,super._();
   
 
 @override final  String id;
 @override final  String name;
 @override final  String categoryId;
 @override final  String image;
+ final  List<String> _gallery;
+@override@JsonKey() List<String> get gallery {
+  if (_gallery is EqualUnmodifiableListView) return _gallery;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_gallery);
+}
+
 @override final  double rating;
 @override final  int ratingCount;
  final  List<ProductVariant> _variants;
@@ -1082,18 +1090,18 @@ _$ProductCopyWith<_Product> get copyWith => __$ProductCopyWithImpl<_Product>(thi
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Product&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.image, image) || other.image == image)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&const DeepCollectionEquality().equals(other.variants, _variants)&&const DeepCollectionEquality().equals(other.accompaniments, _accompaniments)&&(identical(other.isPopular, isPopular) || other.isPopular == isPopular)&&(identical(other.isRecommended, isRecommended) || other.isRecommended == isRecommended));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Product&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.image, image) || other.image == image)&&const DeepCollectionEquality().equals(other.gallery, _gallery)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&const DeepCollectionEquality().equals(other.variants, _variants)&&const DeepCollectionEquality().equals(other.accompaniments, _accompaniments)&&(identical(other.isPopular, isPopular) || other.isPopular == isPopular)&&(identical(other.isRecommended, isRecommended) || other.isRecommended == isRecommended));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,name,categoryId,image,rating,ratingCount,const DeepCollectionEquality().hash(_variants),const DeepCollectionEquality().hash(_accompaniments),isPopular,isRecommended);
+    return Object.hash(runtimeType,id,name,categoryId,image,const DeepCollectionEquality().hash(_gallery),rating,ratingCount,const DeepCollectionEquality().hash(_variants),const DeepCollectionEquality().hash(_accompaniments),isPopular,isRecommended);
 }
 
 @override
 String toString() {
-    return 'Product(id: $id, name: $name, categoryId: $categoryId, image: $image, rating: $rating, ratingCount: $ratingCount, variants: $variants, accompaniments: $accompaniments, isPopular: $isPopular, isRecommended: $isRecommended)';
+    return 'Product(id: $id, name: $name, categoryId: $categoryId, image: $image, gallery: $gallery, rating: $rating, ratingCount: $ratingCount, variants: $variants, accompaniments: $accompaniments, isPopular: $isPopular, isRecommended: $isRecommended)';
 }
 
 
@@ -1104,7 +1112,7 @@ abstract mixin class _$ProductCopyWith<$Res> implements $ProductCopyWith<$Res> {
   factory _$ProductCopyWith(_Product value, $Res Function(_Product) _then) = __$ProductCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String categoryId, String image, double rating, int ratingCount, List<ProductVariant> variants, List<Accompaniment> accompaniments, bool isPopular, bool isRecommended
+ String id, String name, String categoryId, String image, List<String> gallery, double rating, int ratingCount, List<ProductVariant> variants, List<Accompaniment> accompaniments, bool isPopular, bool isRecommended
 });
 
 
@@ -1121,13 +1129,14 @@ class __$ProductCopyWithImpl<$Res>
 
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? categoryId = null,Object? image = null,Object? rating = null,Object? ratingCount = null,Object? variants = null,Object? accompaniments = null,Object? isPopular = null,Object? isRecommended = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? categoryId = null,Object? image = null,Object? gallery = null,Object? rating = null,Object? ratingCount = null,Object? variants = null,Object? accompaniments = null,Object? isPopular = null,Object? isRecommended = null,}) {
   return _then(_Product(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
 as String,image: null == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
-as String,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
+as String,gallery: null == gallery ? _self._gallery : gallery // ignore: cast_nullable_to_non_nullable
+as List<String>,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
 as double,ratingCount: null == ratingCount ? _self.ratingCount : ratingCount // ignore: cast_nullable_to_non_nullable
 as int,variants: null == variants ? _self._variants : variants // ignore: cast_nullable_to_non_nullable
 as List<ProductVariant>,accompaniments: null == accompaniments ? _self._accompaniments : accompaniments // ignore: cast_nullable_to_non_nullable
@@ -1422,7 +1431,7 @@ as String,
 /// @nodoc
 mixin _$ProductQuery {
 
- String? get categoryId; String get search; ProductSort get sort; bool get popularOnly; bool get recommendedOnly;
+ String? get categoryId; String get search; ProductSort get sort; bool get popularOnly; bool get recommendedOnly; int? get minPrice; int? get maxPrice;
 /// Create a copy of ProductQuery
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1434,20 +1443,20 @@ $ProductQueryCopyWith<ProductQuery> get copyWith => _$ProductQueryCopyWithImpl<P
 @override
 bool operator ==(Object other) {
   final _this = this as ProductQuery;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductQuery&&(identical(other.categoryId, _this.categoryId) || other.categoryId == _this.categoryId)&&(identical(other.search, _this.search) || other.search == _this.search)&&(identical(other.sort, _this.sort) || other.sort == _this.sort)&&(identical(other.popularOnly, _this.popularOnly) || other.popularOnly == _this.popularOnly)&&(identical(other.recommendedOnly, _this.recommendedOnly) || other.recommendedOnly == _this.recommendedOnly));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductQuery&&(identical(other.categoryId, _this.categoryId) || other.categoryId == _this.categoryId)&&(identical(other.search, _this.search) || other.search == _this.search)&&(identical(other.sort, _this.sort) || other.sort == _this.sort)&&(identical(other.popularOnly, _this.popularOnly) || other.popularOnly == _this.popularOnly)&&(identical(other.recommendedOnly, _this.recommendedOnly) || other.recommendedOnly == _this.recommendedOnly)&&(identical(other.minPrice, _this.minPrice) || other.minPrice == _this.minPrice)&&(identical(other.maxPrice, _this.maxPrice) || other.maxPrice == _this.maxPrice));
 }
 
 
 @override
 int get hashCode {
   final _this = this as ProductQuery;
-  return Object.hash(runtimeType,_this.categoryId,_this.search,_this.sort,_this.popularOnly,_this.recommendedOnly);
+  return Object.hash(runtimeType,_this.categoryId,_this.search,_this.sort,_this.popularOnly,_this.recommendedOnly,_this.minPrice,_this.maxPrice);
 }
 
 @override
 String toString() {
   final _this = this as ProductQuery;
-  return 'ProductQuery(categoryId: ${_this.categoryId}, search: ${_this.search}, sort: ${_this.sort}, popularOnly: ${_this.popularOnly}, recommendedOnly: ${_this.recommendedOnly})';
+  return 'ProductQuery(categoryId: ${_this.categoryId}, search: ${_this.search}, sort: ${_this.sort}, popularOnly: ${_this.popularOnly}, recommendedOnly: ${_this.recommendedOnly}, minPrice: ${_this.minPrice}, maxPrice: ${_this.maxPrice})';
 }
 
 
@@ -1458,7 +1467,7 @@ abstract mixin class $ProductQueryCopyWith<$Res>  {
   factory $ProductQueryCopyWith(ProductQuery value, $Res Function(ProductQuery) _then) = _$ProductQueryCopyWithImpl;
 @useResult
 $Res call({
- String? categoryId, String search, ProductSort sort, bool popularOnly, bool recommendedOnly
+ String? categoryId, String search, ProductSort sort, bool popularOnly, bool recommendedOnly, int? minPrice, int? maxPrice
 });
 
 
@@ -1475,14 +1484,16 @@ class _$ProductQueryCopyWithImpl<$Res>
 
 /// Create a copy of ProductQuery
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? categoryId = freezed,Object? search = null,Object? sort = null,Object? popularOnly = null,Object? recommendedOnly = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? categoryId = freezed,Object? search = null,Object? sort = null,Object? popularOnly = null,Object? recommendedOnly = null,Object? minPrice = freezed,Object? maxPrice = freezed,}) {
   return _then(ProductQuery(
 categoryId: freezed == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
 as String?,search: null == search ? _self.search : search // ignore: cast_nullable_to_non_nullable
 as String,sort: null == sort ? _self.sort : sort // ignore: cast_nullable_to_non_nullable
 as ProductSort,popularOnly: null == popularOnly ? _self.popularOnly : popularOnly // ignore: cast_nullable_to_non_nullable
 as bool,recommendedOnly: null == recommendedOnly ? _self.recommendedOnly : recommendedOnly // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,minPrice: freezed == minPrice ? _self.minPrice : minPrice // ignore: cast_nullable_to_non_nullable
+as int?,maxPrice: freezed == maxPrice ? _self.maxPrice : maxPrice // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -1567,10 +1578,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? categoryId,  String search,  ProductSort sort,  bool popularOnly,  bool recommendedOnly)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? categoryId,  String search,  ProductSort sort,  bool popularOnly,  bool recommendedOnly,  int? minPrice,  int? maxPrice)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProductQuery() when $default != null:
-return $default(_that.categoryId,_that.search,_that.sort,_that.popularOnly,_that.recommendedOnly);case _:
+return $default(_that.categoryId,_that.search,_that.sort,_that.popularOnly,_that.recommendedOnly,_that.minPrice,_that.maxPrice);case _:
   return orElse();
 
 }
@@ -1588,10 +1599,10 @@ return $default(_that.categoryId,_that.search,_that.sort,_that.popularOnly,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? categoryId,  String search,  ProductSort sort,  bool popularOnly,  bool recommendedOnly)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? categoryId,  String search,  ProductSort sort,  bool popularOnly,  bool recommendedOnly,  int? minPrice,  int? maxPrice)  $default,) {final _that = this;
 switch (_that) {
 case _ProductQuery():
-return $default(_that.categoryId,_that.search,_that.sort,_that.popularOnly,_that.recommendedOnly);case _:
+return $default(_that.categoryId,_that.search,_that.sort,_that.popularOnly,_that.recommendedOnly,_that.minPrice,_that.maxPrice);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1608,10 +1619,10 @@ return $default(_that.categoryId,_that.search,_that.sort,_that.popularOnly,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? categoryId,  String search,  ProductSort sort,  bool popularOnly,  bool recommendedOnly)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? categoryId,  String search,  ProductSort sort,  bool popularOnly,  bool recommendedOnly,  int? minPrice,  int? maxPrice)?  $default,) {final _that = this;
 switch (_that) {
 case _ProductQuery() when $default != null:
-return $default(_that.categoryId,_that.search,_that.sort,_that.popularOnly,_that.recommendedOnly);case _:
+return $default(_that.categoryId,_that.search,_that.sort,_that.popularOnly,_that.recommendedOnly,_that.minPrice,_that.maxPrice);case _:
   return null;
 
 }
@@ -1623,7 +1634,7 @@ return $default(_that.categoryId,_that.search,_that.sort,_that.popularOnly,_that
 
 
 class _ProductQuery implements ProductQuery {
-  const _ProductQuery({this.categoryId, this.search = '', this.sort = ProductSort.popular, this.popularOnly = false, this.recommendedOnly = false});
+  const _ProductQuery({this.categoryId, this.search = '', this.sort = ProductSort.popular, this.popularOnly = false, this.recommendedOnly = false, this.minPrice, this.maxPrice});
   
 
 @override final  String? categoryId;
@@ -1631,6 +1642,8 @@ class _ProductQuery implements ProductQuery {
 @override@JsonKey() final  ProductSort sort;
 @override@JsonKey() final  bool popularOnly;
 @override@JsonKey() final  bool recommendedOnly;
+@override final  int? minPrice;
+@override final  int? maxPrice;
 
 /// Create a copy of ProductQuery
 /// with the given fields replaced by the non-null parameter values.
@@ -1642,18 +1655,18 @@ _$ProductQueryCopyWith<_ProductQuery> get copyWith => __$ProductQueryCopyWithImp
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductQuery&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.search, search) || other.search == search)&&(identical(other.sort, sort) || other.sort == sort)&&(identical(other.popularOnly, popularOnly) || other.popularOnly == popularOnly)&&(identical(other.recommendedOnly, recommendedOnly) || other.recommendedOnly == recommendedOnly));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductQuery&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.search, search) || other.search == search)&&(identical(other.sort, sort) || other.sort == sort)&&(identical(other.popularOnly, popularOnly) || other.popularOnly == popularOnly)&&(identical(other.recommendedOnly, recommendedOnly) || other.recommendedOnly == recommendedOnly)&&(identical(other.minPrice, minPrice) || other.minPrice == minPrice)&&(identical(other.maxPrice, maxPrice) || other.maxPrice == maxPrice));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,categoryId,search,sort,popularOnly,recommendedOnly);
+    return Object.hash(runtimeType,categoryId,search,sort,popularOnly,recommendedOnly,minPrice,maxPrice);
 }
 
 @override
 String toString() {
-    return 'ProductQuery(categoryId: $categoryId, search: $search, sort: $sort, popularOnly: $popularOnly, recommendedOnly: $recommendedOnly)';
+    return 'ProductQuery(categoryId: $categoryId, search: $search, sort: $sort, popularOnly: $popularOnly, recommendedOnly: $recommendedOnly, minPrice: $minPrice, maxPrice: $maxPrice)';
 }
 
 
@@ -1664,7 +1677,7 @@ abstract mixin class _$ProductQueryCopyWith<$Res> implements $ProductQueryCopyWi
   factory _$ProductQueryCopyWith(_ProductQuery value, $Res Function(_ProductQuery) _then) = __$ProductQueryCopyWithImpl;
 @override @useResult
 $Res call({
- String? categoryId, String search, ProductSort sort, bool popularOnly, bool recommendedOnly
+ String? categoryId, String search, ProductSort sort, bool popularOnly, bool recommendedOnly, int? minPrice, int? maxPrice
 });
 
 
@@ -1681,14 +1694,16 @@ class __$ProductQueryCopyWithImpl<$Res>
 
 /// Create a copy of ProductQuery
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? categoryId = freezed,Object? search = null,Object? sort = null,Object? popularOnly = null,Object? recommendedOnly = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? categoryId = freezed,Object? search = null,Object? sort = null,Object? popularOnly = null,Object? recommendedOnly = null,Object? minPrice = freezed,Object? maxPrice = freezed,}) {
   return _then(_ProductQuery(
 categoryId: freezed == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
 as String?,search: null == search ? _self.search : search // ignore: cast_nullable_to_non_nullable
 as String,sort: null == sort ? _self.sort : sort // ignore: cast_nullable_to_non_nullable
 as ProductSort,popularOnly: null == popularOnly ? _self.popularOnly : popularOnly // ignore: cast_nullable_to_non_nullable
 as bool,recommendedOnly: null == recommendedOnly ? _self.recommendedOnly : recommendedOnly // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,minPrice: freezed == minPrice ? _self.minPrice : minPrice // ignore: cast_nullable_to_non_nullable
+as int?,maxPrice: freezed == maxPrice ? _self.maxPrice : maxPrice // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

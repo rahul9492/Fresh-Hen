@@ -175,6 +175,76 @@ final class BannersProvider
 
 String _$bannersHash() => r'89eb8987aff79831a93a15f8202c54f9ddf0a548';
 
+@ProviderFor(productById)
+final productByIdProvider = ProductByIdFamily._();
+
+final class ProductByIdProvider
+    extends
+        $FunctionalProvider<AsyncValue<Product?>, Product?, FutureOr<Product?>>
+    with $FutureModifier<Product?>, $FutureProvider<Product?> {
+  ProductByIdProvider._({
+    required ProductByIdFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'productByIdProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$productByIdHash();
+
+  @override
+  String toString() {
+    return r'productByIdProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Product?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Product?> create(Ref ref) {
+    final argument = this.argument as String;
+    return productById(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ProductByIdProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$productByIdHash() => r'df1bcded6cbc9f7e41153e777c54311cf2daa5c2';
+
+final class ProductByIdFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Product?>, String> {
+  ProductByIdFamily._()
+    : super(
+        retry: null,
+        name: r'productByIdProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  ProductByIdProvider call(String id) =>
+      ProductByIdProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'productByIdProvider';
+}
+
 @ProviderFor(filteredProducts)
 final filteredProductsProvider = FilteredProductsFamily._();
 
@@ -230,7 +300,7 @@ final class FilteredProductsProvider
   }
 }
 
-String _$filteredProductsHash() => r'8e372ce37999a37d367216af6c864c11f82b39e6';
+String _$filteredProductsHash() => r'2e1807208d51cd66545004c65a542ad22d3da448';
 
 final class FilteredProductsFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<Product>>, ProductQuery> {

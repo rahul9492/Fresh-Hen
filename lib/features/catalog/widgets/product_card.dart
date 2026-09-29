@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../app/router/routes.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
@@ -18,7 +21,9 @@ class ProductCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavorite = ref.watch(favoritesProvider.select((f) => f.contains(product.id)));
 
-    return Container(
+    return GestureDetector(
+      onTap: () => context.push(Routes.productFor(product.id)),
+      child: Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -81,6 +86,7 @@ class ProductCard extends ConsumerWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

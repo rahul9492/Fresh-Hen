@@ -43,6 +43,7 @@ abstract class Product with _$Product {
     required String name,
     required String categoryId,
     required String image,
+    @Default(<String>[]) List<String> gallery,
     required double rating,
     required int ratingCount,
     required List<ProductVariant> variants,
@@ -52,6 +53,8 @@ abstract class Product with _$Product {
   }) = _Product;
 
   ProductVariant get defaultVariant => variants.first;
+
+  List<String> get images => [image, ...gallery];
 
   /// True when the customer must choose from the options sheet before adding.
   bool get needsOptions => variants.length > 1 || accompaniments.isNotEmpty;
@@ -88,5 +91,7 @@ abstract class ProductQuery with _$ProductQuery {
     @Default(ProductSort.popular) ProductSort sort,
     @Default(false) bool popularOnly,
     @Default(false) bool recommendedOnly,
+    int? minPrice,
+    int? maxPrice,
   }) = _ProductQuery;
 }

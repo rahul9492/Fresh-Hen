@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/context_x.dart';
-import '../../orders/providers/order_providers.dart';
+import '../../catalog/models/catalog_models.dart';
+import '../../catalog/widgets/filter_sheet.dart';
+import '../../address/providers/address_providers.dart';
 
-class HomeHeader extends StatelessWidget {
+class HomeHeader extends ConsumerWidget {
   const HomeHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final text = context.text;
+    final address = ref.watch(selectedAddressProvider);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Column(
@@ -42,24 +46,35 @@ class HomeHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          const Row(
-            children: [
-              Icon(Icons.location_on_rounded, size: 16, color: AppColors.primary),
-              SizedBox(width: 4),
-              Text('Deliver to Home', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
-            ],
-          ),
-          Row(
-            children: [
-              Flexible(
-                child: Text(
-                  defaultDeliveryAddress.split('• ').last,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: AppColors.body, fontSize: 13),
+          InkWell(
+            onTap: () => context.push(Routes.addresses),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.location_on_rounded, size: 16, color: AppColors.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Deliver to ${address.label.title}',
+                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                    ),
+                  ],
                 ),
-              ),
-              const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.body),
-            ],
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        address.line,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: AppColors.body, fontSize: 13),
+                      ),
+                    ),
+                    const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.body),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 14),
           Row(
@@ -67,7 +82,12 @@ class HomeHeader extends StatelessWidget {
               Expanded(child: SearchPill(onTap: () => context.push(Routes.search))),
               const SizedBox(width: 12),
               IconButton.outlined(
-                onPressed: () => context.push(Routes.search),
+                onPressed: () async {
+                  final query = await showFilterSheet(context, const ProductQuery());
+                  if (query != null && context.mounted) {
+                    context.push(Routes.search, extra: query);
+                  }
+                },
                 icon: const Icon(Icons.tune_rounded),
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white,

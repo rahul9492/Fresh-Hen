@@ -102,6 +102,47 @@ abstract class _$AuthSession extends $Notifier<AppUser?> {
   }
 }
 
+@ProviderFor(sessionPhone)
+final sessionPhoneProvider = SessionPhoneProvider._();
+
+final class SessionPhoneProvider
+    extends $FunctionalProvider<String?, String?, String?>
+    with $Provider<String?> {
+  SessionPhoneProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'sessionPhoneProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$sessionPhoneHash();
+
+  @$internal
+  @override
+  $ProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  String? create(Ref ref) {
+    return sessionPhone(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String?>(value),
+    );
+  }
+}
+
+String _$sessionPhoneHash() => r'9096a4d31977a7efefea765776d616e91154b2cc';
+
 @ProviderFor(LoginController)
 final loginControllerProvider = LoginControllerProvider._();
 

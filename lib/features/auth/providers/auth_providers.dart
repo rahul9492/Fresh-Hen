@@ -28,6 +28,9 @@ class AuthSession extends _$AuthSession {
   }
 }
 
+@Riverpod(keepAlive: true)
+String? sessionPhone(Ref ref) => ref.watch(authSessionProvider)?.phone;
+
 @riverpod
 class LoginController extends _$LoginController {
   @override

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/errors/app_exception.dart';
@@ -8,6 +10,7 @@ import '../../../core/utils/context_x.dart';
 import '../../auth/models/app_user.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../../auth/widgets/profile_form.dart';
+import '../widgets/menu_group.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -27,73 +30,81 @@ class AccountScreen extends ConsumerWidget {
     if (confirmed == true) await ref.read(authSessionProvider.notifier).signOut();
   }
 
+  void _edit(BuildContext context, AppUser user) => showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (_) => _EditProfileSheet(user: user),
+      );
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authSessionProvider);
     if (user == null) return const SizedBox.shrink();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Account')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(title: const Text('Profile'), backgroundColor: Colors.white),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: AppColors.accentSoft,
-                  child: Text(
-                    user.name.characters.first.toUpperCase(),
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(user.name, style: context.text.titleMedium),
-                      Text(user.formattedPhone, style: const TextStyle(color: AppColors.body)),
-                      if (user.email != null)
-                        Text(user.email!, style: const TextStyle(color: AppColors.body)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          _Tile(
-            icon: Icons.edit_outlined,
-            label: 'Edit profile',
-            onTap: () => showModalBottomSheet<void>(
-              context: context,
-              isScrollControlled: true,
-              builder: (_) => _EditProfileSheet(user: user),
-            ),
-          ),
-          _Tile(
-            icon: Icons.logout_rounded,
-            label: 'Log out',
-            color: AppColors.accent,
-            onTap: () => _logout(context, ref),
-          ),
+          _ProfileHeader(user: user, onEdit: () => _edit(context, user)),
           const SizedBox(height: 24),
+          MenuGroup(
+            items: [
+              MenuItem(
+                icon: Icons.inventory_2_outlined,
+                label: 'My Orders',
+                onTap: () => context.go(Routes.orders),
+              ),
+              MenuItem(
+                icon: Icons.location_on_outlined,
+                label: 'Manage address',
+                onTap: () => context.push(Routes.addresses),
+              ),
+            ],
+          ),
+          MenuGroup(
+            items: [
+              MenuItem(
+                icon: Icons.favorite_border_rounded,
+                label: 'Wishlist',
+                onTap: () => context.push(
+                  Routes.productsFor(title: 'Wishlist', section: 'wishlist'),
+                ),
+              ),
+            ],
+          ),
+          MenuGroup(
+            items: [
+              MenuItem(
+                icon: Icons.help_outline_rounded,
+                label: 'Help & Support',
+                onTap: () => context.push(Routes.help),
+              ),
+              MenuItem(
+                icon: Icons.description_outlined,
+                label: 'Terms & Privacy',
+                onTap: () => context.push(Routes.terms),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          MenuGroup(
+            items: [
+              MenuItem(
+                icon: Icons.logout_rounded,
+                label: 'Logout',
+                color: AppColors.primary,
+                showChevron: false,
+                onTap: () => _logout(context, ref),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
           const Center(
             child: Text(
-              '${AppConstants.appName} • v1.0.0',
-              style: TextStyle(color: AppColors.muted, fontSize: 12),
+              '${AppConstants.appName} v1.0.0',
+              style: TextStyle(color: AppColors.muted, fontSize: 12.5),
             ),
           ),
         ],
@@ -102,30 +113,53 @@ class AccountScreen extends ConsumerWidget {
   }
 }
 
-class _Tile extends StatelessWidget {
-  const _Tile({required this.icon, required this.label, required this.onTap, this.color});
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader({required this.user, required this.onEdit});
 
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final Color? color;
+  final AppUser user;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      elevation: 0,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: AppColors.border),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: color ?? AppColors.ink),
-        title: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
-        trailing: const Icon(Icons.chevron_right_rounded),
-        onTap: onTap,
-      ),
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.border, width: 2),
+          ),
+          child: CircleAvatar(
+            radius: 46,
+            backgroundColor: AppColors.accentSoft,
+            child: Text(
+              user.name.characters.first.toUpperCase(),
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontSize: 36,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(user.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(user.formattedPhone, style: const TextStyle(color: AppColors.body, fontSize: 14)),
+        if (user.email != null)
+          Text(user.email!, style: const TextStyle(color: AppColors.body, fontSize: 14)),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: onEdit,
+          icon: const Icon(Icons.edit_outlined, size: 16),
+          label: const Text('Edit'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.body,
+            side: const BorderSide(color: AppColors.border),
+            visualDensity: VisualDensity.compact,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -143,12 +177,7 @@ class _EditProfileSheet extends ConsumerWidget {
     final loading = ref.watch(profileControllerProvider).isLoading;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        0,
-        20,
-        MediaQuery.viewInsetsOf(context).bottom + 20,
-      ),
+      padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.viewInsetsOf(context).bottom + 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

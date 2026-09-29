@@ -62,16 +62,18 @@ class QtyStepper extends StatelessWidget {
     required this.quantity,
     required this.onIncrement,
     required this.onDecrement,
+    this.height = 34,
   });
 
   final int quantity;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 34,
+      height: height,
       decoration: BoxDecoration(
         color: AppColors.primaryDark,
         borderRadius: BorderRadius.circular(8),

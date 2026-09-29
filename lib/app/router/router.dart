@@ -2,12 +2,17 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/account/data/info_content.dart';
 import '../../features/account/screens/account_screen.dart';
+import '../../features/account/screens/info_screen.dart';
+import '../../features/address/screens/addresses_screen.dart';
 import '../../features/auth/providers/auth_providers.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
 import '../../features/auth/screens/profile_setup_screen.dart';
 import '../../features/cart/screens/cart_screen.dart';
+import '../../features/catalog/models/catalog_models.dart';
+import '../../features/catalog/screens/product_detail_screen.dart';
 import '../../features/home/screens/categories_screen.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/home/screens/main_shell.dart';
@@ -76,8 +81,24 @@ GoRouter goRouter(Ref ref) {
           ),
         ],
       ),
+      GoRoute(
+        path: '${Routes.product}/:id',
+        builder: (_, state) => ProductDetailScreen(productId: state.pathParameters['id']!),
+      ),
+      GoRoute(path: Routes.addresses, builder: (_, _) => const AddressesScreen()),
+      GoRoute(
+        path: Routes.help,
+        builder: (_, _) => const InfoScreen(title: 'Help & Support', sections: helpSections),
+      ),
+      GoRoute(
+        path: Routes.terms,
+        builder: (_, _) => const InfoScreen(title: 'Terms & Privacy', sections: termsSections),
+      ),
       GoRoute(path: Routes.cart, builder: (_, _) => const CartScreen()),
-      GoRoute(path: Routes.search, builder: (_, _) => const SearchScreen()),
+      GoRoute(
+        path: Routes.search,
+        builder: (_, state) => SearchScreen(initialQuery: state.extra as ProductQuery?),
+      ),
       GoRoute(
         path: Routes.products,
         builder: (_, state) {

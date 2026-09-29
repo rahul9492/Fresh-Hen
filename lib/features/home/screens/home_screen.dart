@@ -38,7 +38,7 @@ class HomeScreen extends ConsumerWidget {
               const HomeHeader(),
               const SizedBox(height: 16),
               SizedBox(
-                height: 180,
+                height: 194,
                 child: AsyncView(
                   value: banners,
                   data: (list) => PromoCarousel(banners: list),
