@@ -1,0 +1,236 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../app/theme/app_colors.dart';
+import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/add_control.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/product_image.dart';
+import '../../../core/widgets/small_widgets.dart';
+import '../../cart/models/cart_models.dart';
+import '../../cart/providers/cart_providers.dart';
+import '../models/catalog_models.dart';
+
+Future<void> showProductOptionsSheet(BuildContext context, Product product) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    builder: (_) => ProductOptionsSheet(product: product),
+  );
+}
+
+class ProductOptionsSheet extends ConsumerWidget {
+  const ProductOptionsSheet({super.key, required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summary = ref.watch(cartSummaryProvider);
+    final cart = ref.read(cartProvider.notifier);
+    final text = Theme.of(context).textTheme;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            children: [
+              Row(
+                children: [
+                  ProductImage(asset: product.image, size: 52),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(product.name, style: text.titleMedium?.copyWith(fontSize: 17)),
+                        const SizedBox(height: 2),
+                        RatingLabel(rating: product.rating, count: product.ratingCount),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(height: 28),
+              _GroupTitle(title: 'Quantity', hint: 'Select any 1', style: text),
+              _Group(
+                children: [
+                  for (final v in product.variants)
+                    _VariantRow(
+                      product: product,
+                      variant: v,
+                      onSelect: () => cart.selectVariant(product, v),
+                    ),
+                ],
+              ),
+              if (product.accompaniments.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                _GroupTitle(title: 'Add Accompaniments', hint: 'Select any', style: text),
+                _Group(
+                  children: [
+                    for (final a in product.accompaniments) _AccompanimentRow(item: a),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (summary.itemCount > 0)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            child: AppButton(
+              label: 'Done • ${rupees(summary.itemTotal)}',
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _GroupTitle extends StatelessWidget {
+  const _GroupTitle({required this.title, required this.hint, required this.style});
+
+  final String title;
+  final String hint;
+  final TextTheme style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: style.titleMedium?.copyWith(fontSize: 16)),
+          Text(hint, style: const TextStyle(color: AppColors.body, fontSize: 12.5)),
+        ],
+      ),
+    );
+  }
+}
+
+class _Group extends StatelessWidget {
+  const _Group({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+        boxShadow: const [
+          BoxShadow(color: Color(0x0F000000), blurRadius: 14, offset: Offset(0, 4)),
+        ],
+        color: Colors.white,
+      ),
+      child: Column(children: children),
+    );
+  }
+}
+
+class _VariantRow extends ConsumerWidget {
+  const _VariantRow({required this.product, required this.variant, required this.onSelect});
+
+  final Product product;
+  final ProductVariant variant;
+  final VoidCallback onSelect;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lineId = CartLine.fromVariant(product, variant).id;
+    final quantity = ref.watch(lineQuantityProvider(lineId));
+    final cart = ref.read(cartProvider.notifier);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          const NonVegMark(),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14.5),
+                children: [
+                  TextSpan(text: '${variant.label} • ${rupees(variant.price)}'),
+                  if (variant.mrp != null)
+                    TextSpan(
+                      text: '  ${rupees(variant.mrp!)}',
+                      style: const TextStyle(
+                        color: AppColors.muted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          AddControl(
+            style: AddControlStyle.pill,
+            quantity: quantity,
+            onAdd: onSelect,
+            onIncrement: () => cart.increment(lineId),
+            onDecrement: () => cart.decrement(lineId),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AccompanimentRow extends ConsumerWidget {
+  const _AccompanimentRow({required this.item});
+
+  final Accompaniment item;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final line = CartLine.fromAccompaniment(item);
+    final quantity = ref.watch(lineQuantityProvider(line.id));
+    final cart = ref.read(cartProvider.notifier);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          ProductImage(asset: item.image, size: 44, radius: 8),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Text(
+                      '${item.weight} • ${rupees(item.price)}  ',
+                      style: const TextStyle(color: AppColors.body, fontSize: 12),
+                    ),
+                    RatingLabel(rating: item.rating, count: item.ratingCount, small: true),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          AddControl(
+            quantity: quantity,
+            onAdd: () => cart.add(line),
+            onIncrement: () => cart.increment(line.id),
+            onDecrement: () => cart.decrement(line.id),
+          ),
+        ],
+      ),
+    );
+  }
+}

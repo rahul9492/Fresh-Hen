@@ -1,0 +1,256 @@
+import '../../../core/constants/app_constants.dart';
+import '../models/catalog_models.dart';
+
+const mockCategories = [
+  Category(id: 'chicken', name: 'Chicken', image: Assets.boneless),
+  Category(id: 'duck', name: 'Duck', image: Assets.drumstick),
+  Category(id: 'mutton', name: 'Mutton', image: Assets.curry),
+  Category(id: 'eggs', name: 'Eggs', image: Assets.eggs),
+  Category(id: 'fish', name: 'Fish', image: Assets.splash3),
+  Category(id: 'country', name: 'Country Hen', image: Assets.splash1),
+];
+
+const mockBanners = [
+  PromoBanner(
+    eyebrow: 'FARM FRESH • HYGIENIC • TRUSTED',
+    title: 'Fresh Chicken',
+    highlight: 'Delivered Daily',
+    description: 'Premium quality chicken & poultry, straight from trusted farms to your door.',
+    image: Assets.splash1,
+    categoryId: 'chicken',
+  ),
+  PromoBanner(
+    eyebrow: 'COUNTRY STYLE • FLAVOURFUL',
+    title: 'Country Hen',
+    highlight: 'Pure & Natural',
+    description: 'Free-range desi hen, cut and cleaned the way your kitchen likes it.',
+    image: Assets.splash3,
+    categoryId: 'country',
+  ),
+  PromoBanner(
+    eyebrow: 'PROTEIN PACKED • FRESH',
+    title: 'Farm Eggs',
+    highlight: 'From Farm to Table',
+    description: 'Hand-picked, graded and delivered fresh every morning.',
+    image: Assets.eggs,
+    categoryId: 'eggs',
+  ),
+];
+
+const _masala = Accompaniment(
+  id: 'acc-mdh-masala',
+  name: 'MDH Chicken Masala',
+  weight: '100 g',
+  price: 82,
+  rating: 4.8,
+  ratingCount: 12400,
+  image: Assets.curry,
+);
+
+const _gingerGarlic = Accompaniment(
+  id: 'acc-ginger-garlic',
+  name: 'Ginger Garlic Paste',
+  weight: '200 g',
+  price: 55,
+  rating: 4.6,
+  ratingCount: 8200,
+  image: Assets.boneless,
+);
+
+const _lemon = Accompaniment(
+  id: 'acc-lemon',
+  name: 'Fresh Lemon',
+  weight: '4 pieces',
+  price: 30,
+  rating: 4.5,
+  ratingCount: 5100,
+  image: Assets.eggs,
+);
+
+const _meatMasala = Accompaniment(
+  id: 'acc-meat-masala',
+  name: 'Everest Meat Masala',
+  weight: '100 g',
+  price: 78,
+  rating: 4.7,
+  ratingCount: 9300,
+  image: Assets.drumstick,
+);
+
+List<ProductVariant> _weights(String id, int p500, {int? mrp500}) => [
+      ProductVariant(id: '$id-500', label: '500 g', price: p500, mrp: mrp500),
+      ProductVariant(id: '$id-750', label: '750 g', price: (p500 * 1.45).round()),
+      ProductVariant(id: '$id-1000', label: '1 kg', price: (p500 * 1.9).round()),
+    ];
+
+final mockProducts = <Product>[
+  Product(
+    id: 'chicken-curry-cut',
+    name: 'Chicken Curry Cut',
+    categoryId: 'chicken',
+    image: Assets.curry,
+    rating: 4.8,
+    ratingCount: 12400,
+    variants: _weights('ccc', 120, mrp500: 150),
+    accompaniments: const [_masala, _gingerGarlic, _lemon],
+    isPopular: true,
+  ),
+  Product(
+    id: 'chicken-drumstick',
+    name: 'Chicken Drumstick',
+    categoryId: 'chicken',
+    image: Assets.drumstick,
+    rating: 4.8,
+    ratingCount: 12400,
+    variants: _weights('cds', 120),
+    accompaniments: const [_masala, _lemon],
+    isPopular: true,
+  ),
+  Product(
+    id: 'chicken-boneless',
+    name: 'Chicken Boneless',
+    categoryId: 'chicken',
+    image: Assets.boneless,
+    rating: 4.8,
+    ratingCount: 12400,
+    variants: _weights('cbl', 250, mrp500: 299),
+    accompaniments: const [_masala, _gingerGarlic],
+    isPopular: true,
+    isRecommended: true,
+  ),
+  Product(
+    id: 'classic-eggs',
+    name: 'Fresh Classic Eggs',
+    categoryId: 'eggs',
+    image: Assets.eggs,
+    rating: 4.7,
+    ratingCount: 21800,
+    variants: const [
+      ProductVariant(id: 'egg-6', label: '6 pieces', price: 90),
+      ProductVariant(id: 'egg-12', label: '12 pieces', price: 170, mrp: 190),
+      ProductVariant(id: 'egg-30', label: '30 pieces', price: 410),
+    ],
+    isRecommended: true,
+    isPopular: true,
+  ),
+  Product(
+    id: 'chicken-breast',
+    name: 'Chicken Breast',
+    categoryId: 'chicken',
+    image: Assets.boneless,
+    rating: 4.7,
+    ratingCount: 6800,
+    variants: _weights('cbr', 220),
+    accompaniments: const [_masala],
+    isRecommended: true,
+  ),
+  Product(
+    id: 'chicken-leg-piece',
+    name: 'Chicken Leg Piece',
+    categoryId: 'chicken',
+    image: Assets.drumstick,
+    rating: 4.6,
+    ratingCount: 5400,
+    variants: _weights('clp', 140),
+    isRecommended: true,
+  ),
+  Product(
+    id: 'chicken-wings',
+    name: 'Chicken Wings',
+    categoryId: 'chicken',
+    image: Assets.curry,
+    rating: 4.5,
+    ratingCount: 3900,
+    variants: _weights('cwg', 130),
+  ),
+  Product(
+    id: 'chicken-liver',
+    name: 'Chicken Liver',
+    categoryId: 'chicken',
+    image: Assets.curry,
+    rating: 4.4,
+    ratingCount: 2100,
+    variants: const [ProductVariant(id: 'cli-250', label: '250 g', price: 70)],
+  ),
+  Product(
+    id: 'country-hen-curry',
+    name: 'Country Hen Curry Cut',
+    categoryId: 'country',
+    image: Assets.splash1,
+    rating: 4.9,
+    ratingCount: 7200,
+    variants: const [
+      ProductVariant(id: 'chc-500', label: '500 g', price: 320),
+      ProductVariant(id: 'chc-1000', label: '1 kg', price: 610, mrp: 660),
+    ],
+    accompaniments: const [_masala, _gingerGarlic],
+    isPopular: true,
+  ),
+  Product(
+    id: 'duck-curry-cut',
+    name: 'Duck Curry Cut',
+    categoryId: 'duck',
+    image: Assets.drumstick,
+    rating: 4.6,
+    ratingCount: 1900,
+    variants: const [
+      ProductVariant(id: 'dck-500', label: '500 g', price: 380),
+      ProductVariant(id: 'dck-1000', label: '1 kg', price: 730),
+    ],
+    accompaniments: const [_meatMasala],
+  ),
+  Product(
+    id: 'mutton-curry-cut',
+    name: 'Goat Mutton Curry Cut',
+    categoryId: 'mutton',
+    image: Assets.curry,
+    rating: 4.8,
+    ratingCount: 9600,
+    variants: const [
+      ProductVariant(id: 'mtn-500', label: '500 g', price: 449, mrp: 499),
+      ProductVariant(id: 'mtn-1000', label: '1 kg', price: 869, mrp: 949),
+    ],
+    accompaniments: const [_meatMasala, _gingerGarlic],
+    isPopular: true,
+    isRecommended: true,
+  ),
+  Product(
+    id: 'mutton-keema',
+    name: 'Mutton Keema',
+    categoryId: 'mutton',
+    image: Assets.boneless,
+    rating: 4.7,
+    ratingCount: 4300,
+    variants: const [
+      ProductVariant(id: 'mkm-250', label: '250 g', price: 259),
+      ProductVariant(id: 'mkm-500', label: '500 g', price: 499),
+    ],
+    accompaniments: const [_meatMasala],
+  ),
+  Product(
+    id: 'rohu-fish',
+    name: 'Rohu Fish Curry Cut',
+    categoryId: 'fish',
+    image: Assets.splash3,
+    rating: 4.5,
+    ratingCount: 3200,
+    variants: const [
+      ProductVariant(id: 'roh-500', label: '500 g', price: 210),
+      ProductVariant(id: 'roh-1000', label: '1 kg', price: 399),
+    ],
+    accompaniments: const [_lemon],
+  ),
+  Product(
+    id: 'desi-eggs',
+    name: 'Country Eggs',
+    categoryId: 'eggs',
+    image: Assets.eggs,
+    rating: 4.6,
+    ratingCount: 6100,
+    variants: const [
+      ProductVariant(id: 'deg-6', label: '6 pieces', price: 120),
+      ProductVariant(id: 'deg-12', label: '12 pieces', price: 230),
+    ],
+    isRecommended: true,
+  ),
+];
