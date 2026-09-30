@@ -3,22 +3,21 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/constants/app_constants.dart';
-import '../../../core/storage/prefs_provider.dart';
+import '../../../core/network/session_expired_provider.dart';
 import '../models/app_user.dart';
-import '../repositories/auth_repository.dart';
-import '../repositories/mock_auth_repository.dart';
+import 'auth_repository_provider.dart';
 
-part 'auth_providers.g.dart';
+part 'auth_provider.g.dart';
 
 enum OtpOutcome { failed, registered, newUser }
 
 @Riverpod(keepAlive: true)
-AuthRepository authRepository(Ref ref) => MockAuthRepository(ref.watch(sharedPrefsProvider));
-
-@Riverpod(keepAlive: true)
 class AuthSession extends _$AuthSession {
   @override
-  AppUser? build() => ref.read(authRepositoryProvider).currentUser();
+  AppUser? build() {
+    ref.listen(sessionExpiredProvider, (_, _) => signOut());
+    return ref.read(authRepositoryProvider).currentUser();
+  }
 
   void signIn(AppUser user) => state = user;
 

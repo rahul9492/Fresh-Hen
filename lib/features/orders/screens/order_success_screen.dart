@@ -40,7 +40,10 @@ class OrderSuccessScreen extends StatelessWidget {
                 style: text.bodyLarge?.copyWith(color: AppColors.body),
               ),
               const Spacer(),
-              AppButton(label: 'Track in Orders', onPressed: () => context.go(Routes.orders)),
+              AppButton(label: 'Track in Orders', onPressed: () {
+                  context.go(Routes.home);
+                  context.push(Routes.orders);
+                }),
               TextButton(
                 onPressed: () => context.go(Routes.home),
                 child: const Text('Continue shopping'),

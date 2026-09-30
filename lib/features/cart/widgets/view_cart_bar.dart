@@ -53,7 +53,7 @@ class ViewCartBar extends ConsumerWidget {
                     width: 180,
                     height: 50,
                     child: FilledButton(
-                      onPressed: () => context.push(Routes.cart),
+                      onPressed: () => context.go(Routes.cart),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/app_search_bar.dart';
+import '../../../core/widgets/applied_filters_row.dart';
 import '../../../core/widgets/async_view.dart';
+import '../../../core/widgets/filter_button.dart';
 import '../../../core/widgets/small_widgets.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../../catalog/providers/catalog_providers.dart';
@@ -63,52 +68,65 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final categories = ref.watch(categoriesProvider).value ?? const <Category>[];
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: TextField(
+        title: AppSearchBar(
           controller: _controller,
+          hint: 'Search chicken, mutton, eggs...',
           autofocus: widget.initialQuery == null,
-          textInputAction: TextInputAction.search,
-          cursorColor: AppColors.primary,
-          decoration: InputDecoration(
-            hintText: 'Search chicken, mutton, eggs...',
-            border: InputBorder.none,
-            suffixIcon: _controller.text.isEmpty
-                ? null
-                : IconButton(
-                    onPressed: () => _setSearch(''),
-                    icon: const Icon(Icons.close_rounded, size: 20),
-                  ),
-          ),
+          bordered: false,
+          debounce: const Duration(milliseconds: 300),
           onChanged: (v) => setState(() => _query = _query.copyWith(search: v)),
         ),
-        actions: [
-          IconButton(
-            onPressed: _openFilters,
-            icon: Badge(
-              isLabelVisible: _hasFilters,
-              smallSize: 8,
-              backgroundColor: AppColors.primary,
-              child: const Icon(Icons.tune_rounded),
-            ),
-          ),
-        ],
+        actions: [FilterButton(onPressed: _openFilters, isActive: _hasFilters)],
       ),
       body: _hasCriteria
-          ? AsyncView(
-              value: ref.watch(filteredProductsProvider(_query)),
-              onRetry: () => ref.invalidate(filteredProductsProvider(_query)),
-              data: (products) => products.isEmpty
-                  ? const EmptyState(
-                      icon: Icons.search_off_rounded,
-                      title: 'No items found',
-                      message: 'Try a different search or adjust filters.',
-                    )
-                  : ProductGrid(products: products),
+          ? Column(
+              children: [
+                AppliedFiltersRow(filters: _appliedFilters(categories)),
+                Expanded(child: _results()),
+              ],
             )
           : _Suggestions(onSelected: _setSearch),
     );
+  }
+
+  Widget _results() {
+    return AsyncView(
+      value: ref.watch(filteredProductsProvider(_query)),
+      onRetry: () => ref.invalidate(filteredProductsProvider(_query)),
+      data: (products) => products.isEmpty
+          ? const EmptyState(
+              icon: Icons.search_off_rounded,
+              title: 'No items found',
+              message: 'Try a different search or adjust filters.',
+            )
+          : ProductGrid(products: products),
+    );
+  }
+
+  List<AppliedFilter> _appliedFilters(List<Category> categories) {
+    const defaults = ProductQuery();
+    return [
+      if (_query.sort != defaults.sort)
+        AppliedFilter(
+          label: _query.sort.label,
+          onRemove: () => setState(() => _query = _query.copyWith(sort: defaults.sort)),
+        ),
+      if (_query.categoryId != null)
+        AppliedFilter(
+          label: categories.where((c) => c.id == _query.categoryId).firstOrNull?.name ?? 'Category',
+          onRemove: () => setState(() => _query = _query.copyWith(categoryId: null)),
+        ),
+      if (_query.minPrice != null || _query.maxPrice != null)
+        AppliedFilter(
+          label:
+              '${rupees(_query.minPrice ?? 0)} - ${rupees(_query.maxPrice ?? AppConstants.filterPriceMax)}',
+          onRemove: () => setState(() => _query = _query.copyWith(minPrice: null, maxPrice: null)),
+        ),
+    ];
   }
 }
 

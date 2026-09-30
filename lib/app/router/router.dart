@@ -6,7 +6,7 @@ import '../../features/account/data/info_content.dart';
 import '../../features/account/screens/account_screen.dart';
 import '../../features/account/screens/info_screen.dart';
 import '../../features/address/screens/addresses_screen.dart';
-import '../../features/auth/providers/auth_providers.dart';
+import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
 import '../../features/auth/screens/profile_setup_screen.dart';
@@ -74,7 +74,7 @@ GoRouter goRouter(Ref ref) {
             routes: [GoRoute(path: Routes.categories, builder: (_, _) => const CategoriesScreen())],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: Routes.orders, builder: (_, _) => const OrdersScreen())],
+            routes: [GoRoute(path: Routes.cart, builder: (_, _) => const CartScreen())],
           ),
           StatefulShellBranch(
             routes: [GoRoute(path: Routes.account, builder: (_, _) => const AccountScreen())],
@@ -94,7 +94,7 @@ GoRouter goRouter(Ref ref) {
         path: Routes.terms,
         builder: (_, _) => const InfoScreen(title: 'Terms & Privacy', sections: termsSections),
       ),
-      GoRoute(path: Routes.cart, builder: (_, _) => const CartScreen()),
+      GoRoute(path: Routes.orders, builder: (_, _) => const OrdersScreen()),
       GoRoute(
         path: Routes.search,
         builder: (_, state) => SearchScreen(initialQuery: state.extra as ProductQuery?),

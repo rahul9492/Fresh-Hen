@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/context_x.dart';
+import '../../../core/widgets/app_search_bar.dart';
+import '../../../core/widgets/filter_button.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../../catalog/widgets/filter_sheet.dart';
 import '../../address/providers/address_providers.dart';
@@ -79,55 +81,20 @@ class HomeHeader extends ConsumerWidget {
           const SizedBox(height: 14),
           Row(
             children: [
-              Expanded(child: SearchPill(onTap: () => context.push(Routes.search))),
+              Expanded(child: AppSearchBar.readOnly(onTap: () => context.push(Routes.search))),
               const SizedBox(width: 12),
-              IconButton.outlined(
+              FilterButton(
+                bordered: true,
                 onPressed: () async {
                   final query = await showFilterSheet(context, const ProductQuery());
                   if (query != null && context.mounted) {
                     context.push(Routes.search, extra: query);
                   }
                 },
-                icon: const Icon(Icons.tune_rounded),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  fixedSize: const Size(48, 48),
-                  side: const BorderSide(color: AppColors.border),
-                ),
               ),
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class SearchPill extends StatelessWidget {
-  const SearchPill({super.key, required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(30),
-      child: Container(
-        height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: const Row(
-          children: [
-            Icon(Icons.search_rounded, color: AppColors.body),
-            SizedBox(width: 10),
-            Text('Search...', style: TextStyle(color: AppColors.muted, fontSize: 15)),
-          ],
-        ),
       ),
     );
   }

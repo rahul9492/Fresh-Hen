@@ -5,10 +5,11 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
-import '../../../core/errors/app_exception.dart';
 import '../../../core/utils/context_x.dart';
+import '../../../core/widgets/app_bottom_sheet.dart';
+import '../../../core/widgets/confirm_dialog.dart';
 import '../../auth/models/app_user.dart';
-import '../../auth/providers/auth_providers.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../auth/widgets/profile_form.dart';
 import '../widgets/menu_group.dart';
 
@@ -16,25 +17,18 @@ class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Log out?'),
-        content: const Text('You will need to verify your number again to log in.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Log out')),
-        ],
-      ),
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Log out?',
+      message: 'You will need to verify your number again to log in.',
+      confirmLabel: 'Log out',
+      destructive: true,
     );
-    if (confirmed == true) await ref.read(authSessionProvider.notifier).signOut();
+    if (confirmed) await ref.read(authSessionProvider.notifier).signOut();
   }
 
-  void _edit(BuildContext context, AppUser user) => showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        builder: (_) => _EditProfileSheet(user: user),
-      );
+  void _edit(BuildContext context, AppUser user) =>
+      showAppSheet<void>(context, builder: (_) => _EditProfileSheet(user: user));
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -54,7 +48,7 @@ class AccountScreen extends ConsumerWidget {
               MenuItem(
                 icon: Icons.inventory_2_outlined,
                 label: 'My Orders',
-                onTap: () => context.go(Routes.orders),
+                onTap: () => context.push(Routes.orders),
               ),
               MenuItem(
                 icon: Icons.location_on_outlined,
@@ -172,31 +166,26 @@ class _EditProfileSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(profileControllerProvider, (_, s) {
-      if (s.hasError) context.showSnack(errorMessage(s.error!));
+      if (s.hasError) context.showError(s.error!);
     });
     final loading = ref.watch(profileControllerProvider).isLoading;
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.viewInsetsOf(context).bottom + 20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Edit profile', style: context.text.titleLarge),
-          const SizedBox(height: 16),
-          ProfileForm(
-            submitLabel: 'Save changes',
-            loading: loading,
-            initialName: user.name,
-            initialEmail: user.email,
-            onSubmit: (name, email) async {
-              final ok = await ref
-                  .read(profileControllerProvider.notifier)
-                  .saveChanges(name: name, email: email);
-              if (ok && context.mounted) Navigator.pop(context);
-            },
-          ),
-        ],
+    return AppSheet(
+      title: 'Edit profile',
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: ProfileForm(
+          submitLabel: 'Save changes',
+          loading: loading,
+          initialName: user.name,
+          initialEmail: user.email,
+          onSubmit: (name, email) async {
+            final ok = await ref
+                .read(profileControllerProvider.notifier)
+                .saveChanges(name: name, email: email);
+            if (ok && context.mounted) Navigator.pop(context);
+          },
+        ),
       ),
     );
   }

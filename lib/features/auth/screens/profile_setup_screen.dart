@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/errors/app_exception.dart';
 import '../../../core/utils/context_x.dart';
 import '../../../core/widgets/auth_scaffold.dart';
-import '../providers/auth_providers.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/profile_form.dart';
 
 class ProfileSetupScreen extends ConsumerWidget {
@@ -15,7 +14,7 @@ class ProfileSetupScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(profileControllerProvider, (_, s) {
-      if (s.hasError) context.showSnack(errorMessage(s.error!));
+      if (s.hasError) context.showError(s.error!);
     });
     final loading = ref.watch(profileControllerProvider).isLoading;
 

@@ -2,20 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/validators.dart';
+import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../../../core/widgets/choice_chip_group.dart';
 import '../models/address.dart';
 import '../providers/address_providers.dart';
 
 Future<void> showAddressFormSheet(BuildContext context, {Address? existing}) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    builder: (_) => AddressFormSheet(existing: existing),
-  );
+  return showAppSheet<void>(context, builder: (_) => AddressFormSheet(existing: existing));
 }
 
 class AddressFormSheet extends ConsumerStatefulWidget {
@@ -59,69 +55,49 @@ class _AddressFormSheetState extends ConsumerState<AddressFormSheet> {
   @override
   Widget build(BuildContext context) {
     final editing = widget.existing != null;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.viewInsetsOf(context).bottom + 20),
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                editing ? 'Edit address' : 'Add new delivery location',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                children: [
-                  for (final l in AddressLabel.values)
-                    ChoiceChip(
-                      label: Text(l.title),
-                      selected: l == _label,
-                      showCheckmark: false,
-                      selectedColor: AppColors.accentSoft,
-                      side: BorderSide(color: l == _label ? AppColors.primary : AppColors.border),
-                      labelStyle: TextStyle(
-                        color: l == _label ? AppColors.primary : AppColors.ink,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      onSelected: (_) => setState(() => _label = l),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              AppTextField(
-                controller: _name,
-                hint: 'Full name',
-                validator: Validators.name,
-                textInputAction: TextInputAction.next,
-                textCapitalization: TextCapitalization.words,
-              ),
-              const SizedBox(height: 12),
-              AppTextField(
-                controller: _phone,
-                hint: 'Mobile number',
-                validator: (v) =>
-                    Validators.isPhone(v?.trim() ?? '') ? null : 'Enter a valid 10 digit number',
-                keyboardType: TextInputType.phone,
-                maxLength: 10,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                textInputAction: TextInputAction.next,
-              ),
-              const SizedBox(height: 12),
-              AppTextField(
-                controller: _line,
-                hint: 'House no, street, area, city, pincode',
-                validator: (v) => (v == null || v.trim().length < 8) ? 'Enter full address' : null,
-                textCapitalization: TextCapitalization.words,
-                onSubmitted: (_) => _save(),
-              ),
-              const SizedBox(height: 16),
-              AppButton(label: editing ? 'Save changes' : 'Save address', onPressed: _save),
-            ],
-          ),
+    return AppSheet(
+      title: editing ? 'Edit address' : 'Add new delivery location',
+      footer: AppButton(label: editing ? 'Save changes' : 'Save address', onPressed: _save),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8),
+            ChoiceChipGroup<AddressLabel>(
+              values: AddressLabel.values,
+              selected: _label,
+              label: (l) => l.title,
+              onSelected: (l) => setState(() => _label = l),
+            ),
+            const SizedBox(height: 14),
+            AppTextField(
+              controller: _name,
+              hint: 'Full name',
+              validator: Validators.name,
+              textInputAction: TextInputAction.next,
+              textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 12),
+            AppTextField(
+              controller: _phone,
+              hint: 'Mobile number',
+              validator: (v) =>
+                  Validators.isPhone(v?.trim() ?? '') ? null : 'Enter a valid 10 digit number',
+              keyboardType: TextInputType.phone,
+              maxLength: 10,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 12),
+            AppTextField(
+              controller: _line,
+              hint: 'House no, street, area, city, pincode',
+              validator: (v) => (v == null || v.trim().length < 8) ? 'Enter full address' : null,
+              textCapitalization: TextCapitalization.words,
+              onSubmitted: (_) => _save(),
+            ),
+          ],
         ),
       ),
     );

@@ -353,7 +353,7 @@ class _BottomBar extends StatelessWidget {
                           child: AppButton(
                             label: 'View cart',
                             height: 54,
-                            onPressed: () => context.push(Routes.cart),
+                            onPressed: () => context.go(Routes.cart),
                           ),
                         ),
                       ],

@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/add_control.dart';
+import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/price_text.dart';
 import '../../../core/widgets/product_image.dart';
 import '../../../core/widgets/small_widgets.dart';
 import '../../cart/models/cart_models.dart';
@@ -12,12 +14,7 @@ import '../../cart/providers/cart_providers.dart';
 import '../models/catalog_models.dart';
 
 Future<void> showProductOptionsSheet(BuildContext context, Product product) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    builder: (_) => ProductOptionsSheet(product: product),
-  );
+  return showAppSheet<void>(context, builder: (_) => ProductOptionsSheet(product: product));
 }
 
 class ProductOptionsSheet extends ConsumerWidget {
@@ -31,63 +28,56 @@ class ProductOptionsSheet extends ConsumerWidget {
     final cart = ref.read(cartProvider.notifier);
     final text = Theme.of(context).textTheme;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(
-          child: ListView(
-            shrinkWrap: true,
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            children: [
-              Row(
-                children: [
-                  ProductImage(asset: product.image, size: 52),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(product.name, style: text.titleMedium?.copyWith(fontSize: 17)),
-                        const SizedBox(height: 2),
-                        RatingLabel(rating: product.rating, count: product.ratingCount),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(height: 28),
-              _GroupTitle(title: 'Quantity', hint: 'Select any 1', style: text),
-              _Group(
-                children: [
-                  for (final v in product.variants)
-                    _VariantRow(
-                      product: product,
-                      variant: v,
-                      onSelect: () => cart.selectVariant(product, v),
-                    ),
-                ],
-              ),
-              if (product.accompaniments.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                _GroupTitle(title: 'Add Accompaniments', hint: 'Select any', style: text),
-                _Group(
-                  children: [
-                    for (final a in product.accompaniments) _AccompanimentRow(item: a),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        ),
-        if (summary.itemCount > 0)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-            child: AppButton(
+    return AppSheet(
+      bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      footer: summary.itemCount > 0
+          ? AppButton(
               label: 'Done • ${rupees(summary.itemTotal)}',
               onPressed: () => Navigator.of(context).pop(),
-            ),
+            )
+          : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              ProductImage(asset: product.image, size: 52),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(product.name, style: text.titleMedium?.copyWith(fontSize: 17)),
+                    const SizedBox(height: 2),
+                    RatingLabel(rating: product.rating, count: product.ratingCount),
+                  ],
+                ),
+              ),
+            ],
           ),
-      ],
+          const Divider(height: 28),
+          _GroupTitle(title: 'Quantity', hint: 'Select any 1', style: text),
+          _Group(
+            children: [
+              for (final v in product.variants)
+                _VariantRow(
+                  product: product,
+                  variant: v,
+                  onSelect: () => cart.selectVariant(product, v),
+                ),
+            ],
+          ),
+          if (product.accompaniments.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            _GroupTitle(title: 'Add Accompaniments', hint: 'Select any', style: text),
+            _Group(
+              children: [
+                for (final a in product.accompaniments) _AccompanimentRow(item: a),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -156,23 +146,16 @@ class _VariantRow extends ConsumerWidget {
           const NonVegMark(),
           const SizedBox(width: 10),
           Expanded(
-            child: Text.rich(
-              TextSpan(
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14.5),
-                children: [
-                  TextSpan(text: '${variant.label} • ${rupees(variant.price)}'),
-                  if (variant.mrp != null)
-                    TextSpan(
-                      text: '  ${rupees(variant.mrp!)}',
-                      style: const TextStyle(
-                        color: AppColors.muted,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                ],
-              ),
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    '${variant.label} • ',
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14.5),
+                  ),
+                ),
+                PriceText(price: variant.price, mrp: variant.mrp),
+              ],
             ),
           ),
           AddControl(

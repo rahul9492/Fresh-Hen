@@ -25,6 +25,17 @@ class _OtpFieldState extends State<OtpField> {
     super.dispose();
   }
 
+  /// Closing the keyboard with the back gesture leaves the field focused, and
+  /// requestFocus() on a focused field does nothing, so ask for the keyboard
+  /// explicitly in that case.
+  void _openKeyboard() {
+    if (_focus.hasFocus) {
+      SystemChannels.textInput.invokeMethod<void>('TextInput.show');
+    } else {
+      _focus.requestFocus();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -45,7 +56,7 @@ class _OtpFieldState extends State<OtpField> {
         Positioned.fill(
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: _focus.requestFocus,
+            onTap: _openKeyboard,
             child: ListenableBuilder(
               listenable: Listenable.merge([_controller, _focus]),
               builder: (context, _) {

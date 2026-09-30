@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'auth_providers.dart';
+part of 'auth_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -8,47 +8,6 @@ part of 'auth_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-
-@ProviderFor(authRepository)
-final authRepositoryProvider = AuthRepositoryProvider._();
-
-final class AuthRepositoryProvider
-    extends $FunctionalProvider<AuthRepository, AuthRepository, AuthRepository>
-    with $Provider<AuthRepository> {
-  AuthRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'authRepositoryProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$authRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<AuthRepository> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  AuthRepository create(Ref ref) {
-    return authRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(AuthRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<AuthRepository>(value),
-    );
-  }
-}
-
-String _$authRepositoryHash() => r'1e07f646c2366940cd97d26ade0dcaee2cc22740';
 
 @ProviderFor(AuthSession)
 final authSessionProvider = AuthSessionProvider._();
@@ -82,7 +41,7 @@ final class AuthSessionProvider
   }
 }
 
-String _$authSessionHash() => r'3a237c5a9b89468d3f4c2b1484acf90c14d744b0';
+String _$authSessionHash() => r'115f8f3da02959ef6c39058458b4cb5d9394d5fe';
 
 abstract class _$AuthSession extends $Notifier<AppUser?> {
   AppUser? build();
