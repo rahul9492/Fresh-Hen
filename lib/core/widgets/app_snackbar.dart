@@ -6,8 +6,15 @@ enum _SnackKind { info, success, error }
 
 /// Single entry point for user feedback. Prefer the `context.showX` extensions.
 abstract final class AppSnackbar {
-  static void info(BuildContext context, String message) =>
-      _show(context, message, _SnackKind.info);
+  static void info(
+    BuildContext context,
+    String message, {
+    Duration? duration,
+    String? actionLabel,
+    VoidCallback? onAction,
+  }) =>
+      _show(context, message, _SnackKind.info,
+          duration: duration, actionLabel: actionLabel, onAction: onAction);
 
   static void success(BuildContext context, String message) =>
       _show(context, message, _SnackKind.success);
@@ -15,7 +22,14 @@ abstract final class AppSnackbar {
   static void error(BuildContext context, String message) =>
       _show(context, message, _SnackKind.error);
 
-  static void _show(BuildContext context, String message, _SnackKind kind) {
+  static void _show(
+    BuildContext context,
+    String message,
+    _SnackKind kind, {
+    Duration? duration,
+    String? actionLabel,
+    VoidCallback? onAction,
+  }) {
     final (icon, color) = switch (kind) {
       _SnackKind.info => (Icons.info_outline_rounded, Colors.white),
       _SnackKind.success => (Icons.check_circle_rounded, AppColors.success),
@@ -25,6 +39,14 @@ abstract final class AppSnackbar {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
+          duration: duration ?? const Duration(seconds: 4),
+          action: actionLabel == null
+              ? null
+              : SnackBarAction(
+                  label: actionLabel,
+                  textColor: const Color(0xFFFFB4A8),
+                  onPressed: onAction ?? () {},
+                ),
           content: Row(
             children: [
               Icon(icon, color: color, size: 20),

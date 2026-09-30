@@ -23,6 +23,7 @@ Dio dio(Ref ref) {
 
   client.interceptors.add(
     AuthInterceptor(
+      dio: client,
       tokens: tokens,
       onUnauthorized: () async {
         await tokens.clear();

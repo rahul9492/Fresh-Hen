@@ -16,19 +16,41 @@ class FreshHenApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       routerConfig: ref.watch(goRouterProvider),
-      // Edge-to-edge: the app background shows under the system buttons, drawn dark.
-      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-          statusBarBrightness: Brightness.light,
-          systemStatusBarContrastEnforced: false,
-          systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: Brightness.dark,
-          systemNavigationBarContrastEnforced: false,
-        ),
-        child: child!,
-      ),
+      // Dark system buttons on a white strip, identical on every screen. The strip is
+      // as tall as the system button area; the app is laid out above it.
+      builder: (context, child) {
+        final media = MediaQuery.of(context);
+        final inset = media.viewPadding.bottom;
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+            systemStatusBarContrastEnforced: false,
+            systemNavigationBarColor: Colors.white,
+            systemNavigationBarIconBrightness: Brightness.dark,
+            systemNavigationBarContrastEnforced: false,
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: MediaQuery(
+                  data: media.copyWith(
+                    padding: media.padding.copyWith(bottom: 0),
+                    viewPadding: media.viewPadding.copyWith(bottom: 0),
+                    // The strip already covers part of the keyboard's height.
+                    viewInsets: media.viewInsets.copyWith(
+                      bottom: (media.viewInsets.bottom - inset).clamp(0, double.infinity),
+                    ),
+                  ),
+                  child: child!,
+                ),
+              ),
+              Container(height: inset, color: Colors.white),
+            ],
+          ),
+        );
+      },
     );
   }
 }

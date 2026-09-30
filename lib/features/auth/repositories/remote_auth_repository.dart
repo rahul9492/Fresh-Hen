@@ -21,7 +21,7 @@ class RemoteAuthRepository implements AuthRepository {
 
   @override
   AppUser? currentUser() {
-    if (_tokens.read() == null) return null;
+    if (_tokens.accessToken == null) return null;
     final raw = _prefs.getString(_userKey);
     if (raw == null) return null;
     return AppUser.fromJson(jsonDecode(raw) as Map<String, dynamic>);
@@ -40,7 +40,7 @@ class RemoteAuthRepository implements AuthRepository {
         );
         final session = AuthSessionModel.fromJson(res.data ?? const {});
         // Token is kept even for new users: register() is an authenticated call.
-        await _tokens.save(session.token);
+        await _tokens.save(access: session.token, refresh: session.refreshToken);
         final user = session.isNewUser ? null : session.user;
         if (user != null) await _cacheUser(user);
         return user;

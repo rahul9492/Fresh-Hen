@@ -10,6 +10,7 @@ import '../../../core/widgets/filter_button.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../../catalog/widgets/filter_sheet.dart';
 import '../../address/providers/address_providers.dart';
+import '../../notifications/providers/notification_provider.dart';
 
 class HomeHeader extends ConsumerWidget {
   const HomeHeader({super.key});
@@ -18,6 +19,7 @@ class HomeHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final text = context.text;
     final address = ref.watch(selectedAddressProvider);
+    final unread = ref.watch(unreadNotificationCountProvider);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Column(
@@ -38,8 +40,13 @@ class HomeHeader extends ConsumerWidget {
               ),
               const Spacer(),
               IconButton.outlined(
-                onPressed: () => context.showSnack('No new notifications'),
-                icon: const Icon(Icons.notifications_none_rounded),
+                onPressed: () => context.push(Routes.notifications),
+                icon: Badge(
+                  isLabelVisible: unread > 0,
+                  smallSize: 9,
+                  backgroundColor: AppColors.primary,
+                  child: const Icon(Icons.notifications_none_rounded),
+                ),
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white,
                   side: const BorderSide(color: AppColors.border),

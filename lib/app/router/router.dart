@@ -20,6 +20,7 @@ import '../../features/home/screens/product_list_screen.dart';
 import '../../features/home/screens/search_screen.dart';
 import '../../features/onboarding/providers/onboarding_provider.dart';
 import '../../features/onboarding/screens/onboarding_screen.dart';
+import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/orders/screens/order_success_screen.dart';
 import '../../features/orders/screens/orders_screen.dart';
 import 'routes.dart';
@@ -95,6 +96,7 @@ GoRouter goRouter(Ref ref) {
         builder: (_, _) => const InfoScreen(title: 'Terms & Privacy', sections: termsSections),
       ),
       GoRoute(path: Routes.orders, builder: (_, _) => const OrdersScreen()),
+      GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
       GoRoute(
         path: Routes.search,
         builder: (_, state) => SearchScreen(initialQuery: state.extra as ProductQuery?),

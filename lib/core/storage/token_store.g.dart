@@ -8,13 +8,17 @@ part of 'token_store.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Overridden in `main()` with an instance whose tokens are already loaded.
 
 @ProviderFor(tokenStore)
 final tokenStoreProvider = TokenStoreProvider._();
 
+/// Overridden in `main()` with an instance whose tokens are already loaded.
+
 final class TokenStoreProvider
     extends $FunctionalProvider<TokenStore, TokenStore, TokenStore>
     with $Provider<TokenStore> {
+  /// Overridden in `main()` with an instance whose tokens are already loaded.
   TokenStoreProvider._()
     : super(
         from: null,
@@ -48,4 +52,4 @@ final class TokenStoreProvider
   }
 }
 
-String _$tokenStoreHash() => r'8eb32f67a93ad7db0f95a656a4a064961db5b28a';
+String _$tokenStoreHash() => r'316f727c309448faf71fe60db61d01551f15cfab';

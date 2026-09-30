@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../core/config/env.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/context_x.dart';
 import '../../../core/widgets/app_button.dart';
@@ -86,7 +87,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             loading: loading,
             onPressed: _otp.length == AppConstants.otpLength ? _verify : null,
           ),
-          if (kDebugMode) ...[
+          if (kDebugMode && Env.useMock) ...[
             const SizedBox(height: 12),
             const Text(
               'Debug: use OTP ${AppConstants.mockOtp}',

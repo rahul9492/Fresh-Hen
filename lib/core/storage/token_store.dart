@@ -1,25 +1,61 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'prefs_provider.dart';
 
 part 'token_store.g.dart';
 
-/// Persists the API access token. Backed by SharedPreferences for now; swap the
-/// internals for `flutter_secure_storage` before release without touching callers.
+/// Holds the API access and refresh tokens in the platform keystore
+/// (Android Keystore / iOS Keychain).
+///
+/// The secure storage API is async, but request interceptors and session
+/// restore need the token synchronously. So the tokens are loaded once at
+/// startup ([load]) and kept in memory; every change is written through.
 class TokenStore {
-  TokenStore(this._prefs);
+  TokenStore([FlutterSecureStorage? storage])
+      : _storage = storage ?? const FlutterSecureStorage();
 
-  final SharedPreferences _prefs;
+  final FlutterSecureStorage _storage;
 
-  static const _key = 'auth.token';
+  static const _accessKey = 'auth.access_token';
+  static const _refreshKey = 'auth.refresh_token';
 
-  String? read() => _prefs.getString(_key);
+  String? _access;
+  String? _refresh;
 
-  Future<void> save(String token) => _prefs.setString(_key, token);
+  String? get accessToken => _access;
 
-  Future<void> clear() => _prefs.remove(_key);
+  String? get refreshToken => _refresh;
+
+  /// Reads persisted tokens into memory. Call once before `runApp`.
+  Future<void> load() async {
+    try {
+      _access = await _storage.read(key: _accessKey);
+      _refresh = await _storage.read(key: _refreshKey);
+    } catch (_) {
+      // Unreadable keystore (e.g. restored backup): treat as signed out.
+      _access = null;
+      _refresh = null;
+    }
+  }
+
+  Future<void> save({required String access, String? refresh}) async {
+    _access = access;
+    if (refresh != null) _refresh = refresh;
+    await _storage.write(key: _accessKey, value: access);
+    if (refresh != null) await _storage.write(key: _refreshKey, value: refresh);
+  }
+
+  Future<void> clear() async {
+    _access = null;
+    _refresh = null;
+    try {
+      await _storage.delete(key: _accessKey);
+      await _storage.delete(key: _refreshKey);
+    } catch (_) {
+      // Memory is already cleared; nothing more to do.
+    }
+  }
 }
 
+/// Overridden in `main()` with an instance whose tokens are already loaded.
 @Riverpod(keepAlive: true)
-TokenStore tokenStore(Ref ref) => TokenStore(ref.watch(sharedPrefsProvider));
+TokenStore tokenStore(Ref ref) => throw UnimplementedError();

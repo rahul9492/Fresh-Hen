@@ -44,7 +44,7 @@ abstract final class AppTheme {
           statusBarColor: Colors.transparent,
           statusBarBrightness: Brightness.light,
           statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarColor: Colors.white,
           systemNavigationBarIconBrightness: Brightness.dark,
           systemNavigationBarContrastEnforced: false,
         ),

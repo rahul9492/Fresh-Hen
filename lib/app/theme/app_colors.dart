@@ -9,8 +9,8 @@ abstract final class AppColors {
   static const body = Color(0xFF5A5A5F);
   static const muted = Color(0xFF9A9AA0);
   static const border = Color(0xFFE6E4EE);
-  static const canvas = Color(0xFFF8F8F8);
-  static const authCanvas = Color(0xFFF9F7FF);
+  static const canvas = Colors.white;
+  static const authCanvas = Colors.white;
   static const star = Color(0xFFF5B301);
   static const success = Color(0xFF1E9E55);
 }

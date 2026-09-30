@@ -9,6 +9,7 @@ abstract final class Routes {
   static const orders = '/orders';
   static const account = '/account';
   static const cart = '/cart';
+  static const notifications = '/notifications';
   static const search = '/search';
   static const products = '/products';
   static const orderSuccess = '/order-success';

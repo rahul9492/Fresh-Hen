@@ -9,7 +9,11 @@ abstract final class Env {
     defaultValue: 'https://api.freshhen.example/v1',
   );
 
+  /// True in release builds (`flutter build`, profile and release modes).
+  static const _isRelease = bool.fromEnvironment('dart.vm.product');
+
   /// When true every repository provider returns its mock implementation.
-  /// Flip the default to false once the backend is live.
-  static const useMock = bool.fromEnvironment('USE_MOCK', defaultValue: true);
+  /// Defaults to mock while developing, but a release build never falls back to
+  /// mock (which would accept the fake OTP) unless `USE_MOCK=true` is passed.
+  static const useMock = bool.fromEnvironment('USE_MOCK', defaultValue: !_isRelease);
 }
