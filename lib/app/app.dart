@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/constants/app_constants.dart';
+import '../core/constants/spacing.dart';
 import 'router/router.dart';
 import 'theme/app_theme.dart';
 
@@ -17,10 +18,11 @@ class FreshHenApp extends ConsumerWidget {
       theme: AppTheme.light,
       routerConfig: ref.watch(goRouterProvider),
       // Dark system buttons on a white strip, identical on every screen. The strip is
-      // as tall as the system button area; the app is laid out above it.
+      // the system button area plus a small gap; every screen, sheet and dialog is
+      // laid out above it, so nothing ever touches the buttons.
       builder: (context, child) {
         final media = MediaQuery.of(context);
-        final inset = media.viewPadding.bottom;
+        final inset = media.viewPadding.bottom + AppSpacing.sm;
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: const SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
