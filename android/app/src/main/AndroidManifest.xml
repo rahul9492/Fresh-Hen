@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- API calls, remote product images and the admin's UPI QR image. Debug builds
+         get this automatically; release builds need it declared here. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="Fresh Hen"
         android:allowBackup="false"
@@ -50,6 +54,10 @@
         <intent>
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="https"/>
+        </intent>
+        <!-- Payment screen camera button: find the system camera app -->
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE"/>
         </intent>
     </queries>
 </manifest>
