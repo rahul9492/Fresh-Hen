@@ -1,6 +1,6 @@
 # FreshHen
 
-FreshHen is a Flutter mobile app for ordering fresh chicken and eggs. Users can browse products, filter and search, add items to a cart, manage delivery addresses, place orders and view order history.
+FreshHen is a Flutter mobile app for ordering fresh chicken and eggs. Users can browse products, filter and search, add items to a cart, manage delivery addresses, check out with Cash on Delivery or UPI (scan the store's QR and upload a payment screenshot), and track, rate and repeat their orders.
 
 > **Status:** The app runs on **mock data** by default. The network layer (`core/network`) and `auth` already have a real `RemoteAuthRepository`; other features get theirs as the backend lands.
 
@@ -13,9 +13,13 @@ FreshHen is a Flutter mobile app for ordering fresh chicken and eggs. Users can 
 - Onboarding, then phone + OTP login, then profile setup
 - Home with promo carousel and category strip
 - Categories, product list, search, filters and product detail
-- Cart with product options (e.g. weight/cut)
-- Address management (add, edit, delete)
-- Orders list and order success screen
+- Cart with product options (e.g. weight/cut), special instructions and coupons
+- Address book: Home / Work / Other, default address, saved per user on the device
+- Delivery timing: "Order now" (ETA from store settings) or "Schedule for later" with a slot picker, shown only when the admin switches scheduling on
+- Payment: Cash on Delivery, or UPI by scanning the admin-uploaded QR and uploading a screenshot (gallery or camera) as proof
+- Order placed screen, orders list with search, order summary, repeat order
+- Tax invoice as a PDF (share / save) and "Rate your experience" (stars + comment)
+- Help & Support with Call and WhatsApp buttons
 - Account screen and info pages
 
 ## Tech Stack
@@ -28,6 +32,10 @@ FreshHen is a Flutter mobile app for ordering fresh chicken and eggs. Users can 
 | Local storage | `shared_preferences` |
 | Fonts | `google_fonts` |
 | Formatting | `intl` |
+| Payment screenshot (gallery / camera) | `image_picker` |
+| PDF invoice and share sheet | `pdf`, `printing` |
+| Dialer and WhatsApp links | `url_launcher` |
+| WhatsApp icon | `font_awesome_flutter` |
 
 ## Prerequisites
 
@@ -52,15 +60,30 @@ flutter run
 
 ## Mock vs Real Backend
 
-One flag decides it, set at build time (see `lib/core/config/env.dart`):
+One flag decides it, set at build time (see `lib/core/config/env.dart`). The default depends on the build mode:
+
+| Build | Default | Why |
+| --- | --- | --- |
+| `flutter run` (debug) | **mock** data | develop without a backend |
+| `flutter build ... --release` | **real** backend | a store build must never accept the fake OTP `1234` |
 
 ```bash
-# mock data (default)
+# debug: mock data (default)
 flutter run
 
-# real backend
+# debug: real backend
 flutter run --dart-define=USE_MOCK=false --dart-define=API_BASE_URL=https://your-api/v1
 ```
+
+> **Important:** until the backend is live, a plain release build **cannot log in** (it calls the real API). Build test APKs with `--dart-define=USE_MOCK=true`; see [Build Commands](#build-commands).
+
+Mock-only switches:
+
+| Flag | Default | Effect |
+| --- | --- | --- |
+| `MOCK_SCHEDULE` | `true` | Mirrors the admin "Schedule for later" switch. `--dart-define=MOCK_SCHEDULE=false` shows "Order now" only. |
+
+Checkout data the admin app controls (schedule switch, UPI QR and UPI ID, ETA, fees, invoice details) comes from `GET /store/settings`; the expected API shapes are documented at the top of `lib/features/checkout/repositories/checkout_repository.dart`. Orders are mock-only for now.
 
 ## Common Commands
 
@@ -83,12 +106,17 @@ flutter run --dart-define=USE_MOCK=false --dart-define=API_BASE_URL=https://your
 ### Android
 
 ```bash
-# APK (for direct install / testing)
-flutter build apk --release
+# Test APK that behaves like `flutter run` (mock data, OTP 1234)
+flutter build apk --release --dart-define=USE_MOCK=true
 
-# App Bundle (for Google Play Store)
-flutter build appbundle --release
+# APK against the real backend (once it is live)
+flutter build apk --release --dart-define=API_BASE_URL=https://your-api/v1
+
+# App Bundle for Google Play Store (real backend)
+flutter build appbundle --release --dart-define=API_BASE_URL=https://your-api/v1
 ```
+
+> In release builds the OTP hint on the OTP screen is hidden; with `USE_MOCK=true` the OTP is still `1234`. Fonts are downloaded on first launch, so the first open needs internet.
 
 Output:
 - APK: `build/app/outputs/flutter-apk/app-release.apk`
@@ -117,8 +145,9 @@ lib/
 │   ├── router/            # go_router setup and route names
 │   └── theme/             # Colors and theme
 ├── core/                  # Shared code used by all features
-│   ├── constants/         # App-wide constants (mock OTP, latency, ...)
+│   ├── constants/         # App-wide constants (mock OTP, latency, support phone, ...)
 │   ├── errors/            # AppException
+│   ├── media/             # pickImage() + PickedImage: gallery / camera picking
 │   ├── storage/           # SharedPreferences provider
 │   ├── utils/             # Formatters, validators, context extensions
 │   └── widgets/           # Reusable widgets (buttons, text fields, ...)
@@ -127,16 +156,19 @@ lib/
     ├── auth/              # Login, OTP, profile setup
     ├── home/              # Home, categories, search, product list, bottom-nav shell
     ├── catalog/           # Products, product detail, filters, mock catalog data
-    ├── cart/              # Cart state and screen
-    ├── address/           # Address list and form
-    ├── orders/            # Orders and success screen
-    └── account/           # Account menu and info pages
+    ├── cart/              # Cart state and screen (checkout steps)
+    ├── address/           # Address book, form and picker sheets
+    ├── checkout/          # Store settings, coupons, slots, payment method, UPI payment screen
+    ├── orders/            # Orders list, summary, success, invoice PDF, rating
+    └── account/           # Account menu, Help & Support, info pages
 
 assets/
-├── images/                # Product and onboarding images (registered in pubspec.yaml)
+├── images/                # Product and onboarding images, sample UPI QR (registered in pubspec.yaml)
+├── fonts/                 # Noto Sans, used in the PDF invoice (has the ₹ sign)
 └── icon/                  # App icon and splash source images
 
 test/flow_test.dart        # App flow test
+test/checkout_test.dart    # Checkout rules and order placement
 ```
 
 Inside a feature, the folders mean:
@@ -180,7 +212,7 @@ features/<feature>/
 - `network/`: Dio client, token interceptor, 401 handling (`sessionExpired`), `apiCall()` error mapping, `endpoints.dart`
 - `storage/token_store.dart`: saved login token
 - `models/paginated.dart`: page of a list
-- `widgets/`: reusable UI. Use these instead of building new ones: `showAppSheet` + `AppSheet`, `FilterSheetScaffold`, `ChoiceChipGroup`, `AppliedFiltersRow`, `AppSearchBar`, `FilterButton`, `showConfirmDialog`, `LoadingOverlay`, `PaginatedListView`, `ErrorView`, `AsyncView`, `ShimmerBox`, `AppImage`, `PriceText`, `StatusChip`, `AppScaffold`
+- `widgets/`: reusable UI. Use these instead of building new ones: `showAppSheet` + `AppSheet`, `FilterSheetScaffold`, `ChoiceChipGroup`, `AppliedFiltersRow`, `AppSearchBar`, `FilterButton`, `showConfirmDialog`, `LoadingOverlay`, `PaginatedListView`, `ErrorView`, `AsyncView`, `ShimmerBox`, `AppImage`, `PriceText`, `StatusChip`, `AppScaffold`, `AppCard`, `BottomActionBar`, `DashedDivider`, `ImageUploadButton` (gallery button + camera button)
 - Feedback: `context.showSnack / showSuccess / showError`
 
 ## Connecting a Feature to the Backend
