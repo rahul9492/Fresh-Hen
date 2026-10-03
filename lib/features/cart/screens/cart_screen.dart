@@ -10,11 +10,11 @@ import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/add_control.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/product_image.dart';
-import '../../../core/widgets/small_widgets.dart';
 import '../../address/providers/address_providers.dart';
 import '../../orders/providers/order_providers.dart';
 import '../models/cart_models.dart';
 import '../providers/cart_providers.dart';
+import '../widgets/empty_cart_view.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
@@ -34,17 +34,12 @@ class CartScreen extends ConsumerWidget {
     final placing = ref.watch(placeOrderProvider).isLoading;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Cart')),
+      backgroundColor: lines.isEmpty ? const Color(0xFFF8F8F8) : null,
+      appBar: lines.isEmpty
+          ? AppBar(backgroundColor: Colors.transparent)
+          : AppBar(title: const Text('My Cart')),
       body: lines.isEmpty
-          ? EmptyState(
-              icon: Icons.shopping_basket_outlined,
-              title: 'Your cart is empty',
-              message: 'Add some fresh cuts to get started.',
-              action: OutlinedButton(
-                onPressed: () => context.go(Routes.home),
-                child: const Text('Browse items'),
-              ),
-            )
+          ? EmptyCartView(onBrowse: () => context.go(Routes.home))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [

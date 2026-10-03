@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/router/routes.dart';
+import '../../../core/widgets/app_search_bar.dart';
+import '../../cart/providers/cart_providers.dart';
 import '../../../core/widgets/async_view.dart';
-import '../../../core/widgets/small_widgets.dart';
+import '../../cart/widgets/view_cart_bar.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../../catalog/providers/catalog_providers.dart';
 import '../../catalog/widgets/product_grid.dart';
@@ -21,24 +25,32 @@ class ProductListScreen extends ConsumerWidget {
       popularOnly: section == 'popular',
       recommendedOnly: section == 'recommended',
     );
-    final favorites = ref.watch(favoritesProvider);
-    final isWishlist = section == 'wishlist';
+    final hasCart = !ref.watch(cartSummaryProvider).isEmpty;
 
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: AsyncView(
-        value: ref.watch(filteredProductsProvider(query)),
-        onRetry: () => ref.invalidate(filteredProductsProvider(query)),
-        data: (products) {
-          final shown = isWishlist ? products.where((p) => favorites.contains(p.id)).toList() : products;
-          return shown.isEmpty && isWishlist
-              ? const EmptyState(
-                  icon: Icons.favorite_border_rounded,
-                  title: 'Your wishlist is empty',
-                  message: 'Tap the heart on any item to save it here.',
-                )
-              : ProductGrid(products: shown);
-        },
+      body: Stack(
+        children: [
+          AsyncView(
+            value: ref.watch(filteredProductsProvider(query)),
+            onRetry: () => ref.invalidate(filteredProductsProvider(query)),
+            data: (products) => ProductGrid(
+              products: products,
+              bottomPadding: hasCart ? 96 : 16,
+              header: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: AppSearchBar.readOnly(
+                  hint: 'Search in $title...',
+                  onTap: () => context.push(Routes.search, extra: query),
+                ),
+              ),
+            ),
+          ),
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(top: false, child: ViewCartBar()),
+          ),
+        ],
       ),
     );
   }

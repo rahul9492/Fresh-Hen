@@ -27,7 +27,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   void _open(AppNotification n) {
     ref.read(notificationsProvider.notifier).markRead(n.id);
     final route = n.route;
-    if (route != null) context.push(route);
+    if (route != null) context.go(route);
   }
 
   void _dismiss(AppNotification n) {

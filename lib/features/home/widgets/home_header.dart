@@ -10,7 +10,7 @@ import '../../../core/widgets/filter_button.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../../catalog/widgets/filter_sheet.dart';
 import '../../address/providers/address_providers.dart';
-import '../../notifications/providers/notification_provider.dart';
+import '../../cart/providers/cart_providers.dart';
 
 class HomeHeader extends ConsumerWidget {
   const HomeHeader({super.key});
@@ -19,7 +19,7 @@ class HomeHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final text = context.text;
     final address = ref.watch(selectedAddressProvider);
-    final unread = ref.watch(unreadNotificationCountProvider);
+    final cartCount = ref.watch(cartSummaryProvider).itemCount;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Column(
@@ -40,18 +40,20 @@ class HomeHeader extends ConsumerWidget {
               ),
               const Spacer(),
               IconButton.outlined(
-                onPressed: () => context.push(Routes.notifications),
+                onPressed: () => context.push(Routes.cart),
                 icon: Badge(
-                  isLabelVisible: unread > 0,
-                  smallSize: 9,
+                  isLabelVisible: cartCount > 0,
+                  label: Text('$cartCount'),
                   backgroundColor: AppColors.primary,
-                  child: const Icon(Icons.notifications_none_rounded),
+                  child: const Icon(Icons.shopping_cart_outlined),
                 ),
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white,
                   side: const BorderSide(color: AppColors.border),
                 ),
               ),
+              // Notifications hidden for now; re-enable by restoring the bell
+              // IconButton (route: Routes.notifications, badge: unreadNotificationCountProvider).
             ],
           ),
           const SizedBox(height: 4),

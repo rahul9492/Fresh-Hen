@@ -42,7 +42,7 @@ class OrderSuccessScreen extends StatelessWidget {
               const Spacer(),
               AppButton(label: 'Track in Orders', onPressed: () {
                   context.go(Routes.home);
-                  context.push(Routes.orders);
+                  context.go(Routes.orders);
                 }),
               TextButton(
                 onPressed: () => context.go(Routes.home),

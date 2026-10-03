@@ -2,12 +2,12 @@ import '../../../core/constants/app_constants.dart';
 import '../models/catalog_models.dart';
 
 const mockCategories = [
-  Category(id: 'chicken', name: 'Chicken', image: Assets.boneless),
-  Category(id: 'duck', name: 'Duck', image: Assets.drumstick),
-  Category(id: 'mutton', name: 'Mutton', image: Assets.curry),
-  Category(id: 'eggs', name: 'Eggs', image: Assets.eggs),
-  Category(id: 'fish', name: 'Fish', image: Assets.splash3),
-  Category(id: 'country', name: 'Country Hen', image: Assets.splash1),
+  Category(id: 'chicken', name: 'Chicken', image: Assets.chicken),
+  Category(id: 'duck', name: 'Duck', image: Assets.duck),
+  Category(id: 'mutton', name: 'Mutton', image: Assets.mutton),
+  Category(id: 'eggs', name: 'Eggs', image: Assets.eggBasket),
+  Category(id: 'fish', name: 'Fish', image: Assets.fish),
+  Category(id: 'country', name: 'Country Hen', image: Assets.countryHen),
 ];
 
 const mockBanners = [
@@ -16,7 +16,7 @@ const mockBanners = [
     title: 'Fresh Chicken',
     highlight: 'Delivered Daily',
     description: 'Premium quality chicken & poultry, straight from trusted farms to your door.',
-    image: Assets.splash1,
+    image: Assets.chickenCurry,
     categoryId: 'chicken',
   ),
   PromoBanner(
@@ -24,7 +24,7 @@ const mockBanners = [
     title: 'Country Hen',
     highlight: 'Pure & Natural',
     description: 'Free-range desi hen, cut and cleaned the way your kitchen likes it.',
-    image: Assets.splash3,
+    image: Assets.countryHen,
     categoryId: 'country',
   ),
   PromoBanner(
@@ -32,7 +32,7 @@ const mockBanners = [
     title: 'Farm Eggs',
     highlight: 'From Farm to Table',
     description: 'Hand-picked, graded and delivered fresh every morning.',
-    image: Assets.eggs,
+    image: Assets.eggBasket,
     categoryId: 'eggs',
   ),
 ];
@@ -44,7 +44,7 @@ const _masala = Accompaniment(
   price: 82,
   rating: 4.8,
   ratingCount: 12400,
-  image: Assets.curry,
+  image: Assets.masalaChicken,
 );
 
 const _gingerGarlic = Accompaniment(
@@ -54,7 +54,7 @@ const _gingerGarlic = Accompaniment(
   price: 55,
   rating: 4.6,
   ratingCount: 8200,
-  image: Assets.boneless,
+  image: Assets.pasteGingerGarlic,
 );
 
 const _lemon = Accompaniment(
@@ -64,7 +64,7 @@ const _lemon = Accompaniment(
   price: 30,
   rating: 4.5,
   ratingCount: 5100,
-  image: Assets.eggs,
+  image: Assets.lemon,
 );
 
 const _meatMasala = Accompaniment(
@@ -74,7 +74,7 @@ const _meatMasala = Accompaniment(
   price: 78,
   rating: 4.7,
   ratingCount: 9300,
-  image: Assets.drumstick,
+  image: Assets.masalaMeat,
 );
 
 List<ProductVariant> _weights(String id, int p500, {int? mrp500}) => [
@@ -83,9 +83,23 @@ List<ProductVariant> _weights(String id, int p500, {int? mrp500}) => [
       ProductVariant(id: '$id-1000', label: '1 kg', price: (p500 * 1.9).round()),
     ];
 
-const _photos = [Assets.boneless, Assets.curry, Assets.drumstick, Assets.splash3, Assets.splash1];
+const _photos = [
+  Assets.chickenCurry,
+  Assets.chickenDrumstick,
+  Assets.chickenBoneless,
+  Assets.chickenBreast,
+  Assets.chickenLeg,
+];
 
-List<String> _galleryFor(String main) => _photos.where((p) => p != main).take(3).toList();
+List<String> _galleryFor(String main) => switch (main) {
+      Assets.fish => const [Assets.fish2],
+      Assets.eggClassic => const [Assets.eggCarton, Assets.eggTray, Assets.eggBasket],
+      Assets.eggCountry => const [Assets.eggBasket, Assets.eggTray, Assets.eggCarton],
+      Assets.duck => const [],
+      Assets.mutton => const [Assets.mutton2],
+      Assets.mutton2 => const [Assets.mutton],
+      _ => _photos.where((p) => p != main).take(3).toList(),
+    };
 
 final mockProducts = _products.map((p) => p.copyWith(gallery: _galleryFor(p.image))).toList();
 
@@ -94,7 +108,7 @@ final _products = <Product>[
     id: 'chicken-curry-cut',
     name: 'Chicken Curry Cut',
     categoryId: 'chicken',
-    image: Assets.curry,
+    image: Assets.chickenCurry,
     rating: 4.8,
     ratingCount: 12400,
     variants: _weights('ccc', 120, mrp500: 150),
@@ -105,7 +119,7 @@ final _products = <Product>[
     id: 'chicken-drumstick',
     name: 'Chicken Drumstick',
     categoryId: 'chicken',
-    image: Assets.drumstick,
+    image: Assets.chickenDrumstick,
     rating: 4.8,
     ratingCount: 12400,
     variants: _weights('cds', 120),
@@ -116,7 +130,7 @@ final _products = <Product>[
     id: 'chicken-boneless',
     name: 'Chicken Boneless',
     categoryId: 'chicken',
-    image: Assets.boneless,
+    image: Assets.chickenBoneless,
     rating: 4.8,
     ratingCount: 12400,
     variants: _weights('cbl', 250, mrp500: 299),
@@ -128,7 +142,7 @@ final _products = <Product>[
     id: 'classic-eggs',
     name: 'Fresh Classic Eggs',
     categoryId: 'eggs',
-    image: Assets.eggs,
+    image: Assets.eggClassic,
     rating: 4.7,
     ratingCount: 21800,
     variants: const [
@@ -143,7 +157,7 @@ final _products = <Product>[
     id: 'chicken-breast',
     name: 'Chicken Breast',
     categoryId: 'chicken',
-    image: Assets.boneless,
+    image: Assets.chickenBreast,
     rating: 4.7,
     ratingCount: 6800,
     variants: _weights('cbr', 220),
@@ -154,7 +168,7 @@ final _products = <Product>[
     id: 'chicken-leg-piece',
     name: 'Chicken Leg Piece',
     categoryId: 'chicken',
-    image: Assets.drumstick,
+    image: Assets.chickenLeg,
     rating: 4.6,
     ratingCount: 5400,
     variants: _weights('clp', 140),
@@ -164,7 +178,7 @@ final _products = <Product>[
     id: 'chicken-wings',
     name: 'Chicken Wings',
     categoryId: 'chicken',
-    image: Assets.curry,
+    image: Assets.chickenWings,
     rating: 4.5,
     ratingCount: 3900,
     variants: _weights('cwg', 130),
@@ -173,7 +187,7 @@ final _products = <Product>[
     id: 'chicken-liver',
     name: 'Chicken Liver',
     categoryId: 'chicken',
-    image: Assets.curry,
+    image: Assets.chickenLiver,
     rating: 4.4,
     ratingCount: 2100,
     variants: const [ProductVariant(id: 'cli-250', label: '250 g', price: 70)],
@@ -182,7 +196,7 @@ final _products = <Product>[
     id: 'country-hen-curry',
     name: 'Country Hen Curry Cut',
     categoryId: 'country',
-    image: Assets.splash1,
+    image: Assets.countryHenRaw,
     rating: 4.9,
     ratingCount: 7200,
     variants: const [
@@ -196,7 +210,7 @@ final _products = <Product>[
     id: 'duck-curry-cut',
     name: 'Duck Curry Cut',
     categoryId: 'duck',
-    image: Assets.drumstick,
+    image: Assets.duck,
     rating: 4.6,
     ratingCount: 1900,
     variants: const [
@@ -209,7 +223,7 @@ final _products = <Product>[
     id: 'mutton-curry-cut',
     name: 'Goat Mutton Curry Cut',
     categoryId: 'mutton',
-    image: Assets.curry,
+    image: Assets.mutton,
     rating: 4.8,
     ratingCount: 9600,
     variants: const [
@@ -224,7 +238,7 @@ final _products = <Product>[
     id: 'mutton-keema',
     name: 'Mutton Keema',
     categoryId: 'mutton',
-    image: Assets.boneless,
+    image: Assets.mutton2,
     rating: 4.7,
     ratingCount: 4300,
     variants: const [
@@ -237,7 +251,7 @@ final _products = <Product>[
     id: 'rohu-fish',
     name: 'Rohu Fish Curry Cut',
     categoryId: 'fish',
-    image: Assets.splash3,
+    image: Assets.fish,
     rating: 4.5,
     ratingCount: 3200,
     variants: const [
@@ -250,7 +264,7 @@ final _products = <Product>[
     id: 'desi-eggs',
     name: 'Country Eggs',
     categoryId: 'eggs',
-    image: Assets.eggs,
+    image: Assets.eggCountry,
     rating: 4.6,
     ratingCount: 6100,
     variants: const [

@@ -10,6 +10,7 @@ Future<T?> showAppSheet<T>(BuildContext context, {required WidgetBuilder builder
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
+    useRootNavigator: true,
     builder: builder,
   );
 }

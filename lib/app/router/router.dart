@@ -11,6 +11,7 @@ import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
 import '../../features/auth/screens/profile_setup_screen.dart';
 import '../../features/cart/screens/cart_screen.dart';
+import '../../features/catalog/screens/wishlist_screen.dart';
 import '../../features/catalog/models/catalog_models.dart';
 import '../../features/catalog/screens/product_detail_screen.dart';
 import '../../features/home/screens/categories_screen.dart';
@@ -75,7 +76,7 @@ GoRouter goRouter(Ref ref) {
             routes: [GoRoute(path: Routes.categories, builder: (_, _) => const CategoriesScreen())],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: Routes.cart, builder: (_, _) => const CartScreen())],
+            routes: [GoRoute(path: Routes.orders, builder: (_, _) => const OrdersScreen())],
           ),
           StatefulShellBranch(
             routes: [GoRoute(path: Routes.account, builder: (_, _) => const AccountScreen())],
@@ -95,7 +96,8 @@ GoRouter goRouter(Ref ref) {
         path: Routes.terms,
         builder: (_, _) => const InfoScreen(title: 'Terms & Privacy', sections: termsSections),
       ),
-      GoRoute(path: Routes.orders, builder: (_, _) => const OrdersScreen()),
+      GoRoute(path: Routes.wishlist, builder: (_, _) => const WishlistScreen()),
+      GoRoute(path: Routes.cart, builder: (_, _) => const CartScreen()),
       GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
       GoRoute(
         path: Routes.search,

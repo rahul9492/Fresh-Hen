@@ -7,11 +7,23 @@ import 'product_card.dart';
 const _cardExtent = 274.0;
 
 class ProductGrid extends StatelessWidget {
-  const ProductGrid({super.key, required this.products, this.embedded = false});
+  const ProductGrid({
+    super.key,
+    required this.products,
+    this.embedded = false,
+    this.header,
+    this.bottomPadding = 16,
+  });
 
   /// When true the grid sizes to its content so it can sit inside another scroll view.
   final bool embedded;
   final List<Product> products;
+
+  /// Optional widget shown above the grid that scrolls away with it.
+  final Widget? header;
+
+  /// Space under the last row, e.g. to clear a floating bar.
+  final double bottomPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +34,34 @@ class ProductGrid extends StatelessWidget {
         message: 'Try a different search or category.',
       );
     }
-    return GridView.builder(
-      shrinkWrap: embedded,
-      physics: embedded ? const NeverScrollableScrollPhysics() : null,
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        mainAxisExtent: _cardExtent,
-      ),
-      itemCount: products.length,
-      itemBuilder: (_, i) => ProductCard(product: products[i]),
+    const delegate = SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      mainAxisExtent: _cardExtent,
+    );
+    if (embedded) {
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        gridDelegate: delegate,
+        itemCount: products.length,
+        itemBuilder: (_, i) => ProductCard(product: products[i]),
+      );
+    }
+    return CustomScrollView(
+      slivers: [
+        if (header != null) SliverToBoxAdapter(child: header),
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, bottomPadding),
+          sliver: SliverGrid.builder(
+            gridDelegate: delegate,
+            itemCount: products.length,
+            itemBuilder: (_, i) => ProductCard(product: products[i]),
+          ),
+        ),
+      ],
     );
   }
 }

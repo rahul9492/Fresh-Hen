@@ -63,6 +63,7 @@ class _DetailState extends ConsumerState<_Detail> {
     final line = CartLine.fromVariant(_product, _variant);
     final quantity = ref.watch(lineQuantityProvider(line.id));
     final cart = ref.read(cartProvider.notifier);
+    final inCartIds = ref.watch(cartProvider).map((l) => l.id).toSet();
     final similar = ref
             .watch(filteredProductsProvider(ProductQuery(categoryId: _product.categoryId)))
             .value
@@ -106,7 +107,7 @@ class _DetailState extends ConsumerState<_Detail> {
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22),
                     ),
                     const SizedBox(height: 18),
-                    const Text('Select unit', style: TextStyle(fontSize: 15)),
+                    const Text('Select unit(s)', style: TextStyle(fontSize: 15)),
                     const SizedBox(height: 10),
                     Row(
                       children: [
@@ -119,6 +120,7 @@ class _DetailState extends ConsumerState<_Detail> {
                               child: _UnitTile(
                                 variant: v,
                                 selected: v == _variant,
+                                inCart: inCartIds.contains(CartLine.fromVariant(_product, v).id),
                                 onTap: () => setState(() => _variant = v),
                               ),
                             ),
@@ -147,7 +149,7 @@ class _DetailState extends ConsumerState<_Detail> {
         _BottomBar(
           variant: _variant,
           quantity: quantity,
-          onAdd: () => cart.selectVariant(_product, _variant),
+          onAdd: () => cart.add(line),
           onIncrement: () => cart.increment(line.id),
           onDecrement: () => cart.decrement(line.id),
         ),
@@ -240,10 +242,16 @@ class _GalleryState extends ConsumerState<_Gallery> {
 }
 
 class _UnitTile extends StatelessWidget {
-  const _UnitTile({required this.variant, required this.selected, required this.onTap});
+  const _UnitTile({
+    required this.variant,
+    required this.selected,
+    required this.inCart,
+    required this.onTap,
+  });
 
   final ProductVariant variant;
   final bool selected;
+  final bool inCart;
   final VoidCallback onTap;
 
   @override
@@ -275,7 +283,7 @@ class _UnitTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (selected)
+                if (inCart)
                   const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.primary),
               ],
             ),
@@ -353,7 +361,7 @@ class _BottomBar extends StatelessWidget {
                           child: AppButton(
                             label: 'View cart',
                             height: 54,
-                            onPressed: () => context.go(Routes.cart),
+                            onPressed: () => context.push(Routes.cart),
                           ),
                         ),
                       ],

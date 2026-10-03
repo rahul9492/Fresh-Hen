@@ -185,6 +185,8 @@ class _AddressCard extends StatelessWidget {
   }
 }
 
+/// "Default" is a static status chip; "Make Default" is an outlined button so
+/// the two are visually distinct and the tappable one reads as an action.
 class _Badge extends StatelessWidget {
   const _Badge({required this.label, this.onTap});
 
@@ -193,22 +195,53 @@ class _Badge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (onTap == null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE3F4E8),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle_rounded, size: 14, color: Color(0xFF1E8E3E)),
+            SizedBox(width: 4),
+            Text(
+              'Default',
+              style: TextStyle(
+                color: Color(0xFF1E8E3E),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFD9D6),
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.primary),
         ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: AppColors.accent,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.radio_button_unchecked_rounded, size: 14, color: AppColors.primary),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );

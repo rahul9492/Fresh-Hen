@@ -13,4 +13,5 @@ abstract final class AppColors {
   static const authCanvas = Colors.white;
   static const star = Color(0xFFF5B301);
   static const success = Color(0xFF1E9E55);
+  
 }

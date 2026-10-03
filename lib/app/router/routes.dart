@@ -12,6 +12,7 @@ abstract final class Routes {
   static const notifications = '/notifications';
   static const search = '/search';
   static const products = '/products';
+  static const wishlist = '/wishlist';
   static const orderSuccess = '/order-success';
   static const product = '/product';
   static const addresses = '/addresses';

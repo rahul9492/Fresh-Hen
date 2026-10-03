@@ -48,7 +48,7 @@ class AccountScreen extends ConsumerWidget {
               MenuItem(
                 icon: Icons.inventory_2_outlined,
                 label: 'My Orders',
-                onTap: () => context.push(Routes.orders),
+                onTap: () => context.go(Routes.orders),
               ),
               MenuItem(
                 icon: Icons.location_on_outlined,
@@ -62,9 +62,7 @@ class AccountScreen extends ConsumerWidget {
               MenuItem(
                 icon: Icons.favorite_border_rounded,
                 label: 'Wishlist',
-                onTap: () => context.push(
-                  Routes.productsFor(title: 'Wishlist', section: 'wishlist'),
-                ),
+                onTap: () => context.push(Routes.wishlist),
               ),
             ],
           ),

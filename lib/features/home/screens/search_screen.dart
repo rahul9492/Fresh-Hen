@@ -69,12 +69,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final categories = ref.watch(categoriesProvider).value ?? const <Category>[];
+    final categoryName =
+        categories.where((c) => c.id == _query.categoryId).firstOrNull?.name;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
         title: AppSearchBar(
           controller: _controller,
-          hint: 'Search chicken, mutton, eggs...',
+          hint: categoryName == null
+              ? 'Search chicken, mutton, eggs...'
+              : 'Search in $categoryName...',
           autofocus: widget.initialQuery == null,
           bordered: false,
           debounce: const Duration(milliseconds: 300),

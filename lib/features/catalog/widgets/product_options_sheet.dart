@@ -5,7 +5,6 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/add_control.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
-import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/price_text.dart';
 import '../../../core/widgets/product_image.dart';
 import '../../../core/widgets/small_widgets.dart';
@@ -24,18 +23,11 @@ class ProductOptionsSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final summary = ref.watch(cartSummaryProvider);
     final cart = ref.read(cartProvider.notifier);
     final text = Theme.of(context).textTheme;
 
     return AppSheet(
       bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      footer: summary.itemCount > 0
-          ? AppButton(
-              label: 'Done • ${rupees(summary.itemTotal)}',
-              onPressed: () => Navigator.of(context).pop(),
-            )
-          : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -56,14 +48,14 @@ class ProductOptionsSheet extends ConsumerWidget {
             ],
           ),
           const Divider(height: 28),
-          _GroupTitle(title: 'Quantity', hint: 'Select any 1', style: text),
+          _GroupTitle(title: 'Quantity', hint: 'Select any', style: text),
           _Group(
             children: [
               for (final v in product.variants)
                 _VariantRow(
                   product: product,
                   variant: v,
-                  onSelect: () => cart.selectVariant(product, v),
+                  onSelect: () => cart.add(CartLine.fromVariant(product, v)),
                 ),
             ],
           ),
@@ -192,12 +184,19 @@ class _AccompanimentRow extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  item.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: 2),
-                Row(
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
                   children: [
                     Text(
-                      '${item.weight} • ${rupees(item.price)}  ',
+                      '${item.weight} • ${rupees(item.price)}',
                       style: const TextStyle(color: AppColors.body, fontSize: 12),
                     ),
                     RatingLabel(rating: item.rating, count: item.ratingCount, small: true),
@@ -206,6 +205,7 @@ class _AccompanimentRow extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(width: 16),
           AddControl(
             quantity: quantity,
             onAdd: () => cart.add(line),

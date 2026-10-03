@@ -8,7 +8,7 @@ import '../models/catalog_models.dart';
 import 'product_options_sheet.dart';
 
 class ProductAddControl extends ConsumerWidget {
-  const ProductAddControl({super.key, required this.product, this.style = AddControlStyle.round});
+  const ProductAddControl({super.key, required this.product, this.style = AddControlStyle.pill});
 
   final Product product;
   final AddControlStyle style;
