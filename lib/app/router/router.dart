@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/account/data/info_content.dart';
 import '../../features/account/screens/account_screen.dart';
 import '../../features/account/screens/info_screen.dart';
+import '../../features/account/screens/support_screen.dart';
 import '../../features/address/screens/addresses_screen.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/screens/login_screen.dart';
@@ -22,7 +23,11 @@ import '../../features/home/screens/search_screen.dart';
 import '../../features/onboarding/providers/onboarding_provider.dart';
 import '../../features/onboarding/screens/onboarding_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
+import '../../features/checkout/screens/coupons_screen.dart';
+import '../../features/checkout/screens/payment_screen.dart';
+import '../../features/orders/screens/invoice_screen.dart';
 import '../../features/orders/screens/order_success_screen.dart';
+import '../../features/orders/screens/order_summary_screen.dart';
 import '../../features/orders/screens/orders_screen.dart';
 import 'routes.dart';
 
@@ -90,7 +95,7 @@ GoRouter goRouter(Ref ref) {
       GoRoute(path: Routes.addresses, builder: (_, _) => const AddressesScreen()),
       GoRoute(
         path: Routes.help,
-        builder: (_, _) => const InfoScreen(title: 'Help & Support', sections: helpSections),
+        builder: (_, _) => const SupportScreen(),
       ),
       GoRoute(
         path: Routes.terms,
@@ -113,6 +118,18 @@ GoRouter goRouter(Ref ref) {
             section: q['section'],
           );
         },
+      ),
+      GoRoute(path: Routes.coupons, builder: (_, _) => const CouponsScreen()),
+      GoRoute(path: Routes.payment, builder: (_, _) => const PaymentScreen()),
+      GoRoute(
+        path: '${Routes.order}/:id',
+        builder: (_, state) => OrderSummaryScreen(orderId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'invoice',
+            builder: (_, state) => InvoiceScreen(orderId: state.pathParameters['id']!),
+          ),
+        ],
       ),
       GoRoute(
         path: Routes.orderSuccess,

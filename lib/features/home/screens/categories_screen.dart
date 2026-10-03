@@ -103,7 +103,7 @@ class _AddressHeader extends ConsumerWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Deliver to ${address.label.title}',
+                        address == null ? 'Add delivery address' : 'Deliver to ${address.title}',
                         style: const TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
@@ -113,7 +113,7 @@ class _AddressHeader extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    address.line,
+                    address?.line ?? 'Tap to add where we should deliver',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(color: AppColors.body, fontSize: 13),

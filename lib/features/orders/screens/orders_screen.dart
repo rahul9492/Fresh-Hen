@@ -1,27 +1,64 @@
 import 'package:flutter/material.dart';
-
-import '../../../core/widgets/status_chip.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
-import '../../../app/theme/app_colors.dart';
-import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/app_search_bar.dart';
+import '../../../core/widgets/async_view.dart';
+import '../../../core/widgets/shimmer_box.dart';
 import '../../../core/widgets/small_widgets.dart';
+import '../../cart/providers/cart_providers.dart';
 import '../models/order_models.dart';
 import '../providers/order_providers.dart';
+import '../widgets/order_card.dart';
+import '../widgets/order_actions.dart';
 
-class OrdersScreen extends ConsumerWidget {
+class OrdersScreen extends ConsumerStatefulWidget {
   const OrdersScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final orders = ref.watch(ordersProvider);
+  ConsumerState<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends ConsumerState<OrdersScreen> {
+  static const _background = Color(0xFFF8F8F8);
+
+  var _query = '';
+
+  Future<void> _refresh() => ref.refresh(ordersProvider.future);
+
+  /// Matches the order ID, the status or any item name.
+  bool _matches(Order order) {
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return true;
+    return order.id.toLowerCase().contains(q) ||
+        order.status.label.toLowerCase().contains(q) ||
+        order.lines.any((l) => l.name.toLowerCase().contains(q));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasCart = !ref.watch(cartSummaryProvider).isEmpty;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Orders')),
-      body: orders.isEmpty
-          ? EmptyState(
+      backgroundColor: _background,
+      appBar: AppBar(
+        leading: IconButton(
+          tooltip: 'Back',
+          icon: const Icon(Icons.arrow_back_rounded),
+          // This is a bottom tab, so there is usually nothing to pop: go Home instead.
+          onPressed: () => context.canPop() ? context.pop() : context.go(Routes.home),
+        ),
+        titleSpacing: 0,
+        title: const Text('My Orders'),
+      ),
+      body: AsyncView(
+        value: ref.watch(ordersProvider),
+        onRetry: () => ref.invalidate(ordersProvider),
+        loading: const ShimmerList(itemCount: 4, itemHeight: 190),
+        data: (orders) {
+          if (orders.isEmpty) {
+            return EmptyState(
               icon: Icons.receipt_long_outlined,
               title: 'No orders yet',
               message: 'Your fresh orders will show up here.',
@@ -29,62 +66,51 @@ class OrdersScreen extends ConsumerWidget {
                 onPressed: () => context.go(Routes.home),
                 child: const Text('Start shopping'),
               ),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: orders.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => _OrderCard(order: orders[i]),
-            ),
-    );
-  }
-}
+            );
+          }
 
-class _OrderCard extends StatelessWidget {
-  const _OrderCard({required this.order});
-
-  final Order order;
-
-  @override
-  Widget build(BuildContext context) {
-    final items = order.lines.map((l) => '${l.quantity} × ${l.name}').join(', ');
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          final visible = orders.where(_matches).toList();
+          return Column(
             children: [
-              Expanded(
-                child: Text(
-                  '#${order.id}',
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: AppSearchBar(
+                  hint: 'Search by item or order ID',
+                  onChanged: (value) => setState(() => _query = value),
                 ),
               ),
-              StatusChip(label: order.status.label),
+              Expanded(
+                child: visible.isEmpty
+                    ? const EmptyState(
+                        icon: Icons.search_off_rounded,
+                        title: 'No matching orders',
+                        message: 'Try another item name or order ID.',
+                      )
+                    : RefreshIndicator(
+                        onRefresh: _refresh,
+                        child: ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                          padding: EdgeInsets.fromLTRB(16, 12, 16, hasCart ? 96 : 24),
+                          itemCount: visible.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 14),
+                          itemBuilder: (_, i) {
+                            final order = visible[i];
+                            return OrderCard(
+                              key: ValueKey(order.id),
+                              order: order,
+                              onTap: () => context.push(Routes.orderFor(order.id)),
+                              onReorder: () => repeatOrder(context, ref, order),
+                              onRate: () => rateOrder(context, ref, order),
+                              onHelp: () => context.push(Routes.help),
+                            );
+                          },
+                        ),
+                      ),
+              ),
             ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            formatOrderDate(order.placedAt),
-            style: const TextStyle(color: AppColors.muted, fontSize: 12.5),
-          ),
-          const SizedBox(height: 10),
-          Text(items, maxLines: 2, overflow: TextOverflow.ellipsis),
-          const Divider(height: 22),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Total paid', style: TextStyle(color: AppColors.body)),
-              Text(rupees(order.total), style: const TextStyle(fontWeight: FontWeight.w700)),
-            ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }

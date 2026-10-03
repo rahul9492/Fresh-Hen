@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_text_field.dart';
-import '../../../core/widgets/choice_chip_group.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../models/address.dart';
 import '../providers/address_providers.dart';
 
-Future<void> showAddressFormSheet(BuildContext context, {Address? existing}) {
-  return showAppSheet<void>(context, builder: (_) => AddressFormSheet(existing: existing));
+/// Adds a new address (or edits [existing]), saves it and selects it for
+/// delivery. Returns the saved address, or null if dismissed.
+Future<Address?> showAddressFormSheet(BuildContext context, {Address? existing}) {
+  return showAppSheet<Address>(context, builder: (_) => AddressFormSheet(existing: existing));
 }
 
 class AddressFormSheet extends ConsumerStatefulWidget {
@@ -25,77 +27,405 @@ class AddressFormSheet extends ConsumerStatefulWidget {
 
 class _AddressFormSheetState extends ConsumerState<AddressFormSheet> {
   final _formKey = GlobalKey<FormState>();
-  late var _label = widget.existing?.label ?? AddressLabel.home;
-  late final _name = TextEditingController(text: widget.existing?.name);
-  late final _phone = TextEditingController(text: widget.existing?.phone);
-  late final _line = TextEditingController(text: widget.existing?.line);
+  late final Address? _old = widget.existing;
+  late var _label = _old?.label ?? AddressLabel.home;
+  late final _house = TextEditingController(text: _old?.house);
+  late final _area = TextEditingController(text: _old?.area);
+  late final _landmark = TextEditingController(text: _old?.landmark);
+  late final _city = TextEditingController(text: _old?.city);
+  late final _pincode = TextEditingController(text: _old?.pincode);
+  late final _customLabel = TextEditingController(text: _old?.customLabel);
+  late final TextEditingController _name;
+  late final TextEditingController _phone;
+  late bool _isDefault;
+  late bool _editReceiver;
+
+  /// The very first address is always the default.
+  late final bool _isFirst = ref.read(addressesProvider).every((a) => a.id == _old?.id);
+
+  @override
+  void initState() {
+    super.initState();
+    final user = ref.read(authSessionProvider);
+    _name = TextEditingController(text: _old?.name ?? user?.name ?? '');
+    _phone = TextEditingController(text: _old?.phone ?? user?.phone ?? '');
+    _isDefault = _old?.isDefault ?? _isFirst;
+    // Only show the receiver fields up front when something is missing.
+    _editReceiver = _name.text.trim().isEmpty || !Validators.isPhone(_phone.text.trim());
+  }
 
   @override
   void dispose() {
-    _name.dispose();
-    _phone.dispose();
-    _line.dispose();
+    for (final c in [_house, _area, _landmark, _city, _pincode, _customLabel, _name, _phone]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
   void _save() {
-    if (!_formKey.currentState!.validate()) return;
-    ref.read(addressesProvider.notifier).save(
-          Address(
-            id: widget.existing?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
-            label: _label,
-            name: _name.text.trim(),
-            phone: _phone.text.trim(),
-            line: _line.text.trim(),
-          ),
-        );
-    Navigator.pop(context);
+    if (!_formKey.currentState!.validate()) {
+      if (_name.text.trim().isEmpty || !Validators.isPhone(_phone.text.trim())) {
+        setState(() => _editReceiver = true);
+      }
+      return;
+    }
+    final address = Address(
+      id: _old?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
+      label: _label,
+      customLabel: _label == AddressLabel.other ? _customLabel.text.trim() : null,
+      house: _house.text.trim(),
+      area: _area.text.trim(),
+      landmark: _landmark.text.trim(),
+      city: _city.text.trim(),
+      pincode: _pincode.text.trim(),
+      name: _name.text.trim(),
+      phone: _phone.text.trim(),
+      isDefault: _isFirst || _isDefault,
+    );
+    ref.read(addressesProvider.notifier).save(address);
+    ref.read(selectedAddressIdProvider.notifier).select(address.id);
+    Navigator.pop(context, address);
   }
+
+  static String? _required(String? v, String message) =>
+      (v == null || v.trim().length < 2) ? message : null;
 
   @override
   Widget build(BuildContext context) {
-    final editing = widget.existing != null;
+    final editing = _old != null;
     return AppSheet(
-      title: editing ? 'Edit address' : 'Add new delivery location',
-      footer: AppButton(label: editing ? 'Save changes' : 'Save address', onPressed: _save),
+      title: editing ? 'Edit address' : 'Add delivery address',
+      footer: AppButton(label: editing ? 'Save changes' : 'Confirm', onPressed: _save),
       child: Form(
         key: _formKey,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 8),
-            ChoiceChipGroup<AddressLabel>(
-              values: AddressLabel.values,
-              selected: _label,
-              label: (l) => l.title,
-              onSelected: (l) => setState(() => _label = l),
+            const SizedBox(height: 10),
+            _Field(
+              controller: _house,
+              label: 'House',
+              required: true,
+              hint: 'House / Flat / Floor / Building',
+              validator: (v) => _required(v, 'Enter your house or flat number'),
             ),
-            const SizedBox(height: 14),
-            AppTextField(
-              controller: _name,
-              hint: 'Full name',
-              validator: Validators.name,
-              textInputAction: TextInputAction.next,
-              textCapitalization: TextCapitalization.words,
+            _Field(
+              controller: _area,
+              label: 'Area',
+              required: true,
+              hint: 'Area, sector, street, village',
+              validator: (v) => _required(v, 'Enter your area or street'),
             ),
-            const SizedBox(height: 12),
-            AppTextField(
-              controller: _phone,
-              hint: 'Mobile number',
-              validator: (v) =>
-                  Validators.isPhone(v?.trim() ?? '') ? null : 'Enter a valid 10 digit number',
-              keyboardType: TextInputType.phone,
-              maxLength: 10,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              textInputAction: TextInputAction.next,
+            _Field(controller: _landmark, label: 'Landmark', hint: 'Nearby landmark (optional)'),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _Field(
+                    controller: _city,
+                    label: 'City',
+                    required: true,
+                    hint: 'City',
+                    validator: (v) => _required(v, 'Enter your city'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _Field(
+                    controller: _pincode,
+                    label: 'Pincode',
+                    required: true,
+                    hint: '6 digits',
+                    keyboardType: TextInputType.number,
+                    formatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(6),
+                    ],
+                    validator: (v) => RegExp(r'^[1-9]\d{5}$').hasMatch(v?.trim() ?? '')
+                        ? null
+                        : 'Enter a valid pincode',
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            AppTextField(
-              controller: _line,
-              hint: 'House no, street, area, city, pincode',
-              validator: (v) => (v == null || v.trim().length < 8) ? 'Enter full address' : null,
-              textCapitalization: TextCapitalization.words,
-              onSubmitted: (_) => _save(),
+            _ReceiverSection(
+              editing: _editReceiver,
+              name: _name,
+              phone: _phone,
+              onEdit: () => setState(() => _editReceiver = true),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Add Address Label',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                for (final l in AddressLabel.values) ...[
+                  if (l != AddressLabel.values.first) const SizedBox(width: 10),
+                  Expanded(
+                    child: _LabelButton(
+                      label: l,
+                      selected: l == _label,
+                      onTap: () => setState(() => _label = l),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            if (_label == AddressLabel.other) ...[
+              const SizedBox(height: 14),
+              _Field(
+                controller: _customLabel,
+                label: 'Save as',
+                hint: "e.g. Mom's place, Gym",
+                maxLength: 20,
+              ),
+            ] else
+              const SizedBox(height: 8),
+            _DefaultCheckbox(
+              value: _isFirst || _isDefault,
+              locked: _isFirst,
+              onChanged: (v) => setState(() => _isDefault = v),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Field extends StatelessWidget {
+  const _Field({
+    required this.controller,
+    required this.label,
+    required this.hint,
+    this.required = false,
+    this.validator,
+    this.keyboardType,
+    this.formatters,
+    this.maxLength,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final bool required;
+  final FormFieldValidator<String>? validator;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? formatters;
+  final int? maxLength;
+
+  @override
+  Widget build(BuildContext context) {
+    OutlineInputBorder border(Color color, [double width = 1]) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: color, width: width),
+        );
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: controller,
+        validator: validator,
+        keyboardType: keyboardType,
+        inputFormatters: [
+          ...?formatters,
+          if (maxLength != null) LengthLimitingTextInputFormatter(maxLength),
+        ],
+        textInputAction: TextInputAction.next,
+        textCapitalization: keyboardType == null ? TextCapitalization.words : TextCapitalization.none,
+        cursorColor: AppColors.primary,
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+        decoration: InputDecoration(
+          label: Text.rich(
+            TextSpan(
+              text: label,
+              children: [
+                if (required)
+                  const TextSpan(text: ' *', style: TextStyle(color: AppColors.accent)),
+              ],
+            ),
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          labelStyle: const TextStyle(color: AppColors.ink, fontSize: 15, fontWeight: FontWeight.w500),
+          hintText: hint,
+          hintStyle: const TextStyle(color: AppColors.muted, fontSize: 14),
+          contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+          border: border(AppColors.border),
+          enabledBorder: border(AppColors.border),
+          focusedBorder: border(AppColors.primary, 1.4),
+          errorBorder: border(AppColors.accent),
+          focusedErrorBorder: border(AppColors.accent, 1.4),
+        ),
+      ),
+    );
+  }
+}
+
+/// Who receives the order. Pre-filled from the profile and collapsed to one
+/// line, since most people order for themselves.
+class _ReceiverSection extends StatelessWidget {
+  const _ReceiverSection({
+    required this.editing,
+    required this.name,
+    required this.phone,
+    required this.onEdit,
+  });
+
+  final bool editing;
+  final TextEditingController name;
+  final TextEditingController phone;
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    if (editing) {
+      return Column(
+        children: [
+          _Field(
+            controller: name,
+            label: "Receiver's name",
+            required: true,
+            hint: 'Full name',
+            validator: Validators.name,
+          ),
+          _Field(
+            controller: phone,
+            label: "Receiver's phone",
+            required: true,
+            hint: '10 digit mobile number',
+            keyboardType: TextInputType.phone,
+            formatters: [FilteringTextInputFormatter.digitsOnly],
+            maxLength: 10,
+            validator: (v) =>
+                Validators.isPhone(v?.trim() ?? '') ? null : 'Enter a valid 10 digit number',
+          ),
+        ],
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceMuted,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.hairline),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.person_outline_rounded, size: 20, color: AppColors.body),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text.rich(
+                TextSpan(
+                  text: 'Receiver: ',
+                  style: const TextStyle(color: AppColors.body),
+                  children: [
+                    TextSpan(
+                      text: '${name.text.trim()}, +91 ${phone.text.trim()}',
+                      style: const TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 13),
+              ),
+            ),
+            TextButton(onPressed: onEdit, child: const Text('Edit')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LabelButton extends StatelessWidget {
+  const _LabelButton({required this.label, required this.selected, required this.onTap});
+
+  final AddressLabel label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  IconData get _icon => switch (label) {
+        AddressLabel.home => Icons.home_rounded,
+        AddressLabel.work => Icons.work_rounded,
+        AddressLabel.other => Icons.place_rounded,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? AppColors.primary : Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          height: 44,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: selected ? AppColors.primary : AppColors.border),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(_icon, size: 17, color: selected ? Colors.white : AppColors.body),
+              const SizedBox(width: 6),
+              Text(
+                label.title,
+                style: TextStyle(
+                  color: selected ? Colors.white : AppColors.ink,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DefaultCheckbox extends StatelessWidget {
+  const _DefaultCheckbox({required this.value, required this.locked, required this.onChanged});
+
+  final bool value;
+
+  /// The first address is always the default, so the box can't be cleared.
+  final bool locked;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: locked ? null : () => onChanged(!value),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            SizedBox.square(
+              dimension: 24,
+              child: Checkbox(
+                value: value,
+                onChanged: locked ? null : (v) => onChanged(v ?? false),
+                activeColor: AppColors.primary,
+                visualDensity: VisualDensity.compact,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                locked ? 'Default address (your first address)' : 'Make this my default address',
+                style: const TextStyle(fontSize: 14, color: AppColors.ink),
+              ),
             ),
           ],
         ),

@@ -15,6 +15,9 @@ abstract class CartLine with _$CartLine {
     required String unitLabel,
     required String image,
     required int unitPrice,
+
+    /// Price before discount; null when the item is not discounted.
+    int? unitMrp,
     @Default(1) int quantity,
     @Default(false) bool isAddon,
   }) = _CartLine;
@@ -26,6 +29,7 @@ abstract class CartLine with _$CartLine {
         unitLabel: variant.label,
         image: product.image,
         unitPrice: variant.price,
+        unitMrp: variant.mrp,
       );
 
   factory CartLine.fromAccompaniment(Accompaniment item) => CartLine(
@@ -39,6 +43,10 @@ abstract class CartLine with _$CartLine {
       );
 
   int get total => unitPrice * quantity;
+
+  int get mrpTotal => (unitMrp != null && unitMrp! > unitPrice ? unitMrp! : unitPrice) * quantity;
+
+  bool get isDiscounted => mrpTotal > total;
 }
 
 @freezed
@@ -48,9 +56,7 @@ abstract class CartSummary with _$CartSummary {
   const factory CartSummary({
     required int itemCount,
     required int itemTotal,
-    required int deliveryFee,
   }) = _CartSummary;
 
-  int get grandTotal => itemTotal + deliveryFee;
   bool get isEmpty => itemCount == 0;
 }

@@ -14,6 +14,9 @@ abstract final class Routes {
   static const products = '/products';
   static const wishlist = '/wishlist';
   static const orderSuccess = '/order-success';
+  static const order = '/order';
+  static const coupons = '/coupons';
+  static const payment = '/payment';
   static const product = '/product';
   static const addresses = '/addresses';
   static const help = '/help';
@@ -36,6 +39,10 @@ abstract final class Routes {
       ).toString();
 
   static String productFor(String id) => '$product/$id';
+
+  static String orderFor(String orderId) => '$order/$orderId';
+
+  static String invoiceFor(String orderId) => '$order/$orderId/invoice';
 
   static String orderSuccessFor(String orderId) =>
       Uri(path: orderSuccess, queryParameters: {'id': orderId}).toString();

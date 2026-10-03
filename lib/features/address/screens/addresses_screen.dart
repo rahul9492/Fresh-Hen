@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
-import '../../../core/utils/context_x.dart';
+import '../../../core/widgets/confirm_dialog.dart';
+import '../../../core/widgets/small_widgets.dart';
 import '../models/address.dart';
 import '../providers/address_providers.dart';
 import '../widgets/address_form_sheet.dart';
+import '../widgets/address_picker_sheet.dart';
 
 const _lavender = Color(0xFFEEF0FF);
 
@@ -15,24 +17,40 @@ class AddressesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final addresses = ref.watch(addressesProvider);
-    final selectedId = ref.watch(selectedAddressIdProvider);
+    final notifier = ref.read(addressesProvider.notifier);
+
+    Future<void> delete(Address a) async {
+      final ok = await showConfirmDialog(
+        context,
+        title: 'Delete address?',
+        message: 'Remove "${a.title}" from your saved addresses?',
+        confirmLabel: 'Delete',
+        destructive: true,
+      );
+      if (ok) notifier.remove(a.id);
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('My Addresses')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (addresses.isEmpty)
+            const SizedBox(
+              height: 320,
+              child: EmptyState(
+                icon: Icons.location_off_outlined,
+                title: 'No saved addresses',
+                message: 'Add your home, work or any other address for faster checkout.',
+              ),
+            ),
           for (final a in addresses)
             _AddressCard(
               address: a,
-              isDefault: a.id == selectedId,
-              onMakeDefault: () => ref.read(selectedAddressIdProvider.notifier).select(a.id),
+              isDefault: a.isDefault,
+              onMakeDefault: () => notifier.makeDefault(a.id),
               onEdit: () => showAddressFormSheet(context, existing: a),
-              onDelete: () {
-                if (!ref.read(addressesProvider.notifier).remove(a.id)) {
-                  context.showSnack('You need at least one address');
-                }
-              },
+              onDelete: () => delete(a),
             ),
           OutlinedButton.icon(
             onPressed: () => showAddressFormSheet(context),
@@ -71,12 +89,6 @@ class _AddressCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
-  IconData get _icon => switch (address.label) {
-        AddressLabel.home => Icons.home_rounded,
-        AddressLabel.work => Icons.apartment_rounded,
-        AddressLabel.other => Icons.place_rounded,
-      };
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -101,12 +113,15 @@ class _AddressCard extends StatelessWidget {
                   color: isDefault ? AppColors.primary : _lavender,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(_icon, color: isDefault ? Colors.white : AppColors.body, size: 22),
+                child: Icon(addressIcon(address.label), color: isDefault ? Colors.white : AppColors.body, size: 22),
               ),
               const SizedBox(width: 12),
-              Text(
-                address.label.title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              Flexible(
+                child: Text(
+                  address.title,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(width: 10),
               _Badge(label: isDefault ? 'Default' : 'Make Default', onTap: isDefault ? null : onMakeDefault),

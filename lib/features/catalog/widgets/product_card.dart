@@ -77,10 +77,18 @@ class ProductCard extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                rupees(product.defaultVariant.price),
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              // Shrinks rather than overflowing on very narrow cards.
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    rupees(product.defaultVariant.price),
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                  ),
+                ),
               ),
+              const SizedBox(width: 6),
               ProductAddControl(product: product),
             ],
           ),

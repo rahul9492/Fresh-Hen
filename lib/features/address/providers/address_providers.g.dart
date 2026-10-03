@@ -8,12 +8,18 @@ part of 'address_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The signed-in customer's saved addresses, kept on the device per phone
+/// number. A new customer starts with none and adds one at checkout.
 
 @ProviderFor(Addresses)
 final addressesProvider = AddressesProvider._();
 
+/// The signed-in customer's saved addresses, kept on the device per phone
+/// number. A new customer starts with none and adds one at checkout.
 final class AddressesProvider
     extends $NotifierProvider<Addresses, List<Address>> {
+  /// The signed-in customer's saved addresses, kept on the device per phone
+  /// number. A new customer starts with none and adds one at checkout.
   AddressesProvider._()
     : super(
         from: null,
@@ -41,7 +47,10 @@ final class AddressesProvider
   }
 }
 
-String _$addressesHash() => r'288174a81d92ac3de625f3886d424f1c6749ea8e';
+String _$addressesHash() => r'c2e24d21bfc0e1031f4397893aa383459c1ad313';
+
+/// The signed-in customer's saved addresses, kept on the device per phone
+/// number. A new customer starts with none and adds one at checkout.
 
 abstract class _$Addresses extends $Notifier<List<Address>> {
   List<Address> build();
@@ -61,11 +70,15 @@ abstract class _$Addresses extends $Notifier<List<Address>> {
   }
 }
 
+/// The address the next order goes to: the customer's pick, else the default.
+
 @ProviderFor(SelectedAddressId)
 final selectedAddressIdProvider = SelectedAddressIdProvider._();
 
+/// The address the next order goes to: the customer's pick, else the default.
 final class SelectedAddressIdProvider
-    extends $NotifierProvider<SelectedAddressId, String> {
+    extends $NotifierProvider<SelectedAddressId, String?> {
+  /// The address the next order goes to: the customer's pick, else the default.
   SelectedAddressIdProvider._()
     : super(
         from: null,
@@ -85,27 +98,29 @@ final class SelectedAddressIdProvider
   SelectedAddressId create() => SelectedAddressId();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(String value) {
+  Override overrideWithValue(String? value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<String>(value),
+      providerOverride: $SyncValueProvider<String?>(value),
     );
   }
 }
 
-String _$selectedAddressIdHash() => r'a9170daa466f2ed506b3e8147c9352dace0d8c89';
+String _$selectedAddressIdHash() => r'b0154ef8ecb0ba6a6a667517bcdd7207ccc14799';
 
-abstract class _$SelectedAddressId extends $Notifier<String> {
-  String build();
+/// The address the next order goes to: the customer's pick, else the default.
+
+abstract class _$SelectedAddressId extends $Notifier<String?> {
+  String? build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<String, String>;
+    final ref = this.ref as $Ref<String?, String?>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<String, String>,
-              String,
+              AnyNotifier<String?, String?>,
+              String?,
               Object?,
               Object?
             >;
@@ -117,8 +132,8 @@ abstract class _$SelectedAddressId extends $Notifier<String> {
 final selectedAddressProvider = SelectedAddressProvider._();
 
 final class SelectedAddressProvider
-    extends $FunctionalProvider<Address, Address, Address>
-    with $Provider<Address> {
+    extends $FunctionalProvider<Address?, Address?, Address?>
+    with $Provider<Address?> {
   SelectedAddressProvider._()
     : super(
         from: null,
@@ -135,21 +150,21 @@ final class SelectedAddressProvider
 
   @$internal
   @override
-  $ProviderElement<Address> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<Address?> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  Address create(Ref ref) {
+  Address? create(Ref ref) {
     return selectedAddress(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Address value) {
+  Override overrideWithValue(Address? value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<Address>(value),
+      providerOverride: $SyncValueProvider<Address?>(value),
     );
   }
 }
 
-String _$selectedAddressHash() => r'1618b6924b75d8b3e13c9e0ae60d187527493595';
+String _$selectedAddressHash() => r'487790925dd07a67c5d470b6df70e83259a0b19a';

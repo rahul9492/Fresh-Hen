@@ -67,7 +67,7 @@ class HomeHeader extends ConsumerWidget {
                     const Icon(Icons.location_on_rounded, size: 16, color: AppColors.primary),
                     const SizedBox(width: 4),
                     Text(
-                      'Deliver to ${address.label.title}',
+                      address == null ? 'Add delivery address' : 'Deliver to ${address.title}',
                       style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -76,7 +76,7 @@ class HomeHeader extends ConsumerWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        address.line,
+                        address?.line ?? 'Tap to add where we should deliver',
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(color: AppColors.body, fontSize: 13),
                       ),

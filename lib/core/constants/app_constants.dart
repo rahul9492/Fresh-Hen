@@ -3,10 +3,12 @@ abstract final class AppConstants {
   static const otpLength = 4;
   static const otpResendSeconds = 30;
   static const mockOtp = '1234';
-  static const freeDeliveryThreshold = 499;
-  static const deliveryFee = 40;
   static const filterPriceMax = 900;
   static const mockLatency = Duration(milliseconds: 450);
+
+  /// Help & Support number for calls and WhatsApp.
+  static const supportPhone = '+919711739492';
+  static const supportPhoneDisplay = '+91 97117 39492';
 }
 
 abstract final class Assets {
@@ -38,4 +40,5 @@ abstract final class Assets {
   static const mutton2 = '$_dir/mutton2.jpg';
   static const fish = '$_dir/fish.jpg';
   static const fish2 = '$_dir/fish2.jpg';
+  static const mockUpiQr = '$_dir/mock_upi_qr.png';
 }

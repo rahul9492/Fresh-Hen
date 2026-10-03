@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'address.freezed.dart';
+part 'address.g.dart';
 
 enum AddressLabel {
   home('Home'),
@@ -19,10 +20,40 @@ abstract class Address with _$Address {
   const factory Address({
     required String id,
     required AddressLabel label,
+
+    /// Name for an "Other" address, e.g. "Mom's place".
+    String? customLabel,
+
+    /// House / flat / floor / building.
+    required String house,
+
+    /// Area, sector, street or village.
+    required String area,
+    @Default('') String landmark,
+    required String city,
+    required String pincode,
+
+    /// Who receives the order at this address.
     required String name,
     required String phone,
-    required String line,
+    @Default(false) bool isDefault,
   }) = _Address;
 
-  String get fullText => '${label.title} • $line';
+  factory Address.fromJson(Map<String, dynamic> json) => _$AddressFromJson(json);
+
+  /// "Home", "Work" or the custom name of an "Other" address.
+  String get title {
+    final custom = customLabel?.trim() ?? '';
+    return label == AddressLabel.other && custom.isNotEmpty ? custom : label.title;
+  }
+
+  /// One-line postal address.
+  String get line => [
+        house,
+        area,
+        if (landmark.trim().isNotEmpty) 'Near ${landmark.trim()}',
+        '$city - $pincode',
+      ].join(', ');
+
+  String get fullText => '$title • $line';
 }

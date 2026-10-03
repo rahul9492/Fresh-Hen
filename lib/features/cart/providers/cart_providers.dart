@@ -1,6 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../core/constants/app_constants.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../models/cart_models.dart';
 
@@ -18,6 +17,20 @@ class Cart extends _$Cart {
     } else {
       increment(line.id);
     }
+  }
+
+  /// Adds [lines] with their quantities, topping up lines already in the cart.
+  void addAll(Iterable<CartLine> lines) {
+    final next = [...state];
+    for (final line in lines) {
+      final index = next.indexWhere((l) => l.id == line.id);
+      if (index == -1) {
+        next.add(line);
+      } else {
+        next[index] = next[index].copyWith(quantity: next[index].quantity + line.quantity);
+      }
+    }
+    state = next;
   }
 
   /// Sets the only selected variant of [product], replacing any other variant.
@@ -50,12 +63,9 @@ class Cart extends _$Cart {
 @riverpod
 CartSummary cartSummary(Ref ref) {
   final lines = ref.watch(cartProvider);
-  final itemTotal = lines.fold<int>(0, (sum, l) => sum + l.total);
-  final free = itemTotal == 0 || itemTotal >= AppConstants.freeDeliveryThreshold;
   return CartSummary(
     itemCount: lines.fold<int>(0, (sum, l) => sum + l.quantity),
-    itemTotal: itemTotal,
-    deliveryFee: free ? 0 : AppConstants.deliveryFee,
+    itemTotal: lines.fold<int>(0, (sum, l) => sum + l.total),
   );
 }
 

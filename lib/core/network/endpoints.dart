@@ -13,6 +13,12 @@ abstract final class Endpoints {
   static const notificationsReadAll = '/notifications/read-all';
   static String notificationRead(String id) => '/notifications/$id/read';
 
+  // Checkout (values managed from the admin app)
+  static const storeSettings = '/store/settings';
+  static const deliverySlots = '/delivery/slots';
+  static const coupons = '/coupons';
+  static const couponValidate = '/coupons/validate';
+
   /// Paths that must never trigger the "session expired" flow on a 401.
   static const public = {sendOtp, verifyOtp, refresh};
 }

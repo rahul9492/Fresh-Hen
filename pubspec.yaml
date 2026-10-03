@@ -36,6 +36,11 @@ dependencies:
 
   # --- Utilities ---
   intl: ^0.20.3 # Date, number and currency formatting
+  image_picker: ^1.2.3
+  pdf: ^3.13.1
+  printing: ^5.15.1
+  url_launcher: ^6.3.3
+  font_awesome_flutter: ^11.0.0
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +63,7 @@ flutter:
   uses-material-design: true # Enables Material icons
   assets:
     - assets/images/ # App images
+    - assets/fonts/ # Noto Sans for PDF invoices (has the ₹ sign)
 
 # App icon config (run: dart run flutter_launcher_icons)
 flutter_launcher_icons:

@@ -1,0 +1,92 @@
+import '../../cart/models/cart_models.dart';
+import '../../catalog/data/mock_catalog_data.dart';
+import '../../checkout/data/mock_checkout_data.dart';
+import '../models/order_models.dart';
+
+const _home = 'Tower C, Flat 503, 5th Floor, iThum Tower, Sector 62, Near Fortis Hospital, Noida - 201301';
+const _work = 'Kasper Infotech, 3rd Floor, Logix Cyber Park, Sector 62, Noida - 201309';
+
+/// Sample order history, newest first, generated relative to [now] so dates
+/// always look recent. Lines come from the catalog so "Repeat order" adds real items.
+List<Order> mockOrders(DateTime now) {
+  CartLine item(String productId, String variantLabel, {int quantity = 1}) {
+    final product = mockProducts.firstWhere((p) => p.id == productId);
+    final variant = product.variants.firstWhere((v) => v.label == variantLabel);
+    return CartLine.fromVariant(product, variant).copyWith(quantity: quantity);
+  }
+
+  CartLine addon(String id) {
+    final accompaniment = mockProducts
+        .expand((p) => p.accompaniments)
+        .firstWhere((a) => a.id == id);
+    return CartLine.fromAccompaniment(accompaniment);
+  }
+
+  OrderBill bill(List<CartLine> lines, {String? coupon, int discount = 0}) {
+    final base = OrderBill.forLines(lines, deliveryFee: 0);
+    return base.copyWith(
+      deliveryFee: mockStoreSettings.deliveryFeeFor(base.itemTotal),
+      taxes: mockStoreSettings.taxesFor(base.itemTotal),
+      discount: discount,
+      couponCode: coupon,
+    );
+  }
+
+  final active = [item('chicken-curry-cut', '1 kg'), addon('acc-mdh-masala')];
+  final yesterday = [item('chicken-breast', '1 kg')];
+  final bulk = [
+    item('chicken-boneless', '500 g'),
+    item('classic-eggs', '12 pieces'),
+    addon('acc-ginger-garlic'),
+    addon('acc-lemon'),
+  ];
+  final cancelled = [item('mutton-keema', '250 g', quantity: 2)];
+
+  return [
+    Order(
+      id: 'FH284519',
+      placedAt: now.subtract(const Duration(minutes: 24)),
+      lines: active,
+      bill: bill(active),
+      address: _home,
+      status: OrderStatus.outForDelivery,
+      paymentMethod: PaymentMethod.upi,
+      paymentStatus: PaymentStatus.paid,
+      paymentReference: '427816390521',
+      instructions: 'Please ring the bell once.',
+    ),
+    Order(
+      id: 'FH284487',
+      placedAt: now.subtract(const Duration(days: 1, hours: 3)),
+      lines: yesterday,
+      bill: bill(yesterday, coupon: 'CHICKEN50', discount: 50),
+      address: _work,
+      addressLabel: 'Work',
+      status: OrderStatus.delivered,
+      deliveredAt: now.subtract(const Duration(days: 1, hours: 2, minutes: 4)),
+      paymentStatus: PaymentStatus.paid,
+    ),
+    Order(
+      id: 'FH284431',
+      placedAt: now.subtract(const Duration(days: 3, hours: 5)),
+      lines: bulk,
+      bill: bill(bulk, coupon: 'FRESH20', discount: 100),
+      address: _home,
+      status: OrderStatus.delivered,
+      deliveredAt: now.subtract(const Duration(days: 3, hours: 3, minutes: 48)),
+      paymentMethod: PaymentMethod.upi,
+      paymentStatus: PaymentStatus.paid,
+      paymentReference: '427512094418',
+      rating: 5,
+      review: 'Super fresh and neatly packed. Delivery partner was polite.',
+    ),
+    Order(
+      id: 'FH284390',
+      placedAt: now.subtract(const Duration(days: 9, hours: 2)),
+      lines: cancelled,
+      bill: bill(cancelled),
+      address: _home,
+      status: OrderStatus.cancelled,
+    ),
+  ];
+}

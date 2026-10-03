@@ -4,7 +4,29 @@ import '../../../core/widgets/small_widgets.dart';
 import '../models/catalog_models.dart';
 import 'product_card.dart';
 
-const _cardExtent = 274.0;
+const _gridPadding = 16.0;
+const _gridSpacing = 12.0;
+
+/// Extra columns are added (tablets, web) only while every card stays at least
+/// this wide, so the price and the Add button always fit side by side.
+const _minCardWidth = 170.0;
+
+/// Height of a [ProductCard] [cardWidth] wide. Its image keeps a 1.4 ratio, so
+/// wider cards need taller rows or the price row overflows.
+double _cardExtentFor(double cardWidth) => (cardWidth - 20) / 1.4 + 170;
+
+SliverGridDelegate _gridDelegateFor(double width) {
+  final available = width - 2 * _gridPadding;
+  final columns =
+      ((available + _gridSpacing) / (_minCardWidth + _gridSpacing)).floor().clamp(2, 6);
+  final cardWidth = (available - _gridSpacing * (columns - 1)) / columns;
+  return SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: columns,
+    mainAxisSpacing: _gridSpacing,
+    crossAxisSpacing: _gridSpacing,
+    mainAxisExtent: _cardExtentFor(cardWidth),
+  );
+}
 
 class ProductGrid extends StatelessWidget {
   const ProductGrid({
@@ -34,34 +56,33 @@ class ProductGrid extends StatelessWidget {
         message: 'Try a different search or category.',
       );
     }
-    const delegate = SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 2,
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      mainAxisExtent: _cardExtent,
-    );
-    if (embedded) {
-      return GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
-        gridDelegate: delegate,
-        itemCount: products.length,
-        itemBuilder: (_, i) => ProductCard(product: products[i]),
-      );
-    }
-    return CustomScrollView(
-      slivers: [
-        if (header != null) SliverToBoxAdapter(child: header),
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, bottomPadding),
-          sliver: SliverGrid.builder(
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        final delegate = _gridDelegateFor(constraints.maxWidth);
+        if (embedded) {
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(_gridPadding),
             gridDelegate: delegate,
             itemCount: products.length,
             itemBuilder: (_, i) => ProductCard(product: products[i]),
-          ),
-        ),
-      ],
+          );
+        }
+        return CustomScrollView(
+          slivers: [
+            if (header != null) SliverToBoxAdapter(child: header),
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(_gridPadding, _gridPadding, _gridPadding, bottomPadding),
+              sliver: SliverGrid.builder(
+                gridDelegate: delegate,
+                itemCount: products.length,
+                itemBuilder: (_, i) => ProductCard(product: products[i]),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -71,16 +92,18 @@ class ProductRail extends StatelessWidget {
 
   final List<Product> products;
 
+  static const _cardWidth = 165.0;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _cardExtent,
+      height: _cardExtentFor(_cardWidth),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: products.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (_, i) => SizedBox(width: 165, child: ProductCard(product: products[i])),
+        itemBuilder: (_, i) => SizedBox(width: _cardWidth, child: ProductCard(product: products[i])),
       ),
     );
   }

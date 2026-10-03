@@ -13,5 +13,14 @@ abstract final class AppColors {
   static const authCanvas = Colors.white;
   static const star = Color(0xFFF5B301);
   static const success = Color(0xFF1E9E55);
-  
+  static const successSoft = Color(0xFFE7F6EC);
+
+  /// Light grey page behind white cards (cart, orders, checkout).
+  static const page = Color(0xFFF8F8F8);
+
+  /// Neutral card border and divider.
+  static const hairline = Color(0xFFECEDF1);
+
+  /// Inset areas inside a card: item tiles, inputs, upload boxes.
+  static const surfaceMuted = Color(0xFFF7F8FA);
 }

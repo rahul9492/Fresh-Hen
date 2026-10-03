@@ -68,5 +68,9 @@
 		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
-	</dict>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Fresh Hen needs access to your photos so you can upload your UPI payment screenshot.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Fresh Hen uses your camera so you can take a photo of your payment confirmation.</string>
+</dict>
 </plist>

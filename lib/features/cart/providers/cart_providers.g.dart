@@ -40,7 +40,7 @@ final class CartProvider extends $NotifierProvider<Cart, List<CartLine>> {
   }
 }
 
-String _$cartHash() => r'c228fa9a36b3b027214506e033b7b6b0e5ffe5b5';
+String _$cartHash() => r'4b4ade5bb4fe04f20940fc5bf14b93d0dcbf7750';
 
 abstract class _$Cart extends $Notifier<List<CartLine>> {
   List<CartLine> build();
@@ -99,7 +99,7 @@ final class CartSummaryProvider
   }
 }
 
-String _$cartSummaryHash() => r'404ff3d4c690685e3e54223dc47c74628d1ac98e';
+String _$cartSummaryHash() => r'f76c7b2405de7822e395e78703efeea22c7031f4';
 
 @ProviderFor(productQuantity)
 final productQuantityProvider = ProductQuantityFamily._();
