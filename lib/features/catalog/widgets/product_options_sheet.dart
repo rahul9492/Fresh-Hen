@@ -45,6 +45,7 @@ class ProductOptionsSheet extends ConsumerWidget {
                   ],
                 ),
               ),
+              const SheetCloseButton(),
             ],
           ),
           const Divider(height: 28),
@@ -153,6 +154,7 @@ class _VariantRow extends ConsumerWidget {
           AddControl(
             style: AddControlStyle.pill,
             quantity: quantity,
+            available: variant.inStock,
             onAdd: onSelect,
             onIncrement: () => cart.increment(lineId),
             onDecrement: () => cart.decrement(lineId),
@@ -207,6 +209,7 @@ class _AccompanimentRow extends ConsumerWidget {
           ),
           const SizedBox(width: 16),
           AddControl(
+            available: item.inStock,
             quantity: quantity,
             onAdd: () => cart.add(line),
             onIncrement: () => cart.increment(line.id),

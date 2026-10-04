@@ -8,9 +8,12 @@ part of 'catalog_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The only place that decides mock vs remote for the catalog.
 
 @ProviderFor(catalogRepository)
 final catalogRepositoryProvider = CatalogRepositoryProvider._();
+
+/// The only place that decides mock vs remote for the catalog.
 
 final class CatalogRepositoryProvider
     extends
@@ -20,6 +23,7 @@ final class CatalogRepositoryProvider
           CatalogRepository
         >
     with $Provider<CatalogRepository> {
+  /// The only place that decides mock vs remote for the catalog.
   CatalogRepositoryProvider._()
     : super(
         from: null,
@@ -54,7 +58,7 @@ final class CatalogRepositoryProvider
   }
 }
 
-String _$catalogRepositoryHash() => r'd7c891e017eb78083119bda3cec5cf98809d0d30';
+String _$catalogRepositoryHash() => r'c30ec58d14cc4a224baf094bf4d6684b91c2b497';
 
 @ProviderFor(categories)
 final categoriesProvider = CategoriesProvider._();
@@ -372,11 +376,74 @@ abstract class _$SelectedCategory extends $Notifier<String?> {
   }
 }
 
+/// The only place that decides mock vs remote for the wishlist.
+
+@ProviderFor(wishlistRepository)
+final wishlistRepositoryProvider = WishlistRepositoryProvider._();
+
+/// The only place that decides mock vs remote for the wishlist.
+
+final class WishlistRepositoryProvider
+    extends
+        $FunctionalProvider<
+          WishlistRepository,
+          WishlistRepository,
+          WishlistRepository
+        >
+    with $Provider<WishlistRepository> {
+  /// The only place that decides mock vs remote for the wishlist.
+  WishlistRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'wishlistRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$wishlistRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<WishlistRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  WishlistRepository create(Ref ref) {
+    return wishlistRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WishlistRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WishlistRepository>(value),
+    );
+  }
+}
+
+String _$wishlistRepositoryHash() =>
+    r'84ab780eefb87c2d07fe25cf7ee6f7daeb3d2f34';
+
+/// Wishlisted product ids. Shows the copy cached on the device at once, then
+/// refreshes from the server; a toggle shows immediately and rolls back if the
+/// server rejects it.
+
 @ProviderFor(Favorites)
 final favoritesProvider = FavoritesProvider._();
 
+/// Wishlisted product ids. Shows the copy cached on the device at once, then
+/// refreshes from the server; a toggle shows immediately and rolls back if the
+/// server rejects it.
 final class FavoritesProvider
     extends $NotifierProvider<Favorites, Set<String>> {
+  /// Wishlisted product ids. Shows the copy cached on the device at once, then
+  /// refreshes from the server; a toggle shows immediately and rolls back if the
+  /// server rejects it.
   FavoritesProvider._()
     : super(
         from: null,
@@ -404,7 +471,11 @@ final class FavoritesProvider
   }
 }
 
-String _$favoritesHash() => r'9cbcd3c25ba0401ef0b42ea49e2d51172eab3644';
+String _$favoritesHash() => r'd642e1845718de47ff0cfdd78062505a160fb9b5';
+
+/// Wishlisted product ids. Shows the copy cached on the device at once, then
+/// refreshes from the server; a toggle shows immediately and rolls back if the
+/// server rejects it.
 
 abstract class _$Favorites extends $Notifier<Set<String>> {
   Set<String> build();

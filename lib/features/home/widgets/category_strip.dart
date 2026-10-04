@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../core/widgets/app_image.dart';
 import '../../catalog/models/catalog_models.dart';
 
 class CategoryStrip extends StatelessWidget {
@@ -44,7 +45,7 @@ class CategoryStrip extends StatelessWidget {
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.border, width: 2),
                 ),
-                child: CircleAvatar(radius: 28, backgroundImage: AssetImage(c.image)),
+                child: ClipOval(child: AppImage(source: c.image, width: 56, height: 56)),
               ),
             ),
         ],

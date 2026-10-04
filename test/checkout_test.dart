@@ -111,7 +111,7 @@ void main() {
       c.read(cartProvider.notifier).add(_line('chicken-curry-cut', '500 g'));
       expect(c.read(checkoutStepProvider), CheckoutStep.address);
 
-      c.read(addressesProvider.notifier).save(_address);
+      await c.read(addressesProvider.notifier).save(_address);
       expect(c.read(selectedAddressProvider)?.isDefault, isTrue); // first address
       expect(c.read(checkoutStepProvider), CheckoutStep.timing);
 
@@ -139,7 +139,7 @@ void main() {
     test('cash order is placed, then cart and checkout reset', () async {
       final c = await _container();
       c.read(cartProvider.notifier).add(_line('chicken-boneless', '500 g'));
-      c.read(addressesProvider.notifier).save(_address);
+      await c.read(addressesProvider.notifier).save(_address);
       c.read(checkoutProvider.notifier).setInstructions('  Ring once  ');
 
       final order = await c.read(placeOrderProvider.notifier).submit(method: PaymentMethod.cash);
@@ -154,10 +154,31 @@ void main() {
       expect(c.read(checkoutProvider), const CheckoutState());
     });
 
+    test('only delivers to the pincodes set in the admin app', () async {
+      expect(const StoreSettings().deliversTo('110001'), isTrue); // no list = no limit
+      expect(mockStoreSettings.deliversTo('201301'), isTrue);
+      expect(mockStoreSettings.deliversTo(' 201301 '), isTrue);
+      expect(mockStoreSettings.deliversTo('110001'), isFalse);
+      expect(
+        StoreSettings.fromJson({
+          'deliveryPincodes': ['201301'],
+        }).deliveryPincodes,
+        ['201301'],
+      );
+
+      final c = await _container();
+      c.read(cartProvider.notifier).add(_line('chicken-boneless', '500 g'));
+      await c.read(addressesProvider.notifier).save(_address.copyWith(pincode: '110001'));
+      final order = await c.read(placeOrderProvider.notifier).submit(method: PaymentMethod.cash);
+      expect(order, isNull);
+      expect(c.read(placeOrderProvider).error.toString(), contains("don't deliver to 110001"));
+      expect(c.read(cartProvider), isNotEmpty);
+    });
+
     test('UPI order needs the payment screenshot', () async {
       final c = await _container();
       c.read(cartProvider.notifier).add(_line('chicken-boneless', '500 g'));
-      c.read(addressesProvider.notifier).save(_address);
+      await c.read(addressesProvider.notifier).save(_address);
 
       final missing = await c.read(placeOrderProvider.notifier).submit(method: PaymentMethod.upi);
       expect(missing, isNull);
@@ -183,7 +204,7 @@ void main() {
 
       final on = await _container();
       on.read(cartProvider.notifier).add(_line('chicken-boneless', '500 g'));
-      on.read(addressesProvider.notifier).save(_address);
+      await on.read(addressesProvider.notifier).save(_address);
       on.read(checkoutProvider.notifier).schedule(slot);
       expect(on.read(deliveryModeProvider), DeliveryMode.scheduled);
       final scheduled = await on.read(placeOrderProvider.notifier).submit(method: PaymentMethod.cash);
@@ -191,7 +212,7 @@ void main() {
 
       final off = await _container(checkout: _ScheduleOff());
       off.read(cartProvider.notifier).add(_line('chicken-boneless', '500 g'));
-      off.read(addressesProvider.notifier).save(_address);
+      await off.read(addressesProvider.notifier).save(_address);
       off.read(checkoutProvider.notifier).schedule(slot);
       expect(off.read(deliveryModeProvider), DeliveryMode.now);
       final now = await off.read(placeOrderProvider.notifier).submit(method: PaymentMethod.cash);
@@ -200,11 +221,12 @@ void main() {
 
     test('addresses persist per user and keep exactly one default', () async {
       final c = await _container();
-      final notifier = c.read(addressesProvider.notifier)..save(_address);
-      notifier.save(_address.copyWith(id: 'a2', label: AddressLabel.work, isDefault: true));
+      final notifier = c.read(addressesProvider.notifier);
+      await notifier.save(_address);
+      await notifier.save(_address.copyWith(id: 'a2', label: AddressLabel.work, isDefault: true));
       expect(c.read(addressesProvider).where((a) => a.isDefault).map((a) => a.id), ['a2']);
 
-      notifier.remove('a2');
+      await notifier.remove('a2');
       expect(c.read(addressesProvider).single.isDefault, isTrue);
 
       // A fresh container reads the same saved list back.
@@ -215,6 +237,27 @@ void main() {
       ]);
       addTearDown(again.dispose);
       expect(again.read(addressesProvider).single.id, 'a1');
+    });
+
+    test('cart survives a restart and is removed once emptied', () async {
+      final c = await _container();
+      c.read(cartProvider.notifier).add(_line('chicken-curry-cut', '500 g', quantity: 2));
+
+      final prefs = c.read(sharedPrefsProvider);
+      ProviderContainer restart() {
+        final next = ProviderContainer(overrides: [
+          sharedPrefsProvider.overrideWithValue(prefs),
+          authSessionProvider.overrideWith(_SignedIn.new),
+        ]);
+        addTearDown(next.dispose);
+        return next;
+      }
+
+      final again = restart();
+      expect(again.read(cartProvider).single.quantity, 2);
+
+      again.read(cartProvider.notifier).clear();
+      expect(restart().read(cartProvider), isEmpty);
     });
   });
 }

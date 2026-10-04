@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/constants/spacing.dart';
+import '../core/push/push_service.dart';
 import 'router/router.dart';
 import 'theme/app_theme.dart';
 
@@ -12,6 +13,7 @@ class FreshHenApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(pushServiceProvider); // starts push notifications
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,

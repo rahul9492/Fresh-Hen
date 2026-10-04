@@ -1,13 +1,23 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/config/env.dart';
+import '../../../core/network/dio_provider.dart';
 import '../../../core/storage/prefs_provider.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../models/catalog_models.dart';
 import '../repositories/catalog_repository.dart';
+import '../repositories/wishlist_repository.dart';
 
 part 'catalog_providers.g.dart';
 
+/// The only place that decides mock vs remote for the catalog.
 @Riverpod(keepAlive: true)
-CatalogRepository catalogRepository(Ref ref) => MockCatalogRepository();
+CatalogRepository catalogRepository(Ref ref) {
+  if (Env.useMock) return MockCatalogRepository();
+  return RemoteCatalogRepository(ref.watch(dioProvider));
+}
 
 @Riverpod(keepAlive: true)
 Future<List<Category>> categories(Ref ref) => ref.watch(catalogRepositoryProvider).categories();
@@ -61,17 +71,60 @@ class SelectedCategory extends _$SelectedCategory {
   void select(String? id) => state = id;
 }
 
+/// The only place that decides mock vs remote for the wishlist.
+@Riverpod(keepAlive: true)
+WishlistRepository wishlistRepository(Ref ref) {
+  if (Env.useMock) {
+    return MockWishlistRepository(
+      ref.watch(sharedPrefsProvider),
+      () => ref.read(sessionPhoneProvider),
+    );
+  }
+  return RemoteWishlistRepository(ref.watch(dioProvider));
+}
+
+/// Wishlisted product ids. Shows the copy cached on the device at once, then
+/// refreshes from the server; a toggle shows immediately and rolls back if the
+/// server rejects it.
 @Riverpod(keepAlive: true)
 class Favorites extends _$Favorites {
-  static const _key = 'catalog.favorites';
+  String get _cacheKey => 'wishlist.cache.${ref.read(sessionPhoneProvider) ?? 'guest'}';
+
+  WishlistRepository get _repo => ref.read(wishlistRepositoryProvider);
 
   @override
-  Set<String> build() => (ref.read(sharedPrefsProvider).getStringList(_key) ?? []).toSet();
+  Set<String> build() {
+    final phone = ref.watch(sessionPhoneProvider);
+    if (phone != null) Future.microtask(refresh);
+    return (ref.read(sharedPrefsProvider).getStringList(_cacheKey) ?? const []).toSet();
+  }
 
-  void toggle(String productId) {
-    state = state.contains(productId)
-        ? ({...state}..remove(productId))
-        : {...state, productId};
-    ref.read(sharedPrefsProvider).setStringList(_key, state.toList());
+  /// Reloads from the server. Offline, the cached set stays.
+  Future<void> refresh() async {
+    final phone = ref.read(sessionPhoneProvider);
+    try {
+      final fresh = await _repo.fetch();
+      if (ref.mounted && ref.read(sessionPhoneProvider) == phone) _set(fresh);
+    } catch (_) {}
+  }
+
+  /// Returns false if the server rejected it (the heart flips back).
+  Future<bool> toggle(String productId) async {
+    final adding = !state.contains(productId);
+    _set(adding ? {...state, productId} : ({...state}..remove(productId)));
+    try {
+      adding ? await _repo.add(productId) : await _repo.remove(productId);
+      return true;
+    } catch (_) {
+      if (ref.mounted) {
+        _set(adding ? ({...state}..remove(productId)) : {...state, productId});
+      }
+      return false;
+    }
+  }
+
+  void _set(Set<String> ids) {
+    state = ids;
+    ref.read(sharedPrefsProvider).setStringList(_cacheKey, ids.toList());
   }
 }

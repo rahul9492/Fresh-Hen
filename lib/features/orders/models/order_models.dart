@@ -87,6 +87,8 @@ abstract class OrderBill with _$OrderBill {
     String? couponCode,
   }) = _OrderBill;
 
+  factory OrderBill.fromJson(Map<String, dynamic> json) => _$OrderBillFromJson(json);
+
   int get total => itemTotal + deliveryFee + taxes - discount;
 
   int get savings => (mrpTotal - itemTotal) + discount;
@@ -99,6 +101,25 @@ abstract class OrderBill with _$OrderBill {
       deliveryFee: deliveryFee,
     );
   }
+}
+
+/// When the order reached [status]; the order's tracking timeline.
+@freezed
+abstract class OrderEvent with _$OrderEvent {
+  const factory OrderEvent({
+    @JsonKey(unknownEnumValue: OrderStatus.confirmed) required OrderStatus status,
+    required DateTime at,
+  }) = _OrderEvent;
+
+  factory OrderEvent.fromJson(Map<String, dynamic> json) => _$OrderEventFromJson(json);
+}
+
+/// Who is bringing the order, shown once it is out for delivery.
+@freezed
+abstract class DeliveryRider with _$DeliveryRider {
+  const factory DeliveryRider({required String name, required String phone}) = _DeliveryRider;
+
+  factory DeliveryRider.fromJson(Map<String, dynamic> json) => _$DeliveryRiderFromJson(json);
 }
 
 @freezed
@@ -114,9 +135,14 @@ abstract class Order with _$Order {
     /// Full delivery address as printed on the invoice.
     required String address,
     @Default('Home') String addressLabel,
-    @Default(OrderStatus.confirmed) OrderStatus status,
+    // A status this app version doesn't know yet still shows, as the nearest one.
+    @JsonKey(unknownEnumValue: OrderStatus.confirmed)
+    @Default(OrderStatus.confirmed)
+    OrderStatus status,
     @Default(PaymentMethod.cash) PaymentMethod paymentMethod,
-    @Default(PaymentStatus.due) PaymentStatus paymentStatus,
+    @JsonKey(unknownEnumValue: PaymentStatus.verifying)
+    @Default(PaymentStatus.due)
+    PaymentStatus paymentStatus,
 
     /// Null means "order now" (delivered within the store's ETA).
     DeliverySlot? slot,
@@ -132,11 +158,33 @@ abstract class Order with _$Order {
     /// 1-5 stars and an optional comment once the customer rates the order.
     int? rating,
     String? review,
+
+    /// Why it was cancelled, as the customer or the store put it.
+    String? cancelReason,
+
+    /// Each status the order reached and when, oldest first.
+    @Default(<OrderEvent>[]) List<OrderEvent> events,
+    DeliveryRider? rider,
   }) = _Order;
+
+  factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 
   int get total => bill.total;
 
   int get itemCount => lines.fold(0, (sum, l) => sum + l.quantity);
+
+  /// When the order reached [s], if it has. Older orders without events
+  /// still know when they were placed and delivered.
+  DateTime? reachedAt(OrderStatus s) =>
+      events.where((e) => e.status == s).firstOrNull?.at ??
+      switch (s) {
+        OrderStatus.confirmed => placedAt,
+        OrderStatus.delivered => deliveredAt,
+        _ => null,
+      };
+
+  /// The customer may cancel only until the store starts preparing it.
+  bool get canCancel => status == OrderStatus.confirmed;
 
   /// A delivered order can be invoiced; so can a paid one still on its way.
   bool get hasInvoice =>

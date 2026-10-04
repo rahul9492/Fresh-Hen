@@ -1,61 +1,93 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/config/env.dart';
+import '../../../core/network/dio_provider.dart';
 import '../../../core/storage/prefs_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/address.dart';
+import '../repositories/address_repository.dart';
 
 part 'address_providers.g.dart';
 
-/// The signed-in customer's saved addresses, kept on the device per phone
-/// number. A new customer starts with none and adds one at checkout.
+/// The only place that decides mock vs remote for addresses.
+@Riverpod(keepAlive: true)
+AddressRepository addressRepository(Ref ref) {
+  if (Env.useMock) {
+    return MockAddressRepository(
+      ref.watch(sharedPrefsProvider),
+      () => ref.read(sessionPhoneProvider),
+    );
+  }
+  return RemoteAddressRepository(ref.watch(dioProvider));
+}
+
+/// The signed-in customer's saved addresses. Shows the copy cached on the
+/// device at once, then refreshes from the server. Changes show immediately
+/// and roll back if the server rejects them.
 @Riverpod(keepAlive: true)
 class Addresses extends _$Addresses {
-  String get _key => 'addresses.${ref.read(sessionPhoneProvider) ?? 'guest'}';
+  String get _cacheKey => 'addresses.cache.${ref.read(sessionPhoneProvider) ?? 'guest'}';
+
+  AddressRepository get _repo => ref.read(addressRepositoryProvider);
 
   @override
   List<Address> build() {
-    ref.watch(sessionPhoneProvider);
-    final raw = ref.read(sharedPrefsProvider).getString(_key);
-    if (raw == null) return const [];
+    final phone = ref.watch(sessionPhoneProvider);
+    if (phone != null) Future.microtask(refresh);
+    return decodeAddresses(ref.read(sharedPrefsProvider).getString(_cacheKey));
+  }
+
+  /// Reloads from the server. Offline, the cached list stays.
+  Future<void> refresh() async {
+    final phone = ref.read(sessionPhoneProvider);
     try {
-      return (jsonDecode(raw) as List<dynamic>)
-          .whereType<Map<String, dynamic>>()
-          .map(Address.fromJson)
-          .toList();
+      final fresh = await _repo.fetch();
+      if (ref.mounted && ref.read(sessionPhoneProvider) == phone) _set(fresh);
+    } catch (_) {}
+  }
+
+  /// Adds or updates [address] and returns it as saved, with the server's id
+  /// for a new one. Callers that want it used for the next order also call
+  /// `selectedAddressIdProvider.notifier.select` with that id.
+  Future<Address> save(Address address) async {
+    final isNew = state.every((a) => a.id != address.id);
+    final before = state;
+    _set(upsertAddress(state, address));
+    try {
+      final saved = isNew ? await _repo.create(address) : await _repo.update(address);
+      _set(upsertAddress([for (final a in state) a.id == address.id ? saved : a], saved));
+      return saved;
     } catch (_) {
-      return const []; // corrupt or outdated data: start clean rather than crash
+      _set(before);
+      rethrow;
+    }
+  }
+
+  Future<void> makeDefault(String id) => _change(
+        [for (final a in state) a.copyWith(isDefault: a.id == id)],
+        () => _repo.makeDefault(id),
+      );
+
+  Future<void> remove(String id) =>
+      _change(state.where((a) => a.id != id).toList(), () => _repo.remove(id));
+
+  Future<void> _change(List<Address> next, Future<void> Function() send) async {
+    final before = state;
+    _set(next);
+    try {
+      await send();
+    } catch (_) {
+      _set(before);
+      rethrow;
     }
   }
 
   void _set(List<Address> addresses) {
-    // Exactly one default whenever there is at least one address.
-    final normalized = addresses.isEmpty || addresses.any((a) => a.isDefault)
-        ? addresses
-        : [addresses.first.copyWith(isDefault: true), ...addresses.skip(1)];
-    state = normalized;
-    ref
-        .read(sharedPrefsProvider)
-        .setString(_key, jsonEncode([for (final a in normalized) a.toJson()]));
+    state = withOneDefault(addresses);
+    ref.read(sharedPrefsProvider).setString(_cacheKey, encodeAddresses(state));
   }
-
-  /// Adds or updates [address]. Callers that want it used for the next order
-  /// also call `selectedAddressIdProvider.notifier.select`.
-  void save(Address address) {
-    var list = [
-      for (final a in state)
-        if (a.id != address.id) address.isDefault ? a.copyWith(isDefault: false) : a,
-    ];
-    final index = state.indexWhere((a) => a.id == address.id);
-    list = index == -1 ? [...list, address] : (list..insert(index, address));
-    _set(list);
-  }
-
-  void makeDefault(String id) =>
-      _set([for (final a in state) a.copyWith(isDefault: a.id == id)]);
-
-  void remove(String id) => _set(state.where((a) => a.id != id).toList());
 }
 
 /// The address the next order goes to: the customer's pick, else the default.

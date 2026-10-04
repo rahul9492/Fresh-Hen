@@ -8,10 +8,29 @@ abstract final class Endpoints {
   static const logout = '/auth/logout';
   static const me = '/users/me';
 
-  // Notifications
-  static const notifications = '/notifications';
-  static const notificationsReadAll = '/notifications/read-all';
-  static String notificationRead(String id) => '/notifications/$id/read';
+  // Push notifications: this phone's FCM token, registered after login.
+  static const devices = '/devices';
+  static String device(String token) => '/devices/$token';
+
+  // Catalog (managed from the admin app)
+  static const categories = '/categories';
+  static const products = '/products';
+  static const banners = '/banners';
+
+  // Orders
+  static const orders = '/orders';
+  static const paymentProofs = '/orders/payment-proofs';
+  static String orderRating(String id) => '/orders/${Uri.encodeComponent(id)}/rating';
+  static String orderCancel(String id) => '/orders/${Uri.encodeComponent(id)}/cancel';
+
+  // Saved delivery addresses
+  static const addresses = '/addresses';
+  static String address(String id) => '/addresses/${Uri.encodeComponent(id)}';
+  static String addressDefault(String id) => '/addresses/${Uri.encodeComponent(id)}/default';
+
+  // Wishlist
+  static const wishlist = '/wishlist';
+  static String wishlistItem(String productId) => '/wishlist/${Uri.encodeComponent(productId)}';
 
   // Checkout (values managed from the admin app)
   static const storeSettings = '/store/settings';

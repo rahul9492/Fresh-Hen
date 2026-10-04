@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
+import '../../checkout/providers/checkout_providers.dart';
 import '../models/address.dart';
 import '../providers/address_providers.dart';
 import 'address_form_sheet.dart';
@@ -24,6 +25,7 @@ class _AddressPickerSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final addresses = ref.watch(addressesProvider);
     final selectedId = ref.watch(selectedAddressIdProvider);
+    final settings = ref.watch(currentStoreSettingsProvider);
 
     Future<void> addNew() async {
       final saved = await showAddressFormSheet(context);
@@ -38,6 +40,7 @@ class _AddressPickerSheet extends ConsumerWidget {
             _AddressOption(
               address: a,
               selected: a.id == selectedId,
+              deliverable: settings.deliversTo(a.pincode),
               onTap: () {
                 ref.read(selectedAddressIdProvider.notifier).select(a.id);
                 Navigator.pop(context);
@@ -78,12 +81,16 @@ class _AddressOption extends StatelessWidget {
   const _AddressOption({
     required this.address,
     required this.selected,
+    required this.deliverable,
     required this.onTap,
     required this.onEdit,
   });
 
   final Address address;
   final bool selected;
+
+  /// False for an address outside the delivery area: it can't be picked.
+  final bool deliverable;
   final VoidCallback onTap;
   final VoidCallback onEdit;
 
@@ -93,7 +100,7 @@ class _AddressOption extends StatelessWidget {
       color: selected ? AppColors.accentSoft.withValues(alpha: 0.5) : Colors.white,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
-        onTap: onTap,
+        onTap: deliverable ? onTap : null,
         borderRadius: BorderRadius.circular(14),
         child: Container(
           padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
@@ -158,6 +165,17 @@ class _AddressOption extends StatelessWidget {
                       '${address.name} • +91 ${address.phone}',
                       style: const TextStyle(color: AppColors.muted, fontSize: 12),
                     ),
+                    if (!deliverable) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        "We don't deliver to ${address.pincode} yet",
+                        style: const TextStyle(
+                          color: AppColors.accent,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

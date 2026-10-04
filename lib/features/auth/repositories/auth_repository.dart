@@ -13,4 +13,8 @@ abstract interface class AuthRepository {
   Future<AppUser> updateProfile(AppUser user);
 
   Future<void> signOut();
+
+  /// Permanently deletes the signed-in customer's account, then clears the
+  /// session like [signOut].
+  Future<void> deleteAccount();
 }

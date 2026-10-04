@@ -70,6 +70,12 @@
 		<false/>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>Fresh Hen needs access to your photos so you can upload your UPI payment screenshot.</string>
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>remote-notification</string>
+		</array>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Fresh Hen saves the store's UPI QR to your photos so you can scan it from your UPI app.</string>
 		<key>NSCameraUsageDescription</key>
 		<string>Fresh Hen uses your camera so you can take a photo of your payment confirmation.</string>
 </dict>

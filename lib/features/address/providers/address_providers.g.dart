@@ -8,18 +8,73 @@ part of 'address_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The signed-in customer's saved addresses, kept on the device per phone
-/// number. A new customer starts with none and adds one at checkout.
+/// The only place that decides mock vs remote for addresses.
+
+@ProviderFor(addressRepository)
+final addressRepositoryProvider = AddressRepositoryProvider._();
+
+/// The only place that decides mock vs remote for addresses.
+
+final class AddressRepositoryProvider
+    extends
+        $FunctionalProvider<
+          AddressRepository,
+          AddressRepository,
+          AddressRepository
+        >
+    with $Provider<AddressRepository> {
+  /// The only place that decides mock vs remote for addresses.
+  AddressRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'addressRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$addressRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<AddressRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AddressRepository create(Ref ref) {
+    return addressRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AddressRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AddressRepository>(value),
+    );
+  }
+}
+
+String _$addressRepositoryHash() => r'068ea2f178bcc5769a80b313409491ea0cc6177f';
+
+/// The signed-in customer's saved addresses. Shows the copy cached on the
+/// device at once, then refreshes from the server. Changes show immediately
+/// and roll back if the server rejects them.
 
 @ProviderFor(Addresses)
 final addressesProvider = AddressesProvider._();
 
-/// The signed-in customer's saved addresses, kept on the device per phone
-/// number. A new customer starts with none and adds one at checkout.
+/// The signed-in customer's saved addresses. Shows the copy cached on the
+/// device at once, then refreshes from the server. Changes show immediately
+/// and roll back if the server rejects them.
 final class AddressesProvider
     extends $NotifierProvider<Addresses, List<Address>> {
-  /// The signed-in customer's saved addresses, kept on the device per phone
-  /// number. A new customer starts with none and adds one at checkout.
+  /// The signed-in customer's saved addresses. Shows the copy cached on the
+  /// device at once, then refreshes from the server. Changes show immediately
+  /// and roll back if the server rejects them.
   AddressesProvider._()
     : super(
         from: null,
@@ -47,10 +102,11 @@ final class AddressesProvider
   }
 }
 
-String _$addressesHash() => r'c2e24d21bfc0e1031f4397893aa383459c1ad313';
+String _$addressesHash() => r'56b31945ea2b141c30accdc084661519ea186621';
 
-/// The signed-in customer's saved addresses, kept on the device per phone
-/// number. A new customer starts with none and adds one at checkout.
+/// The signed-in customer's saved addresses. Shows the copy cached on the
+/// device at once, then refreshes from the server. Changes show immediately
+/// and roll back if the server rejects them.
 
 abstract class _$Addresses extends $Notifier<List<Address>> {
   List<Address> build();

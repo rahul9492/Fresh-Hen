@@ -4,6 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/network/session_expired_provider.dart';
+import '../../../core/push/push_service.dart';
+import '../../../core/storage/prefs_provider.dart';
 import '../models/app_user.dart';
 import 'auth_repository_provider.dart';
 
@@ -22,7 +24,23 @@ class AuthSession extends _$AuthSession {
   void signIn(AppUser user) => state = user;
 
   Future<void> signOut() async {
+    // Before the session is cleared, so the API call is still authorised.
+    await ref.read(pushServiceProvider).unregister();
     await ref.read(authRepositoryProvider).signOut();
+    state = null;
+  }
+
+  /// Deletes the account on the server, then everything this phone kept for
+  /// it (cart, cached addresses and wishlist are all keyed `*.<phone>`).
+  Future<void> deleteAccount() async {
+    final phone = state?.phone;
+    if (phone == null) return;
+    await ref.read(pushServiceProvider).unregister();
+    await ref.read(authRepositoryProvider).deleteAccount();
+    final prefs = ref.read(sharedPrefsProvider);
+    for (final key in prefs.getKeys().where((k) => k.endsWith('.$phone')).toList()) {
+      await prefs.remove(key);
+    }
     state = null;
   }
 }

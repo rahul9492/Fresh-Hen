@@ -14,6 +14,8 @@ const mockStoreSettings = StoreSettings(
   // The admin app supplies the real QR and UPI ID; these mirror the store's details.
   upiId: 'freshhen@upi',
   upiPayeeName: 'Fresh Hen Foods',
+  // Noida sectors around the shop.
+  deliveryPincodes: ['201301', '201303', '201304', '201307', '201309', '201310'],
   deliveryFee: 40,
   freeDeliveryAbove: 499,
   legalName: 'Fresh Hen Foods Pvt. Ltd.',

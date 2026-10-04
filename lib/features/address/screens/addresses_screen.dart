@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../core/utils/context_x.dart';
 import '../../../core/widgets/confirm_dialog.dart';
 import '../../../core/widgets/small_widgets.dart';
 import '../models/address.dart';
@@ -19,15 +20,25 @@ class AddressesScreen extends ConsumerWidget {
     final addresses = ref.watch(addressesProvider);
     final notifier = ref.read(addressesProvider.notifier);
 
+    /// Changes show at once; if the server refuses, they roll back with a message.
+    Future<void> send(Future<void> change) async {
+      try {
+        await change;
+      } catch (e) {
+        if (context.mounted) context.showError(e);
+      }
+    }
+
     Future<void> delete(Address a) async {
       final ok = await showConfirmDialog(
         context,
+        icon: Icons.delete_outline_rounded,
         title: 'Delete address?',
         message: 'Remove "${a.title}" from your saved addresses?',
         confirmLabel: 'Delete',
         destructive: true,
       );
-      if (ok) notifier.remove(a.id);
+      if (ok) await send(notifier.remove(a.id));
     }
 
     return Scaffold(
@@ -48,7 +59,7 @@ class AddressesScreen extends ConsumerWidget {
             _AddressCard(
               address: a,
               isDefault: a.isDefault,
-              onMakeDefault: () => notifier.makeDefault(a.id),
+              onMakeDefault: () => send(notifier.makeDefault(a.id)),
               onEdit: () => showAddressFormSheet(context, existing: a),
               onDelete: () => delete(a),
             ),

@@ -20,17 +20,33 @@ import '../../checkout/widgets/bill_summary.dart';
 import '../models/order_models.dart';
 import '../providers/order_providers.dart';
 import '../widgets/order_actions.dart';
+import '../widgets/order_timeline.dart';
 import '../widgets/order_status_style.dart';
 
-class OrderSummaryScreen extends ConsumerWidget {
+class OrderSummaryScreen extends ConsumerStatefulWidget {
   const OrderSummaryScreen({super.key, required this.orderId});
 
   final String orderId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OrderSummaryScreen> createState() => _OrderSummaryScreenState();
+}
+
+class _OrderSummaryScreenState extends ConsumerState<OrderSummaryScreen> {
+  String get orderId => widget.orderId;
+
+  @override
+  void initState() {
+    super.initState();
+    // Opened from a push or the list: show the latest status, not a stale one.
+    Future.microtask(() => ref.read(ordersProvider.notifier).refreshQuietly());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final order = ref.watch(orderProvider(orderId));
-    final canRepeat = order.value?.status.isActive == false;
+    final current = order.value;
+    final canRepeat = current?.status.isActive == false;
 
     return Scaffold(
       backgroundColor: AppColors.page,
@@ -58,10 +74,27 @@ class OrderSummaryScreen extends ConsumerWidget {
           ? BottomActionBar(
               button: AppButton(
                 label: 'Repeat Order',
-                onPressed: () => repeatOrder(context, ref, order.value!),
+                onPressed: () => repeatOrder(context, ref, current!),
               ),
             )
-          : null,
+          : current != null && current.canCancel
+              ? BottomActionBar(
+                  button: SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: OutlinedButton(
+                      onPressed: () => cancelOrder(context, ref, current),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.accent,
+                        side: const BorderSide(color: AppColors.accent),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                      child: const Text('Cancel order'),
+                    ),
+                  ),
+                )
+              : null,
     );
   }
 }
@@ -126,6 +159,12 @@ class _Body extends ConsumerWidget {
             ],
           ),
         ),
+        const SizedBox(height: 14),
+        AppCard(child: OrderTimeline(order: order)),
+        if (order.status == OrderStatus.outForDelivery && order.rider != null) ...[
+          const SizedBox(height: 14),
+          RiderCard(rider: order.rider!),
+        ],
         const SizedBox(height: 14),
         AppCard(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),

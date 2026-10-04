@@ -7,6 +7,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/add_control.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_image.dart';
 import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/small_widgets.dart';
 import '../../cart/models/cart_models.dart';
@@ -214,7 +215,7 @@ class _GalleryState extends ConsumerState<_Gallery> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.asset(images[i], fit: BoxFit.cover, width: double.infinity),
+                child: AppImage(source: images[i], width: double.infinity),
               ),
             ),
           ),
@@ -284,7 +285,9 @@ class _UnitTile extends StatelessWidget {
                   ),
                 ),
                 if (inCart)
-                  const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.primary),
+                  const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.primary)
+                else if (!variant.inStock)
+                  const Text('Sold out', style: TextStyle(color: AppColors.muted, fontSize: 11)),
               ],
             ),
             const SizedBox(height: 14),
@@ -347,7 +350,11 @@ class _BottomBar extends StatelessWidget {
             const SizedBox(width: 16),
             Expanded(
               child: quantity == 0
-                  ? AppButton(label: 'Add to cart', onPressed: onAdd, height: 54)
+                  ? AppButton(
+                      label: variant.inStock ? 'Add to cart' : 'Out of stock',
+                      onPressed: variant.inStock ? onAdd : null,
+                      height: 54,
+                    )
                   : Row(
                       children: [
                         QtyStepper(

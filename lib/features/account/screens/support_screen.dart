@@ -1,40 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
-import '../../../core/utils/context_x.dart';
+import '../../../core/utils/open_link.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../checkout/providers/checkout_providers.dart';
 
-/// Help & Support: reach the store by phone call or WhatsApp.
-class SupportScreen extends StatelessWidget {
+/// Help & Support: reach the store by phone call or WhatsApp. The number comes
+/// from the admin app's settings, falling back to the built-in one.
+class SupportScreen extends ConsumerWidget {
   const SupportScreen({super.key});
 
   static const _whatsAppGreen = Color(0xFF25D366);
 
-  Future<void> _call(BuildContext context) =>
-      _open(context, Uri(scheme: 'tel', path: AppConstants.supportPhone), 'Could not open the dialer.');
-
-  /// wa.me opens the WhatsApp app when installed, otherwise WhatsApp Web.
-  Future<void> _whatsApp(BuildContext context) => _open(
-        context,
-        Uri.https('wa.me', '/${AppConstants.supportPhone.replaceAll('+', '')}', {
-          'text': 'Hi Fresh Hen, I need help with my order.',
-        }),
-        'Could not open WhatsApp.',
-      );
-
-  Future<void> _open(BuildContext context, Uri uri, String error) async {
-    var opened = false;
-    try {
-      opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {}
-    if (!opened && context.mounted) context.showError(error);
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final fromAdmin = ref.watch(currentStoreSettingsProvider.select((s) => s.supportPhone.trim()));
+    final phone = fromAdmin.isNotEmpty ? fromAdmin : AppConstants.supportPhone;
+    final digits = supportDigits(phone);
+    final display = supportDisplay(phone);
+
     return Scaffold(
       backgroundColor: AppColors.page,
       appBar: AppBar(title: const Text('Help & Support')),
@@ -65,16 +52,25 @@ class SupportScreen extends StatelessWidget {
             icon: const Icon(Icons.call_rounded, color: Colors.white, size: 26),
             color: AppColors.primary,
             title: 'Call us',
-            subtitle: AppConstants.supportPhoneDisplay,
-            onTap: () => _call(context),
+            subtitle: display,
+            onTap: () => openLink(
+              context,
+              Uri(scheme: 'tel', path: '+$digits'),
+              error: 'Could not open the dialer.',
+            ),
           ),
           const SizedBox(height: 12),
           _ContactOption(
             icon: const FaIcon(FontAwesomeIcons.whatsapp, color: Colors.white, size: 26),
             color: _whatsAppGreen,
             title: 'Chat on WhatsApp',
-            subtitle: AppConstants.supportPhoneDisplay,
-            onTap: () => _whatsApp(context),
+            subtitle: display,
+            // wa.me opens the WhatsApp app when installed, otherwise WhatsApp Web.
+            onTap: () => openLink(
+              context,
+              Uri.https('wa.me', '/$digits', {'text': 'Hi Fresh Hen, I need help with my order.'}),
+              error: 'Could not open WhatsApp.',
+            ),
           ),
         ],
       ),

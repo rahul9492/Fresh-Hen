@@ -8,14 +8,18 @@ part of 'order_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The only place that decides mock vs remote for orders.
 
 @ProviderFor(orderRepository)
 final orderRepositoryProvider = OrderRepositoryProvider._();
+
+/// The only place that decides mock vs remote for orders.
 
 final class OrderRepositoryProvider
     extends
         $FunctionalProvider<OrderRepository, OrderRepository, OrderRepository>
     with $Provider<OrderRepository> {
+  /// The only place that decides mock vs remote for orders.
   OrderRepositoryProvider._()
     : super(
         from: null,
@@ -49,7 +53,7 @@ final class OrderRepositoryProvider
   }
 }
 
-String _$orderRepositoryHash() => r'dee06663f1fff54035d6193c01ba818caa5c4917';
+String _$orderRepositoryHash() => r'09bfa591f4d69f12063acf2f8b2b199c3008b5fd';
 
 @ProviderFor(Orders)
 final ordersProvider = OrdersProvider._();
@@ -74,7 +78,7 @@ final class OrdersProvider extends $AsyncNotifierProvider<Orders, List<Order>> {
   Orders create() => Orders();
 }
 
-String _$ordersHash() => r'489295d4c167c33326348caecf690b722dfc77f4';
+String _$ordersHash() => r'5ed7cc8b75db704bb0598e56e19cb6cd3f10e483';
 
 abstract class _$Orders extends $AsyncNotifier<List<Order>> {
   FutureOr<List<Order>> build();
@@ -195,7 +199,7 @@ final class PlaceOrderProvider
   PlaceOrder create() => PlaceOrder();
 }
 
-String _$placeOrderHash() => r'228bae6779dc8319a966c65e6db0e92db9d5a3ad';
+String _$placeOrderHash() => r'79482aa5fe35af801cf0fab02d500690ae464ee3';
 
 abstract class _$PlaceOrder extends $AsyncNotifier<Order?> {
   FutureOr<Order?> build();

@@ -19,6 +19,7 @@ import '../../orders/models/order_models.dart';
 import '../../orders/providers/order_providers.dart';
 import '../models/checkout_models.dart';
 import '../providers/checkout_providers.dart';
+import '../services/upi_qr_actions.dart';
 import '../widgets/bill_summary.dart';
 
 /// Pay by scanning the store's UPI QR (uploaded from the admin app), then
@@ -61,13 +62,17 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   Future<void> _confirmLeave() async {
     final leave = await showConfirmDialog(
       context,
+      icon: Icons.warning_amber_rounded,
       title: 'Leave payment?',
       message:
-          'If you have already paid, stay and upload the screenshot so we can confirm '
-          'your order. Your cart will be kept.',
-      confirmLabel: 'Leave',
-      cancelLabel: 'Stay',
+          'If you have already paid, stay and upload the payment screenshot so we can '
+          'confirm your order.',
+      note: 'Your cart is saved',
+      noteIcon: Icons.shopping_cart_rounded,
+      confirmLabel: 'Leave anyway',
+      cancelLabel: 'Stay & upload screenshot',
       destructive: true,
+      preferCancel: true,
     );
     if (leave && mounted) context.pop();
   }
@@ -152,6 +157,10 @@ class _QrCard extends StatelessWidget {
             style: TextStyle(color: AppColors.body, fontSize: 13),
           ),
           const SizedBox(height: 16),
+          if (canPayWithUpiApp && upiId != null && upiId.isNotEmpty) ...[
+            _PayWithAppButton(settings: settings, amount: amount),
+            const _OrDivider(label: 'or scan the QR'),
+          ],
           _QrFrame(
             child: AppImage(
               source: settings.upiQrImage!,
@@ -160,7 +169,9 @@ class _QrCard extends StatelessWidget {
               fit: BoxFit.contain,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+          _QrActions(settings: settings, amount: amount),
+          const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
@@ -208,6 +219,131 @@ class _QrCard extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// Opens GPay, PhonePe, Paytm etc. on this phone with the amount filled in.
+class _PayWithAppButton extends StatelessWidget {
+  const _PayWithAppButton({required this.settings, required this.amount});
+
+  final StoreSettings settings;
+  final int amount;
+
+  Future<void> _pay(BuildContext context) async {
+    final opened = await payWithUpiApp(settings, amount);
+    if (!opened && context.mounted) {
+      context.showError('No UPI app found. Save the QR and scan it from your UPI app instead.');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: FilledButton.icon(
+        onPressed: () => _pay(context),
+        icon: const Icon(Icons.account_balance_wallet_outlined, size: 20),
+        label: Text('Pay ${rupees(amount)} with UPI app'),
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.accentSoft,
+          foregroundColor: AppColors.primary,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+      ),
+    );
+  }
+}
+
+class _OrDivider extends StatelessWidget {
+  const _OrDivider({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Row(
+        children: [
+          const Expanded(child: Divider(color: AppColors.hairline)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Text(label, style: const TextStyle(color: AppColors.muted, fontSize: 12.5)),
+          ),
+          const Expanded(child: Divider(color: AppColors.hairline)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Save the QR to the gallery (to scan it from a UPI app on this phone) or
+/// share it to another phone.
+class _QrActions extends StatefulWidget {
+  const _QrActions({required this.settings, required this.amount});
+
+  final StoreSettings settings;
+  final int amount;
+
+  @override
+  State<_QrActions> createState() => _QrActionsState();
+}
+
+class _QrActionsState extends State<_QrActions> {
+  var _busy = false;
+
+  Future<void> _run(Future<void> Function() action) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await action();
+    } catch (e) {
+      if (mounted) context.showError('Could not get the QR. Please try again.');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _save() => _run(() async {
+        final saved = await saveUpiQr(widget.settings.upiQrImage!);
+        if (!mounted) return;
+        if (saved) {
+          context.showSuccess('QR saved. In your UPI app tap Scan → Gallery and pick it.');
+        } else {
+          context.showError('Allow photo access to save the QR.');
+        }
+      });
+
+  Future<void> _share() => _run(() => shareUpiQr(widget.settings, widget.amount));
+
+  @override
+  Widget build(BuildContext context) {
+    final style = OutlinedButton.styleFrom(
+      foregroundColor: AppColors.primary,
+      side: const BorderSide(color: AppColors.border),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      textStyle: const TextStyle(fontWeight: FontWeight.w600),
+    );
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        OutlinedButton.icon(
+          onPressed: _busy ? null : _save,
+          icon: const Icon(Icons.download_rounded, size: 18),
+          label: const Text('Save QR'),
+          style: style,
+        ),
+        const SizedBox(width: 10),
+        OutlinedButton.icon(
+          onPressed: _busy ? null : _share,
+          icon: const Icon(Icons.share_rounded, size: 18),
+          label: const Text('Share QR'),
+          style: style,
+        ),
+      ],
     );
   }
 }

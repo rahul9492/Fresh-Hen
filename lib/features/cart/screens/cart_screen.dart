@@ -64,6 +64,12 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     }
     if (!mounted) return;
 
+    final address = ref.read(selectedAddressProvider);
+    if (address != null && !settings.deliversTo(address.pincode)) {
+      context.showError("We don't deliver to ${address.pincode} yet. Please choose another address.");
+      return showAddressPickerSheet(context);
+    }
+
     final checkout = ref.read(checkoutProvider);
     final wantsSlot = settings.scheduleEnabled && checkout.mode == DeliveryMode.scheduled;
     final slot = checkout.slot;
@@ -653,7 +659,9 @@ class _CheckoutBar extends ConsumerWidget {
                 ],
               ),
             ),
-            subtitle: address.line,
+            subtitle: settings.deliversTo(address.pincode)
+                ? address.line
+                : "We don't deliver to ${address.pincode} yet. Please choose another address.",
             actionLabel: 'change address',
             onAction: () => showAddressPickerSheet(context),
           ),

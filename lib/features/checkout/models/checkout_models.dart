@@ -38,13 +38,26 @@ abstract class StoreSettings with _$StoreSettings {
     @Default('') String gstin,
     @Default('') String fssaiLicense,
     @Default('') String storeAddress,
+    /// Help & Support call and WhatsApp number, e.g. `9711739492`.
     @Default('') String supportPhone,
     @Default('') String supportEmail,
+
+    /// Public pages set in the admin app. Empty falls back to the text built
+    /// into the app.
+    @Default('') String termsUrl,
+    @Default('') String privacyUrl,
+
+    /// Pincodes the shop delivers to, set in the admin app. Empty means no
+    /// limit (every pincode is accepted).
+    @Default(<String>[]) List<String> deliveryPincodes,
   }) = _StoreSettings;
 
   factory StoreSettings.fromJson(Map<String, dynamic> json) => _$StoreSettingsFromJson(json);
 
   bool get upiEnabled => (upiQrImage ?? '').isNotEmpty;
+
+  bool deliversTo(String pincode) =>
+      deliveryPincodes.isEmpty || deliveryPincodes.contains(pincode.trim());
 
   String get etaLabel => formatEta(etaMinMinutes, etaMaxMinutes);
 

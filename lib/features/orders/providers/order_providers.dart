@@ -1,7 +1,13 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/config/env.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/media/image_picking.dart';
+import '../../../core/network/dio_provider.dart';
+import '../../../core/push/push_route.dart';
+import '../../../core/push/push_service.dart';
 import '../../address/providers/address_providers.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../cart/providers/cart_providers.dart';
@@ -12,8 +18,12 @@ import '../repositories/order_repository.dart';
 
 part 'order_providers.g.dart';
 
+/// The only place that decides mock vs remote for orders.
 @Riverpod(keepAlive: true)
-OrderRepository orderRepository(Ref ref) => MockOrderRepository();
+OrderRepository orderRepository(Ref ref) {
+  if (Env.useMock) return MockOrderRepository();
+  return RemoteOrderRepository(ref.watch(dioProvider));
+}
 
 @Riverpod(keepAlive: true)
 class Orders extends _$Orders {
@@ -21,10 +31,39 @@ class Orders extends _$Orders {
   Future<List<Order>> build() async {
     // A different user (or logout) means a different order history.
     if (ref.watch(authSessionProvider) == null) return const [];
+
+    // An order or payment push while the app is open: show the new status now.
+    final pushes = ref.watch(pushServiceProvider).received.listen((data) {
+      final type = data['type'];
+      if (type == PushType.order.name || type == PushType.payment.name) {
+        unawaited(refreshQuietly());
+      }
+    });
+    ref.onDispose(pushes.cancel);
+
     return ref.watch(orderRepositoryProvider).fetch();
   }
 
   List<Order> get _current => state.value ?? const [];
+
+  /// Reloads without a loading state, so open screens just update in place.
+  /// Offline, the current list stays.
+  Future<void> refreshQuietly() async {
+    if (ref.read(authSessionProvider) == null) return;
+    try {
+      final fresh = await ref.read(orderRepositoryProvider).fetch();
+      if (ref.mounted) state = AsyncData(fresh);
+    } catch (_) {}
+  }
+
+  /// Not optimistic: the store may have just started preparing it.
+  Future<void> cancel(String orderId, {required String reason}) async {
+    final updated = await ref.read(orderRepositoryProvider).cancel(orderId, reason: reason);
+    if (!ref.mounted) return;
+    state = AsyncData([
+      for (final o in _current) o.id == orderId ? updated : o,
+    ]);
+  }
 
   void add(Order order) => state = AsyncData([
         order,
@@ -82,6 +121,11 @@ class PlaceOrder extends _$PlaceOrder {
       if (method == PaymentMethod.upi && !settings.upiEnabled) {
         throw const AppException('UPI payments are unavailable right now. Please choose cash.');
       }
+      if (!settings.deliversTo(address.pincode)) {
+        throw AppException(
+          "We don't deliver to ${address.pincode} yet. Please choose another address.",
+        );
+      }
       if (method == PaymentMethod.cash && !settings.cashOnDeliveryEnabled) {
         throw const AppException('Cash on delivery is unavailable right now. Please pay by UPI.');
       }
@@ -101,6 +145,7 @@ class PlaceOrder extends _$PlaceOrder {
       return repo.place(OrderRequest(
         lines: lines,
         bill: ref.read(checkoutBillProvider),
+        addressId: address.id,
         address: address.line,
         addressLabel: address.title,
         paymentMethod: method,

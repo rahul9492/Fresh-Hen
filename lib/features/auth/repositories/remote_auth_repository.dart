@@ -83,6 +83,15 @@ class RemoteAuthRepository implements AuthRepository {
     await _prefs.remove(_userKey);
   }
 
+  /// `DELETE /users/me`: the server deletes the account and its personal data.
+  /// Unlike sign-out this must succeed, so errors reach the customer.
+  @override
+  Future<void> deleteAccount() async {
+    await apiCall(() => _dio.delete<void>(Endpoints.me));
+    await _tokens.clear();
+    await _prefs.remove(_userKey);
+  }
+
   Future<AppUser> _saveUserFrom(Map<String, dynamic>? body) async {
     final json = (body?['user'] ?? body) as Map<String, dynamic>;
     final user = AppUser.fromJson(json);

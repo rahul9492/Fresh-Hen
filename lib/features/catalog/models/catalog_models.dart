@@ -1,14 +1,18 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'catalog_models.freezed.dart';
+part 'catalog_models.g.dart';
 
 @freezed
 abstract class Category with _$Category {
   const factory Category({
     required String id,
     required String name,
+    /// Asset path in mock mode, image URL from the API.
     required String image,
   }) = _Category;
+
+  factory Category.fromJson(Map<String, dynamic> json) => _$CategoryFromJson(json);
 }
 
 @freezed
@@ -18,7 +22,12 @@ abstract class ProductVariant with _$ProductVariant {
     required String label,
     required int price,
     int? mrp,
+
+    /// Set from the admin app when this pack runs out for the day.
+    @Default(true) bool inStock,
   }) = _ProductVariant;
+
+  factory ProductVariant.fromJson(Map<String, dynamic> json) => _$ProductVariantFromJson(json);
 }
 
 @freezed
@@ -31,7 +40,10 @@ abstract class Accompaniment with _$Accompaniment {
     required double rating,
     required int ratingCount,
     required String image,
+    @Default(true) bool inStock,
   }) = _Accompaniment;
+
+  factory Accompaniment.fromJson(Map<String, dynamic> json) => _$AccompanimentFromJson(json);
 }
 
 @freezed
@@ -52,7 +64,14 @@ abstract class Product with _$Product {
     @Default(false) bool isRecommended,
   }) = _Product;
 
-  ProductVariant get defaultVariant => variants.first;
+  factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
+
+  /// The first pack that can be bought, so quick-add never picks a sold-out one.
+  ProductVariant get defaultVariant =>
+      variants.firstWhere((v) => v.inStock, orElse: () => variants.first);
+
+  /// False when every pack is sold out.
+  bool get inStock => variants.any((v) => v.inStock);
 
   List<String> get images => [image, ...gallery];
 
@@ -70,6 +89,8 @@ abstract class PromoBanner with _$PromoBanner {
     required String image,
     required String categoryId,
   }) = _PromoBanner;
+
+  factory PromoBanner.fromJson(Map<String, dynamic> json) => _$PromoBannerFromJson(json);
 }
 
 enum ProductSort {

@@ -68,6 +68,15 @@ class MockAuthRepository implements AuthRepository {
   @override
   Future<void> signOut() => _prefs.remove(_sessionKey);
 
+  @override
+  Future<void> deleteAccount() async {
+    await Future.delayed(AppConstants.mockLatency);
+    final phone = _prefs.getString(_sessionKey);
+    final users = {..._users}..remove(phone);
+    await _prefs.setString(_usersKey, jsonEncode(users.map((k, v) => MapEntry(k, v.toJson()))));
+    await signOut();
+  }
+
   String? _clean(String? value) {
     final v = value?.trim();
     return (v == null || v.isEmpty) ? null : v;

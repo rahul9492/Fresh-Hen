@@ -22,7 +22,6 @@ import '../../features/home/screens/product_list_screen.dart';
 import '../../features/home/screens/search_screen.dart';
 import '../../features/onboarding/providers/onboarding_provider.dart';
 import '../../features/onboarding/screens/onboarding_screen.dart';
-import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/checkout/screens/coupons_screen.dart';
 import '../../features/checkout/screens/payment_screen.dart';
 import '../../features/orders/screens/invoice_screen.dart';
@@ -103,7 +102,6 @@ GoRouter goRouter(Ref ref) {
       ),
       GoRoute(path: Routes.wishlist, builder: (_, _) => const WishlistScreen()),
       GoRoute(path: Routes.cart, builder: (_, _) => const CartScreen()),
-      GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
       GoRoute(
         path: Routes.search,
         builder: (_, state) => SearchScreen(initialQuery: state.extra as ProductQuery?),

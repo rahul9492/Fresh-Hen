@@ -12,9 +12,13 @@ class AddControl extends StatelessWidget {
     required this.onIncrement,
     required this.onDecrement,
     this.style = AddControlStyle.pill,
+    this.available = true,
   });
 
   final int quantity;
+
+  /// False shows a disabled "Sold out" instead of Add.
+  final bool available;
   final VoidCallback onAdd;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
@@ -27,11 +31,11 @@ class AddControl extends StatelessWidget {
     }
     if (style == AddControlStyle.round) {
       return Material(
-        color: AppColors.primary,
+        color: available ? AppColors.primary : AppColors.border,
         shape: const CircleBorder(),
         child: InkWell(
           customBorder: const CircleBorder(),
-          onTap: onAdd,
+          onTap: available ? onAdd : null,
           child: const SizedBox.square(
             dimension: 34,
             child: Icon(Icons.add_rounded, color: Colors.white, size: 22),
@@ -42,15 +46,16 @@ class AddControl extends StatelessWidget {
     return SizedBox(
       height: 34,
       child: OutlinedButton(
-        onPressed: onAdd,
+        onPressed: available ? onAdd : null,
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primaryDark,
-          side: const BorderSide(color: AppColors.primaryDark),
-          padding: const EdgeInsets.symmetric(horizontal: 22),
+          disabledForegroundColor: AppColors.muted,
+          side: BorderSide(color: available ? AppColors.primaryDark : AppColors.border),
+          padding: EdgeInsets.symmetric(horizontal: available ? 22 : 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         ),
-        child: const Text('Add'),
+        child: Text(available ? 'Add' : 'Sold out'),
       ),
     );
   }

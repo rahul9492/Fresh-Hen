@@ -21,7 +21,12 @@ mixin _$StoreSettings {
  int get etaMinMinutes; int get etaMaxMinutes; bool get cashOnDeliveryEnabled;/// UPI QR the admin uploaded: a URL (or a bundled asset in mock mode).
 /// UPI is offered only while one is set.
  String? get upiQrImage; String? get upiId; String get upiPayeeName; int get deliveryFee; int get freeDeliveryAbove; int get packagingFee;/// GST on fresh, unprocessed meat and eggs is nil, so this is usually 0.
- int get taxPercent; String get legalName; String get gstin; String get fssaiLicense; String get storeAddress; String get supportPhone; String get supportEmail;
+ int get taxPercent; String get legalName; String get gstin; String get fssaiLicense; String get storeAddress;/// Help & Support call and WhatsApp number, e.g. `9711739492`.
+ String get supportPhone; String get supportEmail;/// Public pages set in the admin app. Empty falls back to the text built
+/// into the app.
+ String get termsUrl; String get privacyUrl;/// Pincodes the shop delivers to, set in the admin app. Empty means no
+/// limit (every pincode is accepted).
+ List<String> get deliveryPincodes;
 /// Create a copy of StoreSettings
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -35,20 +40,20 @@ $StoreSettingsCopyWith<StoreSettings> get copyWith => _$StoreSettingsCopyWithImp
 @override
 bool operator ==(Object other) {
   final _this = this as StoreSettings;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StoreSettings&&(identical(other.scheduleEnabled, _this.scheduleEnabled) || other.scheduleEnabled == _this.scheduleEnabled)&&(identical(other.etaMinMinutes, _this.etaMinMinutes) || other.etaMinMinutes == _this.etaMinMinutes)&&(identical(other.etaMaxMinutes, _this.etaMaxMinutes) || other.etaMaxMinutes == _this.etaMaxMinutes)&&(identical(other.cashOnDeliveryEnabled, _this.cashOnDeliveryEnabled) || other.cashOnDeliveryEnabled == _this.cashOnDeliveryEnabled)&&(identical(other.upiQrImage, _this.upiQrImage) || other.upiQrImage == _this.upiQrImage)&&(identical(other.upiId, _this.upiId) || other.upiId == _this.upiId)&&(identical(other.upiPayeeName, _this.upiPayeeName) || other.upiPayeeName == _this.upiPayeeName)&&(identical(other.deliveryFee, _this.deliveryFee) || other.deliveryFee == _this.deliveryFee)&&(identical(other.freeDeliveryAbove, _this.freeDeliveryAbove) || other.freeDeliveryAbove == _this.freeDeliveryAbove)&&(identical(other.packagingFee, _this.packagingFee) || other.packagingFee == _this.packagingFee)&&(identical(other.taxPercent, _this.taxPercent) || other.taxPercent == _this.taxPercent)&&(identical(other.legalName, _this.legalName) || other.legalName == _this.legalName)&&(identical(other.gstin, _this.gstin) || other.gstin == _this.gstin)&&(identical(other.fssaiLicense, _this.fssaiLicense) || other.fssaiLicense == _this.fssaiLicense)&&(identical(other.storeAddress, _this.storeAddress) || other.storeAddress == _this.storeAddress)&&(identical(other.supportPhone, _this.supportPhone) || other.supportPhone == _this.supportPhone)&&(identical(other.supportEmail, _this.supportEmail) || other.supportEmail == _this.supportEmail));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StoreSettings&&(identical(other.scheduleEnabled, _this.scheduleEnabled) || other.scheduleEnabled == _this.scheduleEnabled)&&(identical(other.etaMinMinutes, _this.etaMinMinutes) || other.etaMinMinutes == _this.etaMinMinutes)&&(identical(other.etaMaxMinutes, _this.etaMaxMinutes) || other.etaMaxMinutes == _this.etaMaxMinutes)&&(identical(other.cashOnDeliveryEnabled, _this.cashOnDeliveryEnabled) || other.cashOnDeliveryEnabled == _this.cashOnDeliveryEnabled)&&(identical(other.upiQrImage, _this.upiQrImage) || other.upiQrImage == _this.upiQrImage)&&(identical(other.upiId, _this.upiId) || other.upiId == _this.upiId)&&(identical(other.upiPayeeName, _this.upiPayeeName) || other.upiPayeeName == _this.upiPayeeName)&&(identical(other.deliveryFee, _this.deliveryFee) || other.deliveryFee == _this.deliveryFee)&&(identical(other.freeDeliveryAbove, _this.freeDeliveryAbove) || other.freeDeliveryAbove == _this.freeDeliveryAbove)&&(identical(other.packagingFee, _this.packagingFee) || other.packagingFee == _this.packagingFee)&&(identical(other.taxPercent, _this.taxPercent) || other.taxPercent == _this.taxPercent)&&(identical(other.legalName, _this.legalName) || other.legalName == _this.legalName)&&(identical(other.gstin, _this.gstin) || other.gstin == _this.gstin)&&(identical(other.fssaiLicense, _this.fssaiLicense) || other.fssaiLicense == _this.fssaiLicense)&&(identical(other.storeAddress, _this.storeAddress) || other.storeAddress == _this.storeAddress)&&(identical(other.supportPhone, _this.supportPhone) || other.supportPhone == _this.supportPhone)&&(identical(other.supportEmail, _this.supportEmail) || other.supportEmail == _this.supportEmail)&&(identical(other.termsUrl, _this.termsUrl) || other.termsUrl == _this.termsUrl)&&(identical(other.privacyUrl, _this.privacyUrl) || other.privacyUrl == _this.privacyUrl)&&const DeepCollectionEquality().equals(other.deliveryPincodes, _this.deliveryPincodes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as StoreSettings;
-  return Object.hash(runtimeType,_this.scheduleEnabled,_this.etaMinMinutes,_this.etaMaxMinutes,_this.cashOnDeliveryEnabled,_this.upiQrImage,_this.upiId,_this.upiPayeeName,_this.deliveryFee,_this.freeDeliveryAbove,_this.packagingFee,_this.taxPercent,_this.legalName,_this.gstin,_this.fssaiLicense,_this.storeAddress,_this.supportPhone,_this.supportEmail);
+  return Object.hashAll([runtimeType,_this.scheduleEnabled,_this.etaMinMinutes,_this.etaMaxMinutes,_this.cashOnDeliveryEnabled,_this.upiQrImage,_this.upiId,_this.upiPayeeName,_this.deliveryFee,_this.freeDeliveryAbove,_this.packagingFee,_this.taxPercent,_this.legalName,_this.gstin,_this.fssaiLicense,_this.storeAddress,_this.supportPhone,_this.supportEmail,_this.termsUrl,_this.privacyUrl,const DeepCollectionEquality().hash(_this.deliveryPincodes)]);
 }
 
 @override
 String toString() {
   final _this = this as StoreSettings;
-  return 'StoreSettings(scheduleEnabled: ${_this.scheduleEnabled}, etaMinMinutes: ${_this.etaMinMinutes}, etaMaxMinutes: ${_this.etaMaxMinutes}, cashOnDeliveryEnabled: ${_this.cashOnDeliveryEnabled}, upiQrImage: ${_this.upiQrImage}, upiId: ${_this.upiId}, upiPayeeName: ${_this.upiPayeeName}, deliveryFee: ${_this.deliveryFee}, freeDeliveryAbove: ${_this.freeDeliveryAbove}, packagingFee: ${_this.packagingFee}, taxPercent: ${_this.taxPercent}, legalName: ${_this.legalName}, gstin: ${_this.gstin}, fssaiLicense: ${_this.fssaiLicense}, storeAddress: ${_this.storeAddress}, supportPhone: ${_this.supportPhone}, supportEmail: ${_this.supportEmail})';
+  return 'StoreSettings(scheduleEnabled: ${_this.scheduleEnabled}, etaMinMinutes: ${_this.etaMinMinutes}, etaMaxMinutes: ${_this.etaMaxMinutes}, cashOnDeliveryEnabled: ${_this.cashOnDeliveryEnabled}, upiQrImage: ${_this.upiQrImage}, upiId: ${_this.upiId}, upiPayeeName: ${_this.upiPayeeName}, deliveryFee: ${_this.deliveryFee}, freeDeliveryAbove: ${_this.freeDeliveryAbove}, packagingFee: ${_this.packagingFee}, taxPercent: ${_this.taxPercent}, legalName: ${_this.legalName}, gstin: ${_this.gstin}, fssaiLicense: ${_this.fssaiLicense}, storeAddress: ${_this.storeAddress}, supportPhone: ${_this.supportPhone}, supportEmail: ${_this.supportEmail}, termsUrl: ${_this.termsUrl}, privacyUrl: ${_this.privacyUrl}, deliveryPincodes: ${_this.deliveryPincodes})';
 }
 
 
@@ -59,7 +64,7 @@ abstract mixin class $StoreSettingsCopyWith<$Res>  {
   factory $StoreSettingsCopyWith(StoreSettings value, $Res Function(StoreSettings) _then) = _$StoreSettingsCopyWithImpl;
 @useResult
 $Res call({
- bool scheduleEnabled, int etaMinMinutes, int etaMaxMinutes, bool cashOnDeliveryEnabled, String? upiQrImage, String? upiId, String upiPayeeName, int deliveryFee, int freeDeliveryAbove, int packagingFee, int taxPercent, String legalName, String gstin, String fssaiLicense, String storeAddress, String supportPhone, String supportEmail
+ bool scheduleEnabled, int etaMinMinutes, int etaMaxMinutes, bool cashOnDeliveryEnabled, String? upiQrImage, String? upiId, String upiPayeeName, int deliveryFee, int freeDeliveryAbove, int packagingFee, int taxPercent, String legalName, String gstin, String fssaiLicense, String storeAddress, String supportPhone, String supportEmail, String termsUrl, String privacyUrl, List<String> deliveryPincodes
 });
 
 
@@ -76,7 +81,7 @@ class _$StoreSettingsCopyWithImpl<$Res>
 
 /// Create a copy of StoreSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? scheduleEnabled = null,Object? etaMinMinutes = null,Object? etaMaxMinutes = null,Object? cashOnDeliveryEnabled = null,Object? upiQrImage = freezed,Object? upiId = freezed,Object? upiPayeeName = null,Object? deliveryFee = null,Object? freeDeliveryAbove = null,Object? packagingFee = null,Object? taxPercent = null,Object? legalName = null,Object? gstin = null,Object? fssaiLicense = null,Object? storeAddress = null,Object? supportPhone = null,Object? supportEmail = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? scheduleEnabled = null,Object? etaMinMinutes = null,Object? etaMaxMinutes = null,Object? cashOnDeliveryEnabled = null,Object? upiQrImage = freezed,Object? upiId = freezed,Object? upiPayeeName = null,Object? deliveryFee = null,Object? freeDeliveryAbove = null,Object? packagingFee = null,Object? taxPercent = null,Object? legalName = null,Object? gstin = null,Object? fssaiLicense = null,Object? storeAddress = null,Object? supportPhone = null,Object? supportEmail = null,Object? termsUrl = null,Object? privacyUrl = null,Object? deliveryPincodes = null,}) {
   return _then(StoreSettings(
 scheduleEnabled: null == scheduleEnabled ? _self.scheduleEnabled : scheduleEnabled // ignore: cast_nullable_to_non_nullable
 as bool,etaMinMinutes: null == etaMinMinutes ? _self.etaMinMinutes : etaMinMinutes // ignore: cast_nullable_to_non_nullable
@@ -95,7 +100,10 @@ as String,fssaiLicense: null == fssaiLicense ? _self.fssaiLicense : fssaiLicense
 as String,storeAddress: null == storeAddress ? _self.storeAddress : storeAddress // ignore: cast_nullable_to_non_nullable
 as String,supportPhone: null == supportPhone ? _self.supportPhone : supportPhone // ignore: cast_nullable_to_non_nullable
 as String,supportEmail: null == supportEmail ? _self.supportEmail : supportEmail // ignore: cast_nullable_to_non_nullable
-as String,
+as String,termsUrl: null == termsUrl ? _self.termsUrl : termsUrl // ignore: cast_nullable_to_non_nullable
+as String,privacyUrl: null == privacyUrl ? _self.privacyUrl : privacyUrl // ignore: cast_nullable_to_non_nullable
+as String,deliveryPincodes: null == deliveryPincodes ? _self.deliveryPincodes : deliveryPincodes // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -180,10 +188,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool scheduleEnabled,  int etaMinMinutes,  int etaMaxMinutes,  bool cashOnDeliveryEnabled,  String? upiQrImage,  String? upiId,  String upiPayeeName,  int deliveryFee,  int freeDeliveryAbove,  int packagingFee,  int taxPercent,  String legalName,  String gstin,  String fssaiLicense,  String storeAddress,  String supportPhone,  String supportEmail)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool scheduleEnabled,  int etaMinMinutes,  int etaMaxMinutes,  bool cashOnDeliveryEnabled,  String? upiQrImage,  String? upiId,  String upiPayeeName,  int deliveryFee,  int freeDeliveryAbove,  int packagingFee,  int taxPercent,  String legalName,  String gstin,  String fssaiLicense,  String storeAddress,  String supportPhone,  String supportEmail,  String termsUrl,  String privacyUrl,  List<String> deliveryPincodes)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StoreSettings() when $default != null:
-return $default(_that.scheduleEnabled,_that.etaMinMinutes,_that.etaMaxMinutes,_that.cashOnDeliveryEnabled,_that.upiQrImage,_that.upiId,_that.upiPayeeName,_that.deliveryFee,_that.freeDeliveryAbove,_that.packagingFee,_that.taxPercent,_that.legalName,_that.gstin,_that.fssaiLicense,_that.storeAddress,_that.supportPhone,_that.supportEmail);case _:
+return $default(_that.scheduleEnabled,_that.etaMinMinutes,_that.etaMaxMinutes,_that.cashOnDeliveryEnabled,_that.upiQrImage,_that.upiId,_that.upiPayeeName,_that.deliveryFee,_that.freeDeliveryAbove,_that.packagingFee,_that.taxPercent,_that.legalName,_that.gstin,_that.fssaiLicense,_that.storeAddress,_that.supportPhone,_that.supportEmail,_that.termsUrl,_that.privacyUrl,_that.deliveryPincodes);case _:
   return orElse();
 
 }
@@ -201,10 +209,10 @@ return $default(_that.scheduleEnabled,_that.etaMinMinutes,_that.etaMaxMinutes,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool scheduleEnabled,  int etaMinMinutes,  int etaMaxMinutes,  bool cashOnDeliveryEnabled,  String? upiQrImage,  String? upiId,  String upiPayeeName,  int deliveryFee,  int freeDeliveryAbove,  int packagingFee,  int taxPercent,  String legalName,  String gstin,  String fssaiLicense,  String storeAddress,  String supportPhone,  String supportEmail)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool scheduleEnabled,  int etaMinMinutes,  int etaMaxMinutes,  bool cashOnDeliveryEnabled,  String? upiQrImage,  String? upiId,  String upiPayeeName,  int deliveryFee,  int freeDeliveryAbove,  int packagingFee,  int taxPercent,  String legalName,  String gstin,  String fssaiLicense,  String storeAddress,  String supportPhone,  String supportEmail,  String termsUrl,  String privacyUrl,  List<String> deliveryPincodes)  $default,) {final _that = this;
 switch (_that) {
 case _StoreSettings():
-return $default(_that.scheduleEnabled,_that.etaMinMinutes,_that.etaMaxMinutes,_that.cashOnDeliveryEnabled,_that.upiQrImage,_that.upiId,_that.upiPayeeName,_that.deliveryFee,_that.freeDeliveryAbove,_that.packagingFee,_that.taxPercent,_that.legalName,_that.gstin,_that.fssaiLicense,_that.storeAddress,_that.supportPhone,_that.supportEmail);case _:
+return $default(_that.scheduleEnabled,_that.etaMinMinutes,_that.etaMaxMinutes,_that.cashOnDeliveryEnabled,_that.upiQrImage,_that.upiId,_that.upiPayeeName,_that.deliveryFee,_that.freeDeliveryAbove,_that.packagingFee,_that.taxPercent,_that.legalName,_that.gstin,_that.fssaiLicense,_that.storeAddress,_that.supportPhone,_that.supportEmail,_that.termsUrl,_that.privacyUrl,_that.deliveryPincodes);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -221,10 +229,10 @@ return $default(_that.scheduleEnabled,_that.etaMinMinutes,_that.etaMaxMinutes,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool scheduleEnabled,  int etaMinMinutes,  int etaMaxMinutes,  bool cashOnDeliveryEnabled,  String? upiQrImage,  String? upiId,  String upiPayeeName,  int deliveryFee,  int freeDeliveryAbove,  int packagingFee,  int taxPercent,  String legalName,  String gstin,  String fssaiLicense,  String storeAddress,  String supportPhone,  String supportEmail)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool scheduleEnabled,  int etaMinMinutes,  int etaMaxMinutes,  bool cashOnDeliveryEnabled,  String? upiQrImage,  String? upiId,  String upiPayeeName,  int deliveryFee,  int freeDeliveryAbove,  int packagingFee,  int taxPercent,  String legalName,  String gstin,  String fssaiLicense,  String storeAddress,  String supportPhone,  String supportEmail,  String termsUrl,  String privacyUrl,  List<String> deliveryPincodes)?  $default,) {final _that = this;
 switch (_that) {
 case _StoreSettings() when $default != null:
-return $default(_that.scheduleEnabled,_that.etaMinMinutes,_that.etaMaxMinutes,_that.cashOnDeliveryEnabled,_that.upiQrImage,_that.upiId,_that.upiPayeeName,_that.deliveryFee,_that.freeDeliveryAbove,_that.packagingFee,_that.taxPercent,_that.legalName,_that.gstin,_that.fssaiLicense,_that.storeAddress,_that.supportPhone,_that.supportEmail);case _:
+return $default(_that.scheduleEnabled,_that.etaMinMinutes,_that.etaMaxMinutes,_that.cashOnDeliveryEnabled,_that.upiQrImage,_that.upiId,_that.upiPayeeName,_that.deliveryFee,_that.freeDeliveryAbove,_that.packagingFee,_that.taxPercent,_that.legalName,_that.gstin,_that.fssaiLicense,_that.storeAddress,_that.supportPhone,_that.supportEmail,_that.termsUrl,_that.privacyUrl,_that.deliveryPincodes);case _:
   return null;
 
 }
@@ -236,7 +244,7 @@ return $default(_that.scheduleEnabled,_that.etaMinMinutes,_that.etaMaxMinutes,_t
 @JsonSerializable()
 
 class _StoreSettings extends StoreSettings {
-  const _StoreSettings({this.scheduleEnabled = false, this.etaMinMinutes = 45, this.etaMaxMinutes = 90, this.cashOnDeliveryEnabled = true, this.upiQrImage, this.upiId, this.upiPayeeName = 'Fresh Hen', this.deliveryFee = 40, this.freeDeliveryAbove = 499, this.packagingFee = 0, this.taxPercent = 0, this.legalName = 'Fresh Hen Foods Pvt. Ltd.', this.gstin = '', this.fssaiLicense = '', this.storeAddress = '', this.supportPhone = '', this.supportEmail = ''}): super._();
+  const _StoreSettings({this.scheduleEnabled = false, this.etaMinMinutes = 45, this.etaMaxMinutes = 90, this.cashOnDeliveryEnabled = true, this.upiQrImage, this.upiId, this.upiPayeeName = 'Fresh Hen', this.deliveryFee = 40, this.freeDeliveryAbove = 499, this.packagingFee = 0, this.taxPercent = 0, this.legalName = 'Fresh Hen Foods Pvt. Ltd.', this.gstin = '', this.fssaiLicense = '', this.storeAddress = '', this.supportPhone = '', this.supportEmail = '', this.termsUrl = '', this.privacyUrl = '',  List<String> deliveryPincodes = const <String>[]}): _deliveryPincodes = deliveryPincodes,super._();
   factory _StoreSettings.fromJson(Map<String, dynamic> json) => _$StoreSettingsFromJson(json);
 
 /// Admin switch: when off the cart offers "Order now" only.
@@ -259,8 +267,24 @@ class _StoreSettings extends StoreSettings {
 @override@JsonKey() final  String gstin;
 @override@JsonKey() final  String fssaiLicense;
 @override@JsonKey() final  String storeAddress;
+/// Help & Support call and WhatsApp number, e.g. `9711739492`.
 @override@JsonKey() final  String supportPhone;
 @override@JsonKey() final  String supportEmail;
+/// Public pages set in the admin app. Empty falls back to the text built
+/// into the app.
+@override@JsonKey() final  String termsUrl;
+@override@JsonKey() final  String privacyUrl;
+/// Pincodes the shop delivers to, set in the admin app. Empty means no
+/// limit (every pincode is accepted).
+ final  List<String> _deliveryPincodes;
+/// Pincodes the shop delivers to, set in the admin app. Empty means no
+/// limit (every pincode is accepted).
+@override@JsonKey() List<String> get deliveryPincodes {
+  if (_deliveryPincodes is EqualUnmodifiableListView) return _deliveryPincodes;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_deliveryPincodes);
+}
+
 
 /// Create a copy of StoreSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -275,18 +299,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _StoreSettings&&(identical(other.scheduleEnabled, scheduleEnabled) || other.scheduleEnabled == scheduleEnabled)&&(identical(other.etaMinMinutes, etaMinMinutes) || other.etaMinMinutes == etaMinMinutes)&&(identical(other.etaMaxMinutes, etaMaxMinutes) || other.etaMaxMinutes == etaMaxMinutes)&&(identical(other.cashOnDeliveryEnabled, cashOnDeliveryEnabled) || other.cashOnDeliveryEnabled == cashOnDeliveryEnabled)&&(identical(other.upiQrImage, upiQrImage) || other.upiQrImage == upiQrImage)&&(identical(other.upiId, upiId) || other.upiId == upiId)&&(identical(other.upiPayeeName, upiPayeeName) || other.upiPayeeName == upiPayeeName)&&(identical(other.deliveryFee, deliveryFee) || other.deliveryFee == deliveryFee)&&(identical(other.freeDeliveryAbove, freeDeliveryAbove) || other.freeDeliveryAbove == freeDeliveryAbove)&&(identical(other.packagingFee, packagingFee) || other.packagingFee == packagingFee)&&(identical(other.taxPercent, taxPercent) || other.taxPercent == taxPercent)&&(identical(other.legalName, legalName) || other.legalName == legalName)&&(identical(other.gstin, gstin) || other.gstin == gstin)&&(identical(other.fssaiLicense, fssaiLicense) || other.fssaiLicense == fssaiLicense)&&(identical(other.storeAddress, storeAddress) || other.storeAddress == storeAddress)&&(identical(other.supportPhone, supportPhone) || other.supportPhone == supportPhone)&&(identical(other.supportEmail, supportEmail) || other.supportEmail == supportEmail));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _StoreSettings&&(identical(other.scheduleEnabled, scheduleEnabled) || other.scheduleEnabled == scheduleEnabled)&&(identical(other.etaMinMinutes, etaMinMinutes) || other.etaMinMinutes == etaMinMinutes)&&(identical(other.etaMaxMinutes, etaMaxMinutes) || other.etaMaxMinutes == etaMaxMinutes)&&(identical(other.cashOnDeliveryEnabled, cashOnDeliveryEnabled) || other.cashOnDeliveryEnabled == cashOnDeliveryEnabled)&&(identical(other.upiQrImage, upiQrImage) || other.upiQrImage == upiQrImage)&&(identical(other.upiId, upiId) || other.upiId == upiId)&&(identical(other.upiPayeeName, upiPayeeName) || other.upiPayeeName == upiPayeeName)&&(identical(other.deliveryFee, deliveryFee) || other.deliveryFee == deliveryFee)&&(identical(other.freeDeliveryAbove, freeDeliveryAbove) || other.freeDeliveryAbove == freeDeliveryAbove)&&(identical(other.packagingFee, packagingFee) || other.packagingFee == packagingFee)&&(identical(other.taxPercent, taxPercent) || other.taxPercent == taxPercent)&&(identical(other.legalName, legalName) || other.legalName == legalName)&&(identical(other.gstin, gstin) || other.gstin == gstin)&&(identical(other.fssaiLicense, fssaiLicense) || other.fssaiLicense == fssaiLicense)&&(identical(other.storeAddress, storeAddress) || other.storeAddress == storeAddress)&&(identical(other.supportPhone, supportPhone) || other.supportPhone == supportPhone)&&(identical(other.supportEmail, supportEmail) || other.supportEmail == supportEmail)&&(identical(other.termsUrl, termsUrl) || other.termsUrl == termsUrl)&&(identical(other.privacyUrl, privacyUrl) || other.privacyUrl == privacyUrl)&&const DeepCollectionEquality().equals(other.deliveryPincodes, _deliveryPincodes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,scheduleEnabled,etaMinMinutes,etaMaxMinutes,cashOnDeliveryEnabled,upiQrImage,upiId,upiPayeeName,deliveryFee,freeDeliveryAbove,packagingFee,taxPercent,legalName,gstin,fssaiLicense,storeAddress,supportPhone,supportEmail);
+    return Object.hashAll([runtimeType,scheduleEnabled,etaMinMinutes,etaMaxMinutes,cashOnDeliveryEnabled,upiQrImage,upiId,upiPayeeName,deliveryFee,freeDeliveryAbove,packagingFee,taxPercent,legalName,gstin,fssaiLicense,storeAddress,supportPhone,supportEmail,termsUrl,privacyUrl,const DeepCollectionEquality().hash(_deliveryPincodes)]);
 }
 
 @override
 String toString() {
-    return 'StoreSettings(scheduleEnabled: $scheduleEnabled, etaMinMinutes: $etaMinMinutes, etaMaxMinutes: $etaMaxMinutes, cashOnDeliveryEnabled: $cashOnDeliveryEnabled, upiQrImage: $upiQrImage, upiId: $upiId, upiPayeeName: $upiPayeeName, deliveryFee: $deliveryFee, freeDeliveryAbove: $freeDeliveryAbove, packagingFee: $packagingFee, taxPercent: $taxPercent, legalName: $legalName, gstin: $gstin, fssaiLicense: $fssaiLicense, storeAddress: $storeAddress, supportPhone: $supportPhone, supportEmail: $supportEmail)';
+    return 'StoreSettings(scheduleEnabled: $scheduleEnabled, etaMinMinutes: $etaMinMinutes, etaMaxMinutes: $etaMaxMinutes, cashOnDeliveryEnabled: $cashOnDeliveryEnabled, upiQrImage: $upiQrImage, upiId: $upiId, upiPayeeName: $upiPayeeName, deliveryFee: $deliveryFee, freeDeliveryAbove: $freeDeliveryAbove, packagingFee: $packagingFee, taxPercent: $taxPercent, legalName: $legalName, gstin: $gstin, fssaiLicense: $fssaiLicense, storeAddress: $storeAddress, supportPhone: $supportPhone, supportEmail: $supportEmail, termsUrl: $termsUrl, privacyUrl: $privacyUrl, deliveryPincodes: $deliveryPincodes)';
 }
 
 
@@ -297,7 +321,7 @@ abstract mixin class _$StoreSettingsCopyWith<$Res> implements $StoreSettingsCopy
   factory _$StoreSettingsCopyWith(_StoreSettings value, $Res Function(_StoreSettings) _then) = __$StoreSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- bool scheduleEnabled, int etaMinMinutes, int etaMaxMinutes, bool cashOnDeliveryEnabled, String? upiQrImage, String? upiId, String upiPayeeName, int deliveryFee, int freeDeliveryAbove, int packagingFee, int taxPercent, String legalName, String gstin, String fssaiLicense, String storeAddress, String supportPhone, String supportEmail
+ bool scheduleEnabled, int etaMinMinutes, int etaMaxMinutes, bool cashOnDeliveryEnabled, String? upiQrImage, String? upiId, String upiPayeeName, int deliveryFee, int freeDeliveryAbove, int packagingFee, int taxPercent, String legalName, String gstin, String fssaiLicense, String storeAddress, String supportPhone, String supportEmail, String termsUrl, String privacyUrl, List<String> deliveryPincodes
 });
 
 
@@ -314,7 +338,7 @@ class __$StoreSettingsCopyWithImpl<$Res>
 
 /// Create a copy of StoreSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? scheduleEnabled = null,Object? etaMinMinutes = null,Object? etaMaxMinutes = null,Object? cashOnDeliveryEnabled = null,Object? upiQrImage = freezed,Object? upiId = freezed,Object? upiPayeeName = null,Object? deliveryFee = null,Object? freeDeliveryAbove = null,Object? packagingFee = null,Object? taxPercent = null,Object? legalName = null,Object? gstin = null,Object? fssaiLicense = null,Object? storeAddress = null,Object? supportPhone = null,Object? supportEmail = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? scheduleEnabled = null,Object? etaMinMinutes = null,Object? etaMaxMinutes = null,Object? cashOnDeliveryEnabled = null,Object? upiQrImage = freezed,Object? upiId = freezed,Object? upiPayeeName = null,Object? deliveryFee = null,Object? freeDeliveryAbove = null,Object? packagingFee = null,Object? taxPercent = null,Object? legalName = null,Object? gstin = null,Object? fssaiLicense = null,Object? storeAddress = null,Object? supportPhone = null,Object? supportEmail = null,Object? termsUrl = null,Object? privacyUrl = null,Object? deliveryPincodes = null,}) {
   return _then(_StoreSettings(
 scheduleEnabled: null == scheduleEnabled ? _self.scheduleEnabled : scheduleEnabled // ignore: cast_nullable_to_non_nullable
 as bool,etaMinMinutes: null == etaMinMinutes ? _self.etaMinMinutes : etaMinMinutes // ignore: cast_nullable_to_non_nullable
@@ -333,7 +357,10 @@ as String,fssaiLicense: null == fssaiLicense ? _self.fssaiLicense : fssaiLicense
 as String,storeAddress: null == storeAddress ? _self.storeAddress : storeAddress // ignore: cast_nullable_to_non_nullable
 as String,supportPhone: null == supportPhone ? _self.supportPhone : supportPhone // ignore: cast_nullable_to_non_nullable
 as String,supportEmail: null == supportEmail ? _self.supportEmail : supportEmail // ignore: cast_nullable_to_non_nullable
-as String,
+as String,termsUrl: null == termsUrl ? _self.termsUrl : termsUrl // ignore: cast_nullable_to_non_nullable
+as String,privacyUrl: null == privacyUrl ? _self.privacyUrl : privacyUrl // ignore: cast_nullable_to_non_nullable
+as String,deliveryPincodes: null == deliveryPincodes ? _self._deliveryPincodes : deliveryPincodes // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 

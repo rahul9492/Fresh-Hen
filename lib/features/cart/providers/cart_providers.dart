@@ -1,14 +1,50 @@
+import 'dart:convert';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/storage/prefs_provider.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../models/cart_models.dart';
 
 part 'cart_providers.g.dart';
 
+/// The cart, kept on the device per phone number so it survives an app restart.
 @Riverpod(keepAlive: true)
 class Cart extends _$Cart {
+  String get _key => 'cart.${ref.read(sessionPhoneProvider) ?? 'guest'}';
+
   @override
-  List<CartLine> build() => const [];
+  List<CartLine> build() {
+    ref.watch(sessionPhoneProvider);
+    listenSelf((_, lines) => _save(lines));
+    final raw = ref.read(sharedPrefsProvider).getString(_key);
+    if (raw == null) return const [];
+    try {
+      return (jsonDecode(raw) as List<dynamic>)
+          .whereType<Map<String, dynamic>>()
+          .map(CartLine.fromJson)
+          .map(_withVariantId)
+          .toList();
+    } catch (_) {
+      return const []; // corrupt or outdated data: start clean rather than crash
+    }
+  }
+
+  /// Carts saved before lines carried their pack id: recover it from the line
+  /// id (`productId:variantId`) so the order can still be priced by the server.
+  static CartLine _withVariantId(CartLine l) => l.isAddon || l.variantId != null
+      ? l
+      : l.copyWith(variantId: l.id.split(':').last);
+
+  void _save(List<CartLine> lines) {
+    final prefs = ref.read(sharedPrefsProvider);
+    if (lines.isEmpty) {
+      prefs.remove(_key);
+    } else {
+      prefs.setString(_key, jsonEncode([for (final l in lines) l.toJson()]));
+    }
+  }
 
   void add(CartLine line) {
     final index = state.indexWhere((l) => l.id == line.id);

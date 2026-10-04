@@ -20,11 +20,25 @@ Future<pw.ThemeData> _theme() async {
   return pw.ThemeData.withFont(base: await font('Regular'), bold: await font('Bold'));
 }
 
+/// The money rows printed under the items, last one the total. Kept apart from
+/// the layout so the amounts can be checked against the order's bill.
+List<(String, String)> invoiceTotals(Order order) {
+  final bill = order.bill;
+  return [
+    ('Item subtotal', rupees(bill.itemTotal)),
+    ('Delivery fee', bill.deliveryFee == 0 ? 'FREE' : rupees(bill.deliveryFee)),
+    if (bill.discount > 0)
+      (bill.couponCode == null ? 'Discount' : 'Coupon (${bill.couponCode})', '-${rupees(bill.discount)}'),
+    ('Taxes & packaging', rupees(bill.taxes)),
+    (order.paymentStatus == PaymentStatus.paid ? 'Total paid' : 'Total amount', rupees(bill.total)),
+  ];
+}
+
 Future<Uint8List> buildInvoicePdf(Order order, StoreSettings seller) async {
   const brand = PdfColor.fromInt(0xFFB93823);
   const muted = PdfColor.fromInt(0xFF6B6B70);
   const line = PdfColor.fromInt(0xFFE3E3E8);
-  final bill = order.bill;
+  final rows = invoiceTotals(order);
   final invoiceNo = 'INV-${order.id}';
 
   pw.Widget kv(String k, String v, {bool bold = false, PdfColor? color}) => pw.Padding(
@@ -151,15 +165,9 @@ Future<Uint8List> buildInvoicePdf(Order order, StoreSettings seller) async {
                   width: 230,
                   child: pw.Column(
                     children: [
-                      kv('Item subtotal', rupees(bill.itemTotal)),
-                      kv('Delivery fee', bill.deliveryFee == 0 ? 'FREE' : rupees(bill.deliveryFee)),
-                      if (bill.discount > 0)
-                        kv(bill.couponCode == null ? 'Discount' : 'Coupon (${bill.couponCode})',
-                            '-${rupees(bill.discount)}'),
-                      kv('Taxes & packaging', rupees(bill.taxes)),
+                      for (final (label, value) in rows.take(rows.length - 1)) kv(label, value),
                       pw.Divider(color: line),
-                      kv(order.paymentStatus == PaymentStatus.paid ? 'Total paid' : 'Total amount',
-                          rupees(bill.total), bold: true, color: brand),
+                      kv(rows.last.$1, rows.last.$2, bold: true, color: brand),
                     ],
                   ),
                 ),

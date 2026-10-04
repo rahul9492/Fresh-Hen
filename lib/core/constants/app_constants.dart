@@ -7,8 +7,8 @@ abstract final class AppConstants {
   static const mockLatency = Duration(milliseconds: 450);
 
   /// Help & Support number for calls and WhatsApp.
+  /// Fallback until the admin app's support number loads.
   static const supportPhone = '+919711739492';
-  static const supportPhoneDisplay = '+91 97117 39492';
 }
 
 abstract final class Assets {

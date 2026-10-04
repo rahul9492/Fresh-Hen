@@ -36,7 +36,8 @@ extension OrderDisplay on Order {
     return switch (status) {
       OrderStatus.delivered =>
         deliveredAt == null ? 'Delivered' : formatDeliveredAt(deliveredAt!),
-      OrderStatus.cancelled => 'This order was cancelled',
+      OrderStatus.cancelled =>
+        cancelReason == null ? 'This order was cancelled' : 'Cancelled: $cancelReason',
       OrderStatus.outForDelivery => 'Your order is on the way',
       _ when s != null => 'Arriving ${s.label}',
       _ => 'Arriving in $eta',

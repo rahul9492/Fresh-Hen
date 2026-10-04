@@ -23,6 +23,7 @@ class AppSheet extends StatelessWidget {
     super.key,
     this.title,
     this.trailing,
+    this.showClose = false,
     required this.child,
     this.footer,
     this.bodyPadding = const EdgeInsets.fromLTRB(
@@ -37,6 +38,9 @@ class AppSheet extends StatelessWidget {
 
   /// Shown at the end of the header, e.g. a "Reset" button.
   final Widget? trailing;
+
+  /// Adds a [SheetCloseButton] at the end of the header.
+  final bool showClose;
   final Widget child;
   final Widget? footer;
   final EdgeInsetsGeometry bodyPadding;
@@ -56,6 +60,7 @@ class AppSheet extends StatelessWidget {
                 children: [
                   Expanded(child: Text(title!, style: Theme.of(context).textTheme.titleLarge)),
                   ?trailing,
+                  if (showClose) const SheetCloseButton(),
                 ],
               ),
             ),
@@ -76,6 +81,27 @@ class AppSheet extends StatelessWidget {
           else
             const SizedBox(height: AppSpacing.md),
         ],
+      ),
+    );
+  }
+}
+
+/// Small round ✕ that closes the sheet, for sheets where tapping outside or
+/// swiping down isn't obvious enough.
+class SheetCloseButton extends StatelessWidget {
+  const SheetCloseButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: 'Close',
+      onPressed: () => Navigator.of(context).pop(),
+      icon: const Icon(Icons.close_rounded, size: 20),
+      style: IconButton.styleFrom(
+        backgroundColor: AppColors.surfaceMuted,
+        foregroundColor: AppColors.ink,
+        fixedSize: const Size(36, 36),
+        minimumSize: const Size(36, 36),
       ),
     );
   }

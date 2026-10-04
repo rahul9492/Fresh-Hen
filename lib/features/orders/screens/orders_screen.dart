@@ -27,6 +27,12 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
 
   Future<void> _refresh() => ref.refresh(ordersProvider.future);
 
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => ref.read(ordersProvider.notifier).refreshQuietly());
+  }
+
   /// Matches the order ID, the status or any item name.
   bool _matches(Order order) {
     final q = _query.trim().toLowerCase();

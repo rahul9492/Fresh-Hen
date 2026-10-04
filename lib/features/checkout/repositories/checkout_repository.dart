@@ -52,7 +52,8 @@ class MockCheckoutRepository implements CheckoutRepository {
 }
 
 /// Assumed API shape (adjust when the contract lands):
-/// * `GET /store/settings` -> `{ "data": StoreSettings }`
+/// * `GET /store/settings` -> `{ "data": StoreSettings }`, including
+///   `deliveryPincodes: ["201301", ...]` (empty = deliver everywhere)
 /// * `GET /delivery/slots?from=yyyy-MM-dd&days=4` -> `{ "data": [ { date, closedReason, slots: [ { id, start, end, available } ] } ] }`
 /// * `GET /coupons` -> `{ "data": [ Coupon ] }`
 /// * `POST /coupons/validate { code }` -> `{ "data": Coupon }`, or 4xx with `{ "message" }`

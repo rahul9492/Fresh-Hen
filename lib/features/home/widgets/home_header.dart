@@ -52,8 +52,6 @@ class HomeHeader extends ConsumerWidget {
                   side: const BorderSide(color: AppColors.border),
                 ),
               ),
-              // Notifications hidden for now; re-enable by restoring the bell
-              // IconButton (route: Routes.notifications, badge: unreadNotificationCountProvider).
             ],
           ),
           const SizedBox(height: 4),

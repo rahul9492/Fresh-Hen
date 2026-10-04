@@ -42,10 +42,28 @@ List<Order> mockOrders(DateTime now) {
   ];
   final cancelled = [item('mutton-keema', '250 g', quantity: 2)];
 
+  /// Confirmed at [placed], then each later status [step] minutes apart.
+  List<OrderEvent> events(DateTime placed, List<OrderStatus> statuses, {int step = 8}) => [
+        for (var i = 0; i < statuses.length; i++)
+          OrderEvent(status: statuses[i], at: placed.add(Duration(minutes: step * i))),
+      ];
+  const toDoor = [
+    OrderStatus.confirmed,
+    OrderStatus.preparing,
+    OrderStatus.outForDelivery,
+    OrderStatus.delivered,
+  ];
+  final activeAt = now.subtract(const Duration(minutes: 24));
+  final yesterdayAt = now.subtract(const Duration(days: 1, hours: 3));
+  final bulkAt = now.subtract(const Duration(days: 3, hours: 5));
+  final cancelledAt = now.subtract(const Duration(days: 9, hours: 2));
+
   return [
     Order(
       id: 'FH284519',
-      placedAt: now.subtract(const Duration(minutes: 24)),
+      placedAt: activeAt,
+      events: events(activeAt, toDoor.take(3).toList()),
+      rider: const DeliveryRider(name: 'Ravi Kumar', phone: '9811122233'),
       lines: active,
       bill: bill(active),
       address: _home,
@@ -57,7 +75,8 @@ List<Order> mockOrders(DateTime now) {
     ),
     Order(
       id: 'FH284487',
-      placedAt: now.subtract(const Duration(days: 1, hours: 3)),
+      placedAt: yesterdayAt,
+      events: events(yesterdayAt, toDoor, step: 19),
       lines: yesterday,
       bill: bill(yesterday, coupon: 'CHICKEN50', discount: 50),
       address: _work,
@@ -68,7 +87,8 @@ List<Order> mockOrders(DateTime now) {
     ),
     Order(
       id: 'FH284431',
-      placedAt: now.subtract(const Duration(days: 3, hours: 5)),
+      placedAt: bulkAt,
+      events: events(bulkAt, toDoor, step: 24),
       lines: bulk,
       bill: bill(bulk, coupon: 'FRESH20', discount: 100),
       address: _home,
@@ -82,7 +102,9 @@ List<Order> mockOrders(DateTime now) {
     ),
     Order(
       id: 'FH284390',
-      placedAt: now.subtract(const Duration(days: 9, hours: 2)),
+      placedAt: cancelledAt,
+      events: events(cancelledAt, const [OrderStatus.confirmed, OrderStatus.cancelled], step: 5),
+      cancelReason: 'Ordered by mistake',
       lines: cancelled,
       bill: bill(cancelled),
       address: _home,

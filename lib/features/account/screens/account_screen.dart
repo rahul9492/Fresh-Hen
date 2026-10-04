@@ -6,11 +6,13 @@ import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/context_x.dart';
+import '../../../core/utils/open_link.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/confirm_dialog.dart';
 import '../../auth/models/app_user.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/widgets/profile_form.dart';
+import '../../checkout/providers/checkout_providers.dart';
 import '../widgets/menu_group.dart';
 
 class AccountScreen extends ConsumerWidget {
@@ -19,12 +21,34 @@ class AccountScreen extends ConsumerWidget {
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
     final confirmed = await showConfirmDialog(
       context,
+      icon: Icons.logout_rounded,
       title: 'Log out?',
       message: 'You will need to verify your number again to log in.',
       confirmLabel: 'Log out',
       destructive: true,
     );
     if (confirmed) await ref.read(authSessionProvider.notifier).signOut();
+  }
+
+  Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showConfirmDialog(
+      context,
+      icon: Icons.person_remove_outlined,
+      title: 'Delete your account?',
+      message: 'Your profile, saved addresses and wishlist will be permanently deleted '
+          'and you will be logged out. This cannot be undone.',
+      confirmLabel: 'Delete account',
+      cancelLabel: 'Keep my account',
+      destructive: true,
+      preferCancel: true,
+    );
+    if (!confirmed || !context.mounted) return;
+    try {
+      await ref.read(authSessionProvider.notifier).deleteAccount();
+      if (context.mounted) context.showSuccess('Your account has been deleted');
+    } catch (e) {
+      if (context.mounted) context.showError(e);
+    }
   }
 
   void _edit(BuildContext context, AppUser user) =>
@@ -34,6 +58,9 @@ class AccountScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authSessionProvider);
     if (user == null) return const SizedBox.shrink();
+    final settings = ref.watch(currentStoreSettingsProvider);
+    final termsUrl = settings.termsUrl.trim();
+    final privacyUrl = settings.privacyUrl.trim();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -73,11 +100,21 @@ class AccountScreen extends ConsumerWidget {
                 label: 'Help & Support',
                 onTap: () => context.push(Routes.help),
               ),
+              // Pages set in the admin app; without them the built-in text shows.
               MenuItem(
                 icon: Icons.description_outlined,
-                label: 'Terms & Privacy',
-                onTap: () => context.push(Routes.terms),
+                label: termsUrl.isEmpty && privacyUrl.isEmpty ? 'Terms & Privacy' : 'Terms of service',
+                onTap: () => termsUrl.isEmpty
+                    ? context.push(Routes.terms)
+                    : openLink(context, Uri.parse(termsUrl), error: 'Could not open the page.'),
               ),
+              if (privacyUrl.isNotEmpty)
+                MenuItem(
+                  icon: Icons.privacy_tip_outlined,
+                  label: 'Privacy policy',
+                  onTap: () =>
+                      openLink(context, Uri.parse(privacyUrl), error: 'Could not open the page.'),
+                ),
             ],
           ),
           const SizedBox(height: 8),
@@ -89,6 +126,13 @@ class AccountScreen extends ConsumerWidget {
                 color: AppColors.primary,
                 showChevron: false,
                 onTap: () => _logout(context, ref),
+              ),
+              MenuItem(
+                icon: Icons.person_remove_outlined,
+                label: 'Delete account',
+                color: AppColors.muted,
+                showChevron: false,
+                onTap: () => _deleteAccount(context, ref),
               ),
             ],
           ),

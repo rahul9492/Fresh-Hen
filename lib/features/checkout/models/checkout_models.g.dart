@@ -25,6 +25,13 @@ _StoreSettings _$StoreSettingsFromJson(Map<String, dynamic> json) =>
       storeAddress: json['storeAddress'] as String? ?? '',
       supportPhone: json['supportPhone'] as String? ?? '',
       supportEmail: json['supportEmail'] as String? ?? '',
+      termsUrl: json['termsUrl'] as String? ?? '',
+      privacyUrl: json['privacyUrl'] as String? ?? '',
+      deliveryPincodes:
+          (json['deliveryPincodes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const <String>[],
     );
 
 Map<String, dynamic> _$StoreSettingsToJson(_StoreSettings instance) =>
@@ -46,6 +53,9 @@ Map<String, dynamic> _$StoreSettingsToJson(_StoreSettings instance) =>
       'storeAddress': instance.storeAddress,
       'supportPhone': instance.supportPhone,
       'supportEmail': instance.supportEmail,
+      'termsUrl': instance.termsUrl,
+      'privacyUrl': instance.privacyUrl,
+      'deliveryPincodes': instance.deliveryPincodes,
     };
 
 _Coupon _$CouponFromJson(Map<String, dynamic> json) => _Coupon(

@@ -26,6 +26,7 @@ class ProductAddControl extends ConsumerWidget {
     return AddControl(
       style: style,
       quantity: quantity,
+      available: product.inStock,
       onAdd: () => product.needsOptions
           ? showProductOptionsSheet(context, product)
           : cart.add(CartLine.fromVariant(product, product.defaultVariant)),

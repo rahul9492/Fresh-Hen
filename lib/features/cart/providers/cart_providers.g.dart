@@ -8,11 +8,14 @@ part of 'cart_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The cart, kept on the device per phone number so it survives an app restart.
 
 @ProviderFor(Cart)
 final cartProvider = CartProvider._();
 
+/// The cart, kept on the device per phone number so it survives an app restart.
 final class CartProvider extends $NotifierProvider<Cart, List<CartLine>> {
+  /// The cart, kept on the device per phone number so it survives an app restart.
   CartProvider._()
     : super(
         from: null,
@@ -40,7 +43,9 @@ final class CartProvider extends $NotifierProvider<Cart, List<CartLine>> {
   }
 }
 
-String _$cartHash() => r'4b4ade5bb4fe04f20940fc5bf14b93d0dcbf7750';
+String _$cartHash() => r'60240da1734bee2417cc653a4281824cb54bd626';
+
+/// The cart, kept on the device per phone number so it survives an app restart.
 
 abstract class _$Cart extends $Notifier<List<CartLine>> {
   List<CartLine> build();

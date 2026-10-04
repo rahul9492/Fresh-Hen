@@ -41,7 +41,7 @@ final class AuthSessionProvider
   }
 }
 
-String _$authSessionHash() => r'115f8f3da02959ef6c39058458b4cb5d9394d5fe';
+String _$authSessionHash() => r'4c500cf6b25bcdedd697709ffe9f9234af691a1a';
 
 abstract class _$AuthSession extends $Notifier<AppUser?> {
   AppUser? build();

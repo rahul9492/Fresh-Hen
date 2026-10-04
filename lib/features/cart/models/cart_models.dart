@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../catalog/models/catalog_models.dart';
 
 part 'cart_models.freezed.dart';
+part 'cart_models.g.dart';
 
 @freezed
 abstract class CartLine with _$CartLine {
@@ -11,6 +12,10 @@ abstract class CartLine with _$CartLine {
   const factory CartLine({
     required String id,
     required String productId,
+
+    /// The pack picked; null for add-ons. Sent with the order so the server
+    /// prices it, instead of trusting [unitPrice].
+    String? variantId,
     required String name,
     required String unitLabel,
     required String image,
@@ -22,9 +27,12 @@ abstract class CartLine with _$CartLine {
     @Default(false) bool isAddon,
   }) = _CartLine;
 
+  factory CartLine.fromJson(Map<String, dynamic> json) => _$CartLineFromJson(json);
+
   factory CartLine.fromVariant(Product product, ProductVariant variant) => CartLine(
         id: '${product.id}:${variant.id}',
         productId: product.id,
+        variantId: variant.id,
         name: product.name,
         unitLabel: variant.label,
         image: product.image,

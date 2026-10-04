@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../core/utils/context_x.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../checkout/providers/checkout_providers.dart';
 import '../models/address.dart';
 import '../providers/address_providers.dart';
 
@@ -39,6 +41,7 @@ class _AddressFormSheetState extends ConsumerState<AddressFormSheet> {
   late final TextEditingController _phone;
   late bool _isDefault;
   late bool _editReceiver;
+  var _saving = false;
 
   /// The very first address is always the default.
   late final bool _isFirst = ref.read(addressesProvider).every((a) => a.id == _old?.id);
@@ -46,6 +49,8 @@ class _AddressFormSheetState extends ConsumerState<AddressFormSheet> {
   @override
   void initState() {
     super.initState();
+    // Load the delivery area now, so the pincode can be checked on save.
+    ref.read(storeSettingsProvider);
     final user = ref.read(authSessionProvider);
     _name = TextEditingController(text: _old?.name ?? user?.name ?? '');
     _phone = TextEditingController(text: _old?.phone ?? user?.phone ?? '');
@@ -62,7 +67,14 @@ class _AddressFormSheetState extends ConsumerState<AddressFormSheet> {
     super.dispose();
   }
 
-  void _save() {
+  Future<void> _save() async {
+    if (_saving) return;
+    // Make sure the delivery area is loaded before checking the pincode. If
+    // it can't be loaded, the server still checks when the order is placed.
+    try {
+      await ref.read(storeSettingsProvider.future);
+    } catch (_) {}
+    if (!mounted) return;
     if (!_formKey.currentState!.validate()) {
       if (_name.text.trim().isEmpty || !Validators.isPhone(_phone.text.trim())) {
         setState(() => _editReceiver = true);
@@ -82,9 +94,16 @@ class _AddressFormSheetState extends ConsumerState<AddressFormSheet> {
       phone: _phone.text.trim(),
       isDefault: _isFirst || _isDefault,
     );
-    ref.read(addressesProvider.notifier).save(address);
-    ref.read(selectedAddressIdProvider.notifier).select(address.id);
-    Navigator.pop(context, address);
+    setState(() => _saving = true);
+    try {
+      final saved = await ref.read(addressesProvider.notifier).save(address);
+      ref.read(selectedAddressIdProvider.notifier).select(saved.id);
+      if (mounted) Navigator.pop(context, saved);
+    } catch (e) {
+      if (mounted) context.showError(e);
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   static String? _required(String? v, String message) =>
@@ -95,7 +114,11 @@ class _AddressFormSheetState extends ConsumerState<AddressFormSheet> {
     final editing = _old != null;
     return AppSheet(
       title: editing ? 'Edit address' : 'Add delivery address',
-      footer: AppButton(label: editing ? 'Save changes' : 'Confirm', onPressed: _save),
+      footer: AppButton(
+        label: editing ? 'Save changes' : 'Confirm',
+        loading: _saving,
+        onPressed: _save,
+      ),
       child: Form(
         key: _formKey,
         child: Column(
@@ -141,9 +164,14 @@ class _AddressFormSheetState extends ConsumerState<AddressFormSheet> {
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(6),
                     ],
-                    validator: (v) => RegExp(r'^[1-9]\d{5}$').hasMatch(v?.trim() ?? '')
-                        ? null
-                        : 'Enter a valid pincode',
+                    validator: (v) {
+                      final pin = v?.trim() ?? '';
+                      if (!RegExp(r'^[1-9]\d{5}$').hasMatch(pin)) return 'Enter a valid pincode';
+                      final settings = ref.read(storeSettingsProvider).value;
+                      return settings == null || settings.deliversTo(pin)
+                          ? null
+                          : "We don't deliver here yet";
+                    },
                   ),
                 ),
               ],
