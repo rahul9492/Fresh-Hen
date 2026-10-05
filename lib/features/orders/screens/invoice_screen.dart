@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/context_x.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/utils/open_saved_file.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_snackbar.dart';
 import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/dashed_divider.dart';
 import '../../../core/widgets/small_widgets.dart';
@@ -30,8 +32,20 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     try {
       final seller = await ref.read(storeSettingsProvider.future);
       // await shareInvoicePdf(order, seller);
-      final saved = await downloadInvoicePdf(order, seller);
-      if (saved && mounted) context.showSnack('Invoice saved to Downloads');
+      final uri = await downloadInvoicePdf(order, seller);
+      if (uri != null && mounted) {
+        // context.showSnack('Invoice saved to Downloads');
+        AppSnackbar.info(
+          context,
+          'Invoice saved to Downloads',
+          actionLabel: 'Open',
+          onAction: () async {
+            if (!await openSavedPdf(uri) && mounted) {
+              context.showError('No app found to open PDFs.');
+            }
+          },
+        );
+      }
     } catch (e) {
       if (mounted) context.showError('Could not create the invoice. Please try again.');
     } finally {

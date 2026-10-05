@@ -18,24 +18,25 @@ Future<void> shareInvoicePdf(Order order, StoreSettings seller) async {
 String _invoiceName(Order order) => 'FreshHen-Invoice-${order.id}.pdf';
 
 /// Saves the invoice PDF into the phone's Downloads folder (Android 10+ needs no
-/// permission). Returns true when it was saved there. On iOS, which has no shared
-/// Downloads folder, or if saving fails (e.g. Android 9 without storage access),
-/// the share / save sheet opens instead and this returns false.
-Future<bool> downloadInvoicePdf(Order order, StoreSettings seller) async {
+/// permission). Returns the link to the saved file, which can be opened, or null
+/// when nothing was saved there: on iOS, which has no shared Downloads folder, or
+/// if saving fails (e.g. Android 9 without storage access), the share / save sheet
+/// opens instead.
+Future<String?> downloadInvoicePdf(Order order, StoreSettings seller) async {
   final bytes = await buildInvoicePdf(order, seller);
   if (defaultTargetPlatform == TargetPlatform.android) {
     try {
-      await FileSaver.instance.saveToDownloads(
+      final saved = await FileSaver.instance.saveToDownloads(
         name: 'FreshHen-Invoice-${order.id}',
         bytes: bytes,
         fileExtension: 'pdf',
         mimeType: MimeType.pdf,
       );
-      return true;
+      if (saved != null) return saved;
     } catch (_) {}
   }
   await Printing.sharePdf(bytes: bytes, filename: _invoiceName(order));
-  return false;
+  return null;
 }
 
 /// Bundled Noto Sans, since the built-in PDF fonts have no ₹ sign.
