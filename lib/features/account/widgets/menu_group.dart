@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../core/constants/spacing.dart';
 
 class MenuItem {
   const MenuItem({
@@ -29,7 +30,7 @@ class MenuGroup extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: const Color(0xFFF9F9F9),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -59,7 +60,7 @@ class _Row extends StatelessWidget {
         child: Row(
           children: [
             Icon(item.icon, size: 22, color: color),
-            const SizedBox(width: 14),
+            const SizedBox(width: 16),
             Expanded(
               child: Text(
                 item.label,

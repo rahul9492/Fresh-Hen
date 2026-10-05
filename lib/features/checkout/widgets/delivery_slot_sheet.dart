@@ -11,6 +11,7 @@ import '../../../core/widgets/shimmer_box.dart';
 import '../../orders/models/order_models.dart';
 import '../models/checkout_models.dart';
 import '../providers/checkout_providers.dart';
+import '../../../core/constants/spacing.dart';
 
 /// Picks a delivery slot. Returns the chosen slot, or null if dismissed.
 Future<DeliverySlot?> showDeliverySlotSheet(BuildContext context, {DeliverySlot? current}) =>
@@ -80,7 +81,7 @@ class _DeliverySlotSheetState extends ConsumerState<_DeliverySlotSheet> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: days.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 10),
+                  separatorBuilder: (_, _) => const SizedBox(width: 12),
                   itemBuilder: (_, i) => _DayChip(
                     day: days[i],
                     selected: i == index,
@@ -88,7 +89,7 @@ class _DeliverySlotSheetState extends ConsumerState<_DeliverySlotSheet> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               const Text(
                 'Choose Time Slot',
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
@@ -146,14 +147,14 @@ class _DayChip extends StatelessWidget {
 
     return Material(
       color: selected ? AppColors.primary : (open ? Colors.white : const Color(0xFFF1F1F3)),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: open ? onTap : null,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
           width: 104,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.md),
             border: Border.all(
               color: selected ? AppColors.primary : (open ? AppColors.border : Colors.transparent),
             ),
@@ -161,7 +162,7 @@ class _DayChip extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(title, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 14.5)),
+              Text(title, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 14)),
               const SizedBox(height: 2),
               Text(
                 open ? DateFormat('d MMM').format(day.date) : (day.closedReason ?? 'Full'),
@@ -189,14 +190,14 @@ class _SlotChip extends StatelessWidget {
       color: selected
           ? AppColors.accentSoft
           : (available ? Colors.white : const Color(0xFFF4F4F6)),
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: available ? onTap : null,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppRadius.md),
             border: Border.all(
               color: selected ? AppColors.primary : (available ? AppColors.border : Colors.transparent),
               width: selected ? 1.4 : 1,
@@ -208,7 +209,7 @@ class _SlotChip extends StatelessWidget {
               Text(
                 slot.timeLabel,
                 style: TextStyle(
-                  fontSize: 12.5,
+                  fontSize: 12,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                   color: selected
                       ? AppColors.primary
@@ -238,22 +239,22 @@ class _SlotsLoading extends StatelessWidget {
         const Row(
           children: [
             Expanded(child: ShimmerBox(height: 62, radius: 12)),
-            SizedBox(width: 10),
+            SizedBox(width: 12),
             Expanded(child: ShimmerBox(height: 62, radius: 12)),
-            SizedBox(width: 10),
+            SizedBox(width: 12),
             Expanded(child: ShimmerBox(height: 62, radius: 12)),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         for (var i = 0; i < 4; i++) ...[
           const Row(
             children: [
               Expanded(child: ShimmerBox(height: 44, radius: 10)),
-              SizedBox(width: 10),
+              SizedBox(width: 12),
               Expanded(child: ShimmerBox(height: 44, radius: 10)),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
         ],
       ],
     );

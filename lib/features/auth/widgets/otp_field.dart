@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/constants/spacing.dart';
 
 class OtpField extends StatefulWidget {
   const OtpField({super.key, required this.onChanged, this.length = AppConstants.otpLength});
@@ -94,7 +95,7 @@ class _Box extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: active ? Colors.white : const Color(0xFFF1F0F5),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
           color: active ? AppColors.accent : AppColors.border,
           width: active ? 1.6 : 1,

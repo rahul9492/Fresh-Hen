@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../core/widgets/async_view.dart';
+import '../../../core/widgets/brand_refresh.dart';
 import '../../../core/widgets/small_widgets.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../../catalog/providers/catalog_providers.dart';
@@ -30,7 +31,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: RefreshIndicator(
+        child: BrandRefresh(
           onRefresh: refresh,
           child: ListView(
             padding: const EdgeInsets.only(bottom: 24),

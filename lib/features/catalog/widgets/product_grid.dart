@@ -1,3 +1,4 @@
+import '../../../core/widgets/staggered_fade_in.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/small_widgets.dart';
@@ -66,7 +67,7 @@ class ProductGrid extends StatelessWidget {
             padding: const EdgeInsets.all(_gridPadding),
             gridDelegate: delegate,
             itemCount: products.length,
-            itemBuilder: (_, i) => ProductCard(product: products[i]),
+            itemBuilder: (_, i) => StaggeredFadeIn(index: i, child: ProductCard(product: products[i])),
           );
         }
         return CustomScrollView(
@@ -77,7 +78,7 @@ class ProductGrid extends StatelessWidget {
               sliver: SliverGrid.builder(
                 gridDelegate: delegate,
                 itemCount: products.length,
-                itemBuilder: (_, i) => ProductCard(product: products[i]),
+                itemBuilder: (_, i) => StaggeredFadeIn(index: i, child: ProductCard(product: products[i])),
               ),
             ),
           ],

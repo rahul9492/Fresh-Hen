@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
+import 'press_scale.dart';
+import '../constants/spacing.dart';
 
 class AppButton extends StatelessWidget {
   const AppButton({
@@ -18,7 +20,10 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return PressScale(
+      scale: 0.98,
+      enabled: !loading && onPressed != null,
+      child: SizedBox(
       width: double.infinity,
       height: height,
       child: FilledButton(
@@ -28,7 +33,7 @@ class AppButton extends StatelessWidget {
           disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
           foregroundColor: Colors.white,
           disabledForegroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         child: loading
@@ -37,6 +42,7 @@ class AppButton extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
               )
             : Text(label),
+      ),
       ),
     );
   }

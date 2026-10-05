@@ -9,6 +9,7 @@ import '../models/address.dart';
 import '../providers/address_providers.dart';
 import '../widgets/address_form_sheet.dart';
 import '../widgets/address_picker_sheet.dart';
+import '../../../core/constants/spacing.dart';
 
 const _lavender = Color(0xFFEEF0FF);
 
@@ -76,7 +77,7 @@ class AddressesScreen extends ConsumerWidget {
               minimumSize: const Size.fromHeight(56),
               side: const BorderSide(color: AppColors.primary),
               textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
             ),
           ),
         ],
@@ -107,7 +108,7 @@ class _AddressCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         boxShadow: const [
           BoxShadow(color: Color(0x14000000), blurRadius: 14, offset: Offset(0, 4)),
         ],
@@ -122,7 +123,7 @@ class _AddressCard extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   color: isDefault ? AppColors.primary : _lavender,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 child: Icon(addressIcon(address.label), color: isDefault ? Colors.white : AppColors.body, size: 22),
               ),
@@ -134,15 +135,15 @@ class _AddressCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               _Badge(label: isDefault ? 'Default' : 'Make Default', onTap: isDefault ? null : onMakeDefault),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: _lavender, borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: _lavender, borderRadius: BorderRadius.circular(AppRadius.md)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -174,12 +175,12 @@ class _AddressCard extends StatelessWidget {
             children: [
               InkWell(
                 onTap: onEdit,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: _lavender,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
                   child: const Row(
                     children: [
@@ -193,12 +194,12 @@ class _AddressCard extends StatelessWidget {
               const SizedBox(width: 8),
               InkWell(
                 onTap: onDelete,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: AppColors.accentSoft,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
                   child: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.accent),
                 ),
@@ -226,7 +227,7 @@ class _Badge extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
           color: const Color(0xFFE3F4E8),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
         child: const Row(
           mainAxisSize: MainAxisSize.min,
@@ -247,11 +248,11 @@ class _Badge extends StatelessWidget {
     }
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(AppRadius.lg),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(color: AppColors.primary),
         ),
         child: Row(

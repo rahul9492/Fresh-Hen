@@ -14,6 +14,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../../auth/widgets/profile_form.dart';
 // import '../../checkout/providers/checkout_providers.dart';
 import '../widgets/menu_group.dart';
+import '../../../core/constants/spacing.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -145,7 +146,7 @@ class AccountScreen extends ConsumerWidget {
           const Center(
             child: Text(
               '${AppConstants.appName} v1.0.0',
-              style: TextStyle(color: AppColors.muted, fontSize: 12.5),
+              style: TextStyle(color: AppColors.muted, fontSize: 12),
             ),
           ),
         ],
@@ -183,7 +184,7 @@ class _ProfileHeader extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         Text(user.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         Text(user.formattedPhone, style: const TextStyle(color: AppColors.body, fontSize: 14)),
         if (user.email != null)
@@ -197,7 +198,7 @@ class _ProfileHeader extends StatelessWidget {
             foregroundColor: AppColors.body,
             side: const BorderSide(color: AppColors.border),
             visualDensity: VisualDensity.compact,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
           ),
         ),
       ],

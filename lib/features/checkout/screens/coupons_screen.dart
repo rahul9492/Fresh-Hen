@@ -1,3 +1,4 @@
+import '../../../core/widgets/staggered_fade_in.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,7 @@ import '../../../core/widgets/small_widgets.dart';
 import '../../cart/providers/cart_providers.dart';
 import '../models/checkout_models.dart';
 import '../providers/checkout_providers.dart';
+import '../../../core/constants/spacing.dart';
 
 /// Lists the store's coupons and accepts a typed code. Pops with the applied
 /// [Coupon] so the cart can confirm the saving.
@@ -121,7 +123,7 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
                       backgroundColor: AppColors.primary,
                       disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
                     ),
                     child: _checking
                         ? const SizedBox.square(
@@ -150,10 +152,10 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
                 ],
               ),
             ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 24),
           const Text(
             'Available Coupons',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           AsyncView(
@@ -176,14 +178,17 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
                   )
                 : Column(
                     children: [
-                      for (final c in coupons)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _CouponCard(
-                            coupon: c,
-                            issue: _issue(c),
-                            applied: c.code == applied,
-                            onApply: () => _apply(c),
+                      for (final (i, c) in coupons.indexed)
+                        StaggeredFadeIn(
+                          index: i,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _CouponCard(
+                              coupon: c,
+                              issue: _issue(c),
+                              applied: c.code == applied,
+                              onApply: () => _apply(c),
+                            ),
                           ),
                         ),
                     ],
@@ -238,7 +243,7 @@ class _CouponCard extends StatelessWidget {
                             coupon.code,
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               letterSpacing: 0.6,
                               color: usable ? AppColors.ink : AppColors.muted,
                             ),
@@ -249,13 +254,13 @@ class _CouponCard extends StatelessWidget {
                             style: TextStyle(
                               color: usable ? AppColors.success : AppColors.muted,
                               fontWeight: FontWeight.w700,
-                              fontSize: 13.5,
+                              fontSize: 14,
                             ),
                           ),
                           const SizedBox(height: 3),
                           Text(
                             coupon.description,
-                            style: const TextStyle(color: AppColors.body, fontSize: 12.5),
+                            style: const TextStyle(color: AppColors.body, fontSize: 12),
                           ),
                           const SizedBox(height: 6),
                           Text(
@@ -272,7 +277,7 @@ class _CouponCard extends StatelessWidget {
                               issue!,
                               style: const TextStyle(
                                 color: AppColors.primary,
-                                fontSize: 12.5,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -280,13 +285,13 @@ class _CouponCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     applied
                         ? Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                             decoration: BoxDecoration(
                               color: AppColors.successSoft,
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(AppRadius.md),
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
@@ -315,7 +320,7 @@ class _CouponCard extends StatelessWidget {
                                 ),
                                 padding: const EdgeInsets.symmetric(horizontal: 18),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(AppRadius.md),
                                 ),
                                 textStyle: const TextStyle(fontWeight: FontWeight.w600),
                               ),

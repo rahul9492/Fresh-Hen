@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
@@ -10,6 +11,7 @@ import '../../../core/widgets/bottom_action_bar.dart';
 import '../../checkout/providers/checkout_providers.dart';
 import '../models/order_models.dart';
 import '../providers/order_providers.dart';
+import '../../../core/constants/spacing.dart';
 
 class OrderSuccessScreen extends ConsumerWidget {
   const OrderSuccessScreen({super.key, required this.orderId});
@@ -41,41 +43,16 @@ class OrderSuccessScreen extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0.3, end: 1),
-                    duration: const Duration(milliseconds: 700),
-                    curve: Curves.elasticOut,
-                    builder: (_, scale, child) => Transform.scale(scale: scale, child: child),
-                    child: Container(
-                      width: 84,
-                      height: 84,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF2CC46B), Color(0xFF1E9E55)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.success.withValues(alpha: 0.35),
-                            blurRadius: 28,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(Icons.check_rounded, size: 46, color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(height: 22),
+                  const _SuccessAnimation(fallback: _CheckBadge()),
+                  const SizedBox(height: 8),
                   const Text(
                     'Order Placed!',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 4),
                   const Text(
                     "You'll receive updates soon.",
-                    style: TextStyle(color: AppColors.muted, fontSize: 13.5),
+                    style: TextStyle(color: AppColors.muted, fontSize: 14),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -83,7 +60,7 @@ class OrderSuccessScreen extends ConsumerWidget {
                     style: const TextStyle(color: AppColors.body, fontWeight: FontWeight.w600),
                   ),
                   if (order != null) ...[
-                    const SizedBox(height: 26),
+                    const SizedBox(height: 24),
                     _Details(order: order, eta: eta),
                   ],
                 ],
@@ -94,6 +71,64 @@ class OrderSuccessScreen extends ConsumerWidget {
         bottomNavigationBar: BottomActionBar(
           button: AppButton(label: 'View Order', onPressed: () => _viewOrder(context)),
         ),
+      ),
+    );
+  }
+}
+
+/// The order-placed animation: a green disc pops in, the tick draws itself and
+/// confetti bursts out. Shows the simple [fallback] badge if the animation can't
+/// load, or when the phone has animations turned off.
+class _SuccessAnimation extends StatelessWidget {
+  const _SuccessAnimation({required this.fallback});
+
+  final Widget fallback;
+
+  static const _size = 190.0;
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return fallback;
+    return Lottie.asset(
+      'assets/lottie/order_success.json',
+      width: _size,
+      height: _size,
+      repeat: false,
+      errorBuilder: (_, _, _) => fallback,
+    );
+  }
+}
+
+/// The original badge: a green circle with a tick that pops in.
+class _CheckBadge extends StatelessWidget {
+  const _CheckBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.3, end: 1),
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.elasticOut,
+      builder: (_, scale, child) => Transform.scale(scale: scale, child: child),
+      child: Container(
+        width: 84,
+        height: 84,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            colors: [Color(0xFF2CC46B), Color(0xFF1E9E55)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.success.withValues(alpha: 0.35),
+              blurRadius: 28,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: const Icon(Icons.check_rounded, size: 46, color: Colors.white),
       ),
     );
   }
@@ -110,10 +145,10 @@ class _Details extends StatelessWidget {
     final slot = order.slot;
     final verifying = order.paymentStatus == PaymentStatus.verifying;
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surfaceMuted,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppColors.hairline),
       ),
       child: Column(
@@ -123,7 +158,7 @@ class _Details extends StatelessWidget {
             label: slot == null ? 'Arriving in' : 'Delivery slot',
             value: slot == null ? eta : slot.label,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           _Line(
             icon: order.paymentMethod == PaymentMethod.upi
                 ? Icons.qr_code_2_rounded
@@ -134,10 +169,10 @@ class _Details extends StatelessWidget {
           if (verifying) ...[
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF6E5),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(AppRadius.md),
               ),
               child: const Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +182,7 @@ class _Details extends StatelessWidget {
                   Expanded(
                     child: Text(
                       "We're verifying your payment screenshot. You'll be notified once it's confirmed.",
-                      style: TextStyle(color: Color(0xFF8A5A12), fontSize: 12.5, height: 1.35),
+                      style: TextStyle(color: Color(0xFF8A5A12), fontSize: 12, height: 1.35),
                     ),
                   ),
                 ],

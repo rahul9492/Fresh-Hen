@@ -84,7 +84,7 @@ class ConfirmDialog extends StatelessWidget {
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: AppSpacing.xxl),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, 28, AppSpacing.xxl, AppSpacing.lg),
         child: Column(
@@ -134,7 +134,7 @@ class ConfirmDialog extends StatelessWidget {
                         note!,
                         style: const TextStyle(
                           color: AppColors.success,
-                          fontSize: 12.5,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -152,8 +152,8 @@ class ConfirmDialog extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: mainColor,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  textStyle: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w600),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 child: Text(mainLabel),
               ),
@@ -166,7 +166,7 @@ class ConfirmDialog extends StatelessWidget {
                 onPressed: () => close(otherValue),
                 style: TextButton.styleFrom(
                   foregroundColor: otherColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
                   textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                 ),
                 child: Text(otherLabel),

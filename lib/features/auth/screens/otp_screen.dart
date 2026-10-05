@@ -64,7 +64,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               },
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           Center(
             child: seconds > 0
                 ? Text.rich(
@@ -81,7 +81,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   )
                 : TextButton(onPressed: _resend, child: const Text('Resend OTP')),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           AppButton(
             label: 'Verify & Proceed',
             loading: loading,

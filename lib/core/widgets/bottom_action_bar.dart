@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
+import '../constants/spacing.dart';
 
 /// White bar pinned under a screen's content: optional info rows on top of the
 /// main button. Use as `Scaffold.bottomNavigationBar`.
@@ -15,9 +16,10 @@ class BottomActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.hairline)),
+        border: const Border(top: BorderSide(color: AppColors.hairline)),
+        boxShadow: AppShadow.bar,
       ),
       child: SafeArea(
         top: false,
@@ -78,13 +80,13 @@ class ActionInfoRow extends StatelessWidget {
               padding: const EdgeInsets.only(top: 1),
               child: Icon(icon, size: 18, color: AppColors.body),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DefaultTextStyle.merge(
-                    style: const TextStyle(fontSize: 13.5, color: AppColors.ink),
+                    style: const TextStyle(fontSize: 14, color: AppColors.ink),
                     child: title,
                   ),
                   if (subtitle != null) ...[
@@ -93,7 +95,7 @@ class ActionInfoRow extends StatelessWidget {
                       subtitle!,
                       maxLines: subtitleMaxLines,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: AppColors.body, fontSize: 12.5),
+                      style: const TextStyle(color: AppColors.body, fontSize: 12),
                     ),
                   ],
                   if (extra != null) ...[const SizedBox(height: 4), extra!],

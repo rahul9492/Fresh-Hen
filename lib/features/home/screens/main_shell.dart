@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/spacing.dart';
 import '../../../core/widgets/confirm_dialog.dart';
 import '../../../core/widgets/lottie_nav_icon.dart';
 import '../../cart/widgets/view_cart_bar.dart';
@@ -70,16 +71,58 @@ class MainShell extends StatelessWidget {
       child: Scaffold(
         body: Stack(
           children: [
-            shell,
+            _TabFade(index: shell.currentIndex, child: shell),
             const Align(alignment: Alignment.bottomCenter, child: ViewCartBar()),
           ],
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: shell.currentIndex,
-          destinations: _destinations,
-          onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+        bottomNavigationBar: DecoratedBox(
+          decoration: BoxDecoration(color: Colors.white, boxShadow: AppShadow.bar),
+          child: NavigationBar(
+            selectedIndex: shell.currentIndex,
+            destinations: _destinations,
+            onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+          ),
         ),
       ),
     );
   }
+}
+
+/// Fades the tab content in each time the selected tab changes.
+class _TabFade extends StatefulWidget {
+  const _TabFade({required this.index, required this.child});
+
+  final int index;
+  final Widget child;
+
+  @override
+  State<_TabFade> createState() => _TabFadeState();
+}
+
+class _TabFadeState extends State<_TabFade> with SingleTickerProviderStateMixin {
+  late final _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 220),
+    value: 1,
+  );
+
+  @override
+  void didUpdateWidget(_TabFade old) {
+    super.didUpdateWidget(old);
+    if (old.index != widget.index && !MediaQuery.disableAnimationsOf(context)) {
+      _controller.forward(from: 0.35);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => FadeTransition(
+    opacity: CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    child: widget.child,
+  );
 }

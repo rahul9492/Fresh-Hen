@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -90,7 +90,25 @@ GoRouter goRouter(Ref ref) {
       ),
       GoRoute(
         path: '${Routes.product}/:id',
-        builder: (_, state) => ProductDetailScreen(productId: state.pathParameters['id']!),
+        pageBuilder: (_, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: ProductDetailScreen(
+            productId: state.pathParameters['id']!,
+            heroTag: state.extra as String?,
+          ),
+          transitionDuration: const Duration(milliseconds: 320),
+          reverseTransitionDuration: const Duration(milliseconds: 260),
+          transitionsBuilder: (_, animation, _, child) {
+            final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+            return FadeTransition(
+              opacity: curved,
+              child: SlideTransition(
+                position: Tween(begin: const Offset(0, 0.04), end: Offset.zero).animate(curved),
+                child: child,
+              ),
+            );
+          },
+        ),
       ),
       GoRoute(path: Routes.addresses, builder: (_, _) => const AddressesScreen()),
       GoRoute(

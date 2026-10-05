@@ -6,6 +6,7 @@ import '../../../core/widgets/product_image.dart';
 import '../../cart/models/cart_models.dart';
 import '../models/order_models.dart';
 import 'order_status_style.dart';
+import '../../../core/constants/spacing.dart';
 
 const _hairline = AppColors.hairline;
 const _tileFill = AppColors.surfaceMuted;
@@ -51,18 +52,12 @@ class _OrderCardState extends State<OrderCard> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: _hairline),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.035),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppShadow.card,
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -144,7 +139,7 @@ class _Header extends StatelessWidget {
           height: 44,
           decoration: BoxDecoration(
             color: status.color.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.md),
             border: Border.all(color: status.color.withValues(alpha: 0.18)),
           ),
           child: Icon(order.statusIcon, color: status.color, size: 22),
@@ -163,7 +158,7 @@ class _Header extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: status.color,
-                        fontSize: 15.5,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -203,7 +198,7 @@ class _ItemTile extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: _tileFill,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: _hairline),
       ),
       child: Row(
@@ -218,12 +213,12 @@ class _ItemTile extends StatelessWidget {
                   line.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '${line.unitLabel}$quantity • ${rupees(line.total)}',
-                  style: const TextStyle(color: AppColors.body, fontSize: 12.5),
+                  style: const TextStyle(color: AppColors.body, fontSize: 12),
                 ),
               ],
             ),
@@ -247,7 +242,7 @@ class _MoreToggle extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Row(
@@ -327,7 +322,7 @@ class _FooterButton extends StatelessWidget {
               Icon(icon, size: 17, color: iconColor ?? color),
               const SizedBox(width: 6),
             ],
-            Text(label, style: TextStyle(color: color, fontSize: 13.5, fontWeight: FontWeight.w600)),
+            Text(label, style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

@@ -4,6 +4,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../models/order_models.dart';
+import '../../../core/constants/spacing.dart';
 
 /// Asks why the customer wants to cancel [order]. Returns the reason, or null
 /// if they keep the order.
@@ -45,7 +46,7 @@ class _CancelOrderSheetState extends State<_CancelOrderSheet> {
         children: [
           const Text(
             'Tell us why, so we can do better next time.',
-            style: TextStyle(color: AppColors.body, fontSize: 13.5),
+            style: TextStyle(color: AppColors.body, fontSize: 14),
           ),
           const SizedBox(height: 8),
           RadioGroup<String>(
@@ -56,7 +57,7 @@ class _CancelOrderSheetState extends State<_CancelOrderSheet> {
                 for (final r in _reasons)
                   RadioListTile<String>(
                     value: r,
-                    title: Text(r, style: const TextStyle(fontSize: 14.5)),
+                    title: Text(r, style: const TextStyle(fontSize: 14)),
                     contentPadding: EdgeInsets.zero,
                     dense: true,
                     activeColor: AppColors.primary,
@@ -70,7 +71,7 @@ class _CancelOrderSheetState extends State<_CancelOrderSheet> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.successSoft,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.md),
               ),
               child: const Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

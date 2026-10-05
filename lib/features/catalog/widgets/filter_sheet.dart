@@ -53,23 +53,23 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Sort by', style: title),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           ChoiceChipGroup<ProductSort>(
             values: ProductSort.values,
             selected: _query.sort,
             label: (s) => s.label,
             onSelected: (s) => setState(() => _query = _query.copyWith(sort: s)),
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 24),
           Text('Category', style: title),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           ChoiceChipGroup<String?>(
             values: [null, ...categories.map((c) => c.id)],
             selected: _query.categoryId,
             label: (id) => id == null ? 'All' : categories.firstWhere((c) => c.id == id).name,
             onSelected: (id) => setState(() => _query = _query.copyWith(categoryId: id)),
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 24),
           Row(
             children: [
               Expanded(child: Text('Price range', style: title)),

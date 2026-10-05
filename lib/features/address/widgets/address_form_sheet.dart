@@ -11,6 +11,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../../checkout/providers/checkout_providers.dart';
 import '../models/address.dart';
 import '../providers/address_providers.dart';
+import '../../../core/constants/spacing.dart';
 
 /// Adds a new address (or edits [existing]), saves it and selects it for
 /// delivery. Returns the saved address, or null if dismissed.
@@ -124,7 +125,7 @@ class _AddressFormSheetState extends ConsumerState<AddressFormSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             _Field(
               controller: _house,
               label: 'House',
@@ -187,11 +188,11 @@ class _AddressFormSheetState extends ConsumerState<AddressFormSheet> {
               'Add Address Label',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Row(
               children: [
                 for (final l in AddressLabel.values) ...[
-                  if (l != AddressLabel.values.first) const SizedBox(width: 10),
+                  if (l != AddressLabel.values.first) const SizedBox(width: 12),
                   Expanded(
                     child: _LabelButton(
                       label: l,
@@ -203,7 +204,7 @@ class _AddressFormSheetState extends ConsumerState<AddressFormSheet> {
               ],
             ),
             if (_label == AddressLabel.other) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               _Field(
                 controller: _customLabel,
                 label: 'Save as',
@@ -248,7 +249,7 @@ class _Field extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     OutlineInputBorder border(Color color, [double width = 1]) => OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: BorderSide(color: color, width: width),
         );
 
@@ -339,13 +340,13 @@ class _ReceiverSection extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
         decoration: BoxDecoration(
           color: AppColors.surfaceMuted,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(color: AppColors.hairline),
         ),
         child: Row(
           children: [
             const Icon(Icons.person_outline_rounded, size: 20, color: AppColors.body),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
               child: Text.rich(
                 TextSpan(
@@ -388,15 +389,15 @@ class _LabelButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: selected ? AppColors.primary : Colors.white,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           height: 44,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppRadius.md),
             border: Border.all(color: selected ? AppColors.primary : AppColors.border),
           ),
           child: Row(
@@ -433,7 +434,7 @@ class _DefaultCheckbox extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: locked ? null : () => onChanged(!value),
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AppRadius.sm),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
@@ -448,7 +449,7 @@ class _DefaultCheckbox extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 locked ? 'Default address (your first address)' : 'Make this my default address',

@@ -10,7 +10,9 @@ import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/add_control.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_snackbar.dart';
 import '../../../core/widgets/bottom_action_bar.dart';
+import '../../../core/widgets/celebration.dart';
 import '../../../core/widgets/product_image.dart';
 import '../../address/providers/address_providers.dart';
 import '../../address/widgets/address_form_sheet.dart';
@@ -27,6 +29,7 @@ import '../../orders/providers/order_providers.dart';
 import '../models/cart_models.dart';
 import '../providers/cart_providers.dart';
 import '../widgets/empty_cart_view.dart';
+import '../../../core/constants/spacing.dart';
 
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
@@ -40,7 +43,10 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   void initState() {
     super.initState();
     // Pick up admin changes (schedule switch, fees, QR) every time the cart opens.
-    Future.microtask(() => ref.invalidate(storeSettingsProvider));
+    Future.microtask(() {
+      ref.invalidate(storeSettingsProvider);
+      ref.invalidate(productsProvider); // so sold-out items show up
+    });
   }
 
   Future<void> _addAddress() async {
@@ -52,7 +58,15 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     if (slot != null) ref.read(checkoutProvider.notifier).schedule(slot);
   }
 
+  void _removeSoldOut() {
+    ref.read(cartProvider.notifier).removeAll(ref.read(soldOutLineIdsProvider));
+  }
+
   Future<void> _proceedToPayment() async {
+    if (ref.read(soldOutLineIdsProvider).isNotEmpty) {
+      context.showError('Some items are sold out. Remove them to continue.');
+      return;
+    }
     final StoreSettings settings;
     try {
       settings = await ref.read(storeSettingsProvider.future);
@@ -116,6 +130,11 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         children: [
           for (final card in [
+            if (ref.watch(soldOutLineIdsProvider).isNotEmpty)
+              _SoldOutBanner(
+                count: ref.watch(soldOutLineIdsProvider).length,
+                onRemove: _removeSoldOut,
+              ),
             _ItemsCard(lines: lines),
             const _InstructionsCard(),
             const _CouponTile(),
@@ -127,7 +146,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
               ),
             ),
           ])
-            Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 14), child: card),
+            Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 16), child: card),
           const _Recommended(),
         ],
       ),
@@ -136,18 +155,34 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         onAddAddress: _addAddress,
         onPickSlot: _pickSlot,
         onProceed: _proceedToPayment,
+        onRemoveSoldOut: _removeSoldOut,
       ),
     );
   }
 }
 
-class _ItemsCard extends StatelessWidget {
+class _ItemsCard extends ConsumerWidget {
   const _ItemsCard({required this.lines});
 
   final List<CartLine> lines;
 
+  /// Swiped away: remove the line, with an Undo that puts it back in the same place.
+  void _remove(BuildContext context, WidgetRef ref, CartLine line) {
+    final index = lines.indexWhere((l) => l.id == line.id);
+    // Grab the cart now: if this was the last item the cart screen is replaced by the
+    // empty view, so this widget's `ref` is gone by the time Undo is tapped.
+    final cart = ref.read(cartProvider.notifier);
+    cart.removeAll({line.id});
+    AppSnackbar.info(
+      context,
+      '${line.name} removed',
+      actionLabel: 'Undo',
+      onAction: () => cart.restore(line, index),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final count = lines.fold<int>(0, (sum, l) => sum + l.quantity);
     return AppCard(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
@@ -164,8 +199,77 @@ class _ItemsCard extends StatelessWidget {
           ),
           for (var i = 0; i < lines.length; i++) ...[
             if (i > 0) const Divider(height: 1, color: AppColors.hairline),
-            _LineTile(line: lines[i]),
+            Dismissible(
+              key: ValueKey(lines[i].id),
+              direction: DismissDirection.endToStart,
+              onDismissed: (_) => _remove(context, ref, lines[i]),
+              background: const _SwipeToDeleteBackground(),
+              child: ColoredBox(color: Colors.white, child: _LineTile(line: lines[i])),
+            ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Red strip revealed behind a cart row while it is swiped left.
+class _SwipeToDeleteBackground extends StatelessWidget {
+  const _SwipeToDeleteBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: 20),
+      decoration: BoxDecoration(
+        color: AppColors.accent,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.delete_outline_rounded, color: Colors.white),
+          SizedBox(height: 2),
+          Text('Remove', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Warning above the items when some of them can't be bought any more.
+class _SoldOutBanner extends StatelessWidget {
+  const _SoldOutBanner({required this.count, required this.onRemove});
+
+  final int count;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+      decoration: BoxDecoration(
+        color: AppColors.accentSoft,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline_rounded, color: AppColors.accent, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              count == 1
+                  ? '1 item is sold out. Remove it to continue.'
+                  : '$count items are sold out. Remove them to continue.',
+              style: const TextStyle(color: AppColors.ink, fontSize: 13, height: 1.3),
+            ),
+          ),
+          TextButton(
+            onPressed: onRemove,
+            style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+            child: Text(count == 1 ? 'Remove' : 'Remove all'),
+          ),
         ],
       ),
     );
@@ -180,78 +284,113 @@ class _LineTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.read(cartProvider.notifier);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        children: [
-          ProductImage(asset: line.image, size: 64, radius: 12),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  line.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  line.isAddon ? '${line.unitLabel} • Add-on' : line.unitLabel,
-                  style: const TextStyle(color: AppColors.body, fontSize: 12.5),
-                ),
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppColors.successSoft,
-                    borderRadius: BorderRadius.circular(5),
+    final soldOut = ref.watch(soldOutLineIdsProvider.select((ids) => ids.contains(line.id)));
+    return Opacity(
+      opacity: soldOut ? 0.55 : 1,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            ProductImage(asset: line.image, size: 64, radius: 12),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    line.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                   ),
-                  child: const Text(
-                    'In Stock',
-                    style: TextStyle(
-                      color: AppColors.success,
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
+                  const SizedBox(height: 3),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceMuted,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: AppColors.hairline),
+                    ),
+                    child: Text(
+                      line.isAddon ? '${line.unitLabel} • Add-on' : line.unitLabel,
+                      style: const TextStyle(
+                        color: AppColors.body,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
+                  if (soldOut) ...[
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Sold out',
+                      style: TextStyle(
+                        color: AppColors.accent,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ] else if (line.isDiscounted) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Save ${rupees(line.mrpTotal - line.total)}',
+                      style: const TextStyle(
+                        color: AppColors.success,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (soldOut)
+                  OutlinedButton(
+                    onPressed: () => cart.removeAll({line.id}),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.accent,
+                      side: const BorderSide(color: AppColors.accent),
+                      minimumSize: const Size(0, 30),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
+                    ),
+                    child: const Text('Remove', style: TextStyle(fontWeight: FontWeight.w600)),
+                  )
+                else
+                  QtyStepper(
+                    quantity: line.quantity,
+                    height: 30,
+                    light: true,
+                    onIncrement: () => cart.increment(line.id),
+                    onDecrement: () => cart.decrement(line.id),
+                  ),
+                const SizedBox(height: 8),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      if (line.isDiscounted)
+                        TextSpan(
+                          text: '${rupees(line.mrpTotal)}  ',
+                          style: const TextStyle(
+                            color: AppColors.muted,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                      TextSpan(text: rupees(line.total)),
+                    ],
+                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              QtyStepper(
-                quantity: line.quantity,
-                height: 30,
-                onIncrement: () => cart.increment(line.id),
-                onDecrement: () => cart.decrement(line.id),
-              ),
-              const SizedBox(height: 8),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    if (line.isDiscounted)
-                      TextSpan(
-                        text: '${rupees(line.mrpTotal)}  ',
-                        style: const TextStyle(
-                          color: AppColors.muted,
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w400,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                    TextSpan(text: rupees(line.total)),
-                  ],
-                ),
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -290,10 +429,10 @@ class _InstructionsCardState extends ConsumerState<_InstructionsCard> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ),
-              Text('(Optional)', style: TextStyle(color: AppColors.muted, fontSize: 12.5)),
+              Text('(Optional)', style: TextStyle(color: AppColors.muted, fontSize: 12)),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           TextField(
             controller: _controller,
             minLines: 1,
@@ -302,7 +441,7 @@ class _InstructionsCardState extends ConsumerState<_InstructionsCard> {
             textCapitalization: TextCapitalization.sentences,
             onChanged: ref.read(checkoutProvider.notifier).setInstructions,
             cursorColor: AppColors.primary,
-            style: const TextStyle(fontSize: 13.5),
+            style: const TextStyle(fontSize: 14),
             decoration: InputDecoration(
               isDense: true,
               hintText: 'e.g. Ring the doorbell, leave at the door...',
@@ -311,15 +450,15 @@ class _InstructionsCardState extends ConsumerState<_InstructionsCard> {
               fillColor: AppColors.surfaceMuted,
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.md),
                 borderSide: const BorderSide(color: AppColors.hairline),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.md),
                 borderSide: const BorderSide(color: AppColors.hairline),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.md),
                 borderSide: const BorderSide(color: AppColors.primary),
               ),
             ),
@@ -333,11 +472,18 @@ class _InstructionsCardState extends ConsumerState<_InstructionsCard> {
 class _CouponTile extends ConsumerWidget {
   const _CouponTile();
 
-  Future<void> _open(BuildContext context) async {
+  Future<void> _open(BuildContext context, WidgetRef ref) async {
     final coupon = await context.push<Coupon>(Routes.coupons);
-    if (coupon != null && context.mounted) {
-      context.showSuccess('${coupon.code} applied!');
-    }
+    if (coupon == null || !context.mounted) return;
+    final saved = ref.read(checkoutBillProvider).discount;
+    final celebrated = saved > 0 &&
+        showCelebration(
+          context,
+          title: '${coupon.code} applied!',
+          subtitle: 'You saved ${rupees(saved)} on this order',
+        );
+    // context.showSuccess('${coupon.code} applied!');
+    if (!celebrated) context.showSuccess('${coupon.code} applied!');
   }
 
   @override
@@ -348,11 +494,11 @@ class _CouponTile extends ConsumerWidget {
 
     if (coupon == null) {
       return AppCard(
-        onTap: () => _open(context),
+        onTap: () => _open(context, ref),
         child: const Row(
           children: [
             Icon(Icons.local_offer_outlined, size: 20, color: AppColors.primary),
-            SizedBox(width: 10),
+            SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Use Coupons',
@@ -367,7 +513,7 @@ class _CouponTile extends ConsumerWidget {
 
     final ok = issue == null;
     return AppCard(
-      onTap: () => _open(context),
+      onTap: () => _open(context, ref),
       padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
       color: ok ? const Color(0xFFF4FBF6) : Colors.white,
       child: Row(
@@ -377,21 +523,21 @@ class _CouponTile extends ConsumerWidget {
             size: 22,
             color: ok ? AppColors.success : AppColors.primary,
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${coupon.code} applied',
-                  style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   ok ? 'You save ${rupees(discount)} with this coupon' : issue,
                   style: TextStyle(
                     color: ok ? AppColors.success : AppColors.primary,
-                    fontSize: 12.5,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -424,7 +570,7 @@ class _DeliveryTimingCard extends ConsumerWidget {
 
     if (!settings.scheduleEnabled) {
       return AppCard(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             const Icon(Icons.bolt_rounded, color: AppColors.primary),
@@ -433,7 +579,7 @@ class _DeliveryTimingCard extends ConsumerWidget {
             const Spacer(),
             Text(
               'Arrives in ${settings.etaLabel}',
-              style: const TextStyle(color: AppColors.body, fontSize: 12.5),
+              style: const TextStyle(color: AppColors.body, fontSize: 12),
             ),
           ],
         ),
@@ -491,10 +637,10 @@ class _TimingOption extends StatelessWidget {
     final fg = selected ? Colors.white : AppColors.ink;
     return Material(
       color: selected ? AppColors.primary : Colors.transparent,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           child: Row(
@@ -511,7 +657,7 @@ class _TimingOption extends StatelessWidget {
                       child: Text(
                         title,
                         maxLines: 1,
-                        style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 13.5),
+                        style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 14),
                       ),
                     ),
                     const SizedBox(height: 1),
@@ -521,7 +667,7 @@ class _TimingOption extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: selected ? Colors.white.withValues(alpha: 0.85) : AppColors.body,
-                        fontSize: 11.5,
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -552,7 +698,7 @@ class _FreeDeliveryHint extends ConsumerWidget {
             'Add ${rupees(remaining)} more for FREE delivery',
             style: const TextStyle(
               color: AppColors.primary,
-              fontSize: 12.5,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -574,7 +720,7 @@ class _Recommended extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text('Recommended', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
@@ -592,12 +738,14 @@ class _CheckoutBar extends ConsumerWidget {
     required this.onAddAddress,
     required this.onPickSlot,
     required this.onProceed,
+    required this.onRemoveSoldOut,
   });
 
   final CheckoutStep step;
   final VoidCallback onAddAddress;
   final VoidCallback onPickSlot;
   final VoidCallback onProceed;
+  final VoidCallback onRemoveSoldOut;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -606,12 +754,14 @@ class _CheckoutBar extends ConsumerWidget {
     final mode = ref.watch(deliveryModeProvider);
     final slot = ref.watch(checkoutProvider.select((s) => s.slot));
     final placing = ref.watch(placeOrderProvider).isLoading;
+    final hasSoldOut = ref.watch(soldOutLineIdsProvider).isNotEmpty;
 
     final (label, action) = switch (step) {
       CheckoutStep.address => (
         settings.scheduleEnabled ? 'Add Address & Slot' : 'Add Delivery Address',
         onAddAddress,
       ),
+      CheckoutStep.payment when hasSoldOut => ('Remove sold-out items', onRemoveSoldOut),
       CheckoutStep.payment => ('Proceed to Payment', onProceed),
     };
 
@@ -669,7 +819,7 @@ class _CheckoutBar extends ConsumerWidget {
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: AppColors.success,
-                            fontSize: 12.5,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

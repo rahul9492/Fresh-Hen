@@ -21,6 +21,7 @@ import '../models/checkout_models.dart';
 import '../providers/checkout_providers.dart';
 import '../services/upi_qr_actions.dart';
 import '../widgets/bill_summary.dart';
+import '../../../core/constants/spacing.dart';
 
 /// Pay by scanning the store's UPI QR (uploaded from the admin app), then
 /// upload the payment screenshot: the order is placed with it straight away
@@ -108,11 +109,11 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               children: [
                 _QrCard(settings: settings, amount: bill.total),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 _AfterPayingCard(amount: bill.total),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 _ReferenceCard(controller: _reference),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 AppCard(child: BillSummary(bill: bill)),
               ],
             );
@@ -171,12 +172,12 @@ class _QrCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _QrActions(settings: settings, amount: amount),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
               color: AppColors.successSoft,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(AppRadius.md),
             ),
             child: Text.rich(
               TextSpan(
@@ -184,7 +185,7 @@ class _QrCard extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: rupees(amount),
-                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
                   ),
                 ],
               ),
@@ -195,11 +196,11 @@ class _QrCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               settings.upiPayeeName,
-              style: const TextStyle(color: AppColors.body, fontSize: 12.5),
+              style: const TextStyle(color: AppColors.body, fontSize: 12),
             ),
             const SizedBox(height: 2),
             InkWell(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               onTap: () {
                 Clipboard.setData(ClipboardData(text: upiId));
                 context.showSuccess('UPI ID copied');
@@ -249,7 +250,7 @@ class _PayWithAppButton extends StatelessWidget {
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.accentSoft,
           foregroundColor: AppColors.primary,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         ),
       ),
@@ -271,7 +272,7 @@ class _OrDivider extends StatelessWidget {
           const Expanded(child: Divider(color: AppColors.hairline)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Text(label, style: const TextStyle(color: AppColors.muted, fontSize: 12.5)),
+            child: Text(label, style: const TextStyle(color: AppColors.muted, fontSize: 12)),
           ),
           const Expanded(child: Divider(color: AppColors.hairline)),
         ],
@@ -324,7 +325,7 @@ class _QrActionsState extends State<_QrActions> {
     final style = OutlinedButton.styleFrom(
       foregroundColor: AppColors.primary,
       side: const BorderSide(color: AppColors.border),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
       textStyle: const TextStyle(fontWeight: FontWeight.w600),
     );
     return Row(
@@ -336,7 +337,7 @@ class _QrActionsState extends State<_QrActions> {
           label: const Text('Save QR'),
           style: style,
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 12),
         OutlinedButton.icon(
           onPressed: _busy ? null : _share,
           icon: const Icon(Icons.share_rounded, size: 18),
@@ -364,11 +365,11 @@ class _QrFrame extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: const Color(0xFFF7F7FD),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
         child: Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.sm)),
           child: child,
         ),
       ),
@@ -468,7 +469,7 @@ class _ReferenceCard extends StatelessWidget {
                   text: '(optional)',
                   style: TextStyle(
                     color: AppColors.muted,
-                    fontSize: 12.5,
+                    fontSize: 12,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -489,14 +490,14 @@ class _ReferenceCard extends StatelessWidget {
               hintText: '12 digit number from your UPI app',
               hintStyle: const TextStyle(color: AppColors.muted, fontSize: 13),
               helperText: 'Helps us confirm your payment faster',
-              helperStyle: const TextStyle(color: AppColors.muted, fontSize: 11.5),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              helperStyle: const TextStyle(color: AppColors.muted, fontSize: 12),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.md),
                 borderSide: const BorderSide(color: AppColors.border),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.md),
                 borderSide: const BorderSide(color: AppColors.primary),
               ),
             ),
@@ -517,7 +518,7 @@ class _CameraHint extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.surfaceMuted,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppColors.hairline),
       ),
       child: const Row(
@@ -527,7 +528,7 @@ class _CameraHint extends StatelessWidget {
           Expanded(
             child: Text(
               'Paid from another phone? Tap the camera button to take a photo of its payment screen.',
-              style: TextStyle(color: AppColors.body, fontSize: 12.5, height: 1.35),
+              style: TextStyle(color: AppColors.body, fontSize: 12, height: 1.35),
             ),
           ),
         ],
@@ -561,7 +562,7 @@ class _Step extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
@@ -598,7 +599,7 @@ class _Unavailable extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.body),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
             OutlinedButton(onPressed: () => context.pop(), child: const Text('Back to cart')),
           ],
         ),

@@ -66,7 +66,7 @@ class HomeHeader extends ConsumerWidget {
                     const SizedBox(width: 4),
                     Text(
                       address == null ? 'Add delivery address' : 'Deliver to ${address.title}',
-                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -85,7 +85,7 @@ class HomeHeader extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(child: AppSearchBar.readOnly(onTap: () => context.push(Routes.search))),

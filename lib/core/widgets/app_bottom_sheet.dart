@@ -11,6 +11,15 @@ Future<T?> showAppSheet<T>(BuildContext context, {required WidgetBuilder builder
     isScrollControlled: true,
     useSafeArea: true,
     useRootNavigator: true,
+    // Softer dim, and a smooth ease-out slide (no overshoot, which would leave a
+    // gap under the sheet) that is a little quicker on the way out.
+    barrierColor: Colors.black.withValues(alpha: 0.45),
+    sheetAnimationStyle: const AnimationStyle(
+      duration: Duration(milliseconds: 380),
+      curve: Curves.easeOutCubic,
+      reverseDuration: Duration(milliseconds: 240),
+      reverseCurve: Curves.easeInCubic,
+    ),
     builder: builder,
   );
 }

@@ -6,6 +6,7 @@ import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../orders/models/order_models.dart';
 import '../models/checkout_models.dart';
+import '../../../core/constants/spacing.dart';
 
 /// Asks how the customer wants to pay [amount]. Returns the method, or null.
 Future<PaymentMethod?> showPaymentMethodSheet(
@@ -58,7 +59,7 @@ class _PaymentMethodSheetState extends State<_PaymentMethodSheet> {
                   text: amount,
                   style: const TextStyle(
                     color: AppColors.ink,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 16,
                   ),
                 ),
@@ -122,14 +123,14 @@ class _MethodOption extends StatelessWidget {
       opacity: enabled ? 1 : 0.6,
       child: Material(
         color: selected ? AppColors.accentSoft.withValues(alpha: 0.55) : Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: InkWell(
           onTap: enabled ? onTap : null,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           child: Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(AppRadius.md),
               border: Border.all(
                 color: selected ? AppColors.primary : AppColors.border,
                 width: selected ? 1.4 : 1,
@@ -143,7 +144,7 @@ class _MethodOption extends StatelessWidget {
                   height: 42,
                   decoration: BoxDecoration(
                     color: selected ? AppColors.primary : AppColors.surfaceMuted,
-                    borderRadius: BorderRadius.circular(11),
+                    borderRadius: BorderRadius.circular(AppRadius.md),
                   ),
                   child: Icon(icon, color: selected ? Colors.white : AppColors.body),
                 ),
@@ -159,7 +160,7 @@ class _MethodOption extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         subtitle,
-                        style: const TextStyle(color: AppColors.body, fontSize: 12.5, height: 1.35),
+                        style: const TextStyle(color: AppColors.body, fontSize: 12, height: 1.35),
                       ),
                       if (badges.isNotEmpty) ...[
                         const SizedBox(height: 8),

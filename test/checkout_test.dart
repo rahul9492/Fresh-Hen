@@ -12,6 +12,7 @@ import 'package:fresh_hen/features/auth/providers/auth_provider.dart';
 import 'package:fresh_hen/features/cart/models/cart_models.dart';
 import 'package:fresh_hen/features/cart/providers/cart_providers.dart';
 import 'package:fresh_hen/features/catalog/data/mock_catalog_data.dart';
+import 'package:fresh_hen/features/catalog/providers/catalog_providers.dart';
 import 'package:fresh_hen/features/checkout/data/mock_checkout_data.dart';
 import 'package:fresh_hen/features/checkout/models/checkout_models.dart';
 import 'package:fresh_hen/features/checkout/providers/checkout_providers.dart';
@@ -33,8 +34,10 @@ class _ScheduleOff extends MockCheckoutRepository {
 
 CartLine _line(String productId, String label, {int quantity = 1}) {
   final p = mockProducts.firstWhere((p) => p.id == productId);
-  return CartLine.fromVariant(p, p.variants.firstWhere((v) => v.label == label))
-      .copyWith(quantity: quantity);
+  return CartLine.fromVariant(
+    p,
+    p.variants.firstWhere((v) => v.label == label),
+  ).copyWith(quantity: quantity);
 }
 
 const _address = Address(
@@ -74,14 +77,25 @@ void main() {
       final now = DateTime(2026, 10, 3);
       final fresh20 = mockCoupons(now).firstWhere((c) => c.code == 'FRESH20');
       expect(fresh20.discountFor(600), 100); // 20% = 120, capped at 100
-      expect(fresh20.issueFor(itemTotal: 400, isFirstOrder: false, now: now),
-          'Add ₹99 more to use this coupon');
+      expect(
+        fresh20.issueFor(itemTotal: 400, isFirstOrder: false, now: now),
+        'Add ₹99 more to use this coupon',
+      );
       expect(fresh20.issueFor(itemTotal: 600, isFirstOrder: false, now: now), isNull);
-      expect(fresh20.issueFor(itemTotal: 600, isFirstOrder: false, now: now.add(const Duration(days: 30))),
-          'This coupon has expired');
+      expect(
+        fresh20.issueFor(
+          itemTotal: 600,
+          isFirstOrder: false,
+          now: now.add(const Duration(days: 30)),
+        ),
+        'This coupon has expired',
+      );
 
       final welcome = mockCoupons(DateTime(2026)).firstWhere((c) => c.code == 'WELCOME15');
-      expect(welcome.issueFor(itemTotal: 300, isFirstOrder: false), 'Valid on your first order only');
+      expect(
+        welcome.issueFor(itemTotal: 300, isFirstOrder: false),
+        'Valid on your first order only',
+      );
       expect(welcome.issueFor(itemTotal: 300, isFirstOrder: true), isNull);
     });
 
@@ -102,6 +116,63 @@ void main() {
       expect(days[0].slots.where((s) => s.start.hour <= 10).every((s) => !s.available), isTrue);
       expect(days[1].isOpen, isFalse); // Tuesday: weekly off
       expect(days[1].closedReason, 'Weekly off');
+    });
+  });
+
+  group('swipe to remove', () {
+    test('Undo puts a removed line back in its old place', () async {
+      final c = await _container();
+      final cart = c.read(cartProvider.notifier);
+      final first = _line('chicken-curry-cut', '500 g');
+      final second = _line('chicken-curry-cut', '1 kg');
+      cart.add(first);
+      cart.add(second);
+
+      cart.removeAll({first.id});
+      expect(c.read(cartProvider).map((l) => l.id), [second.id]);
+
+      cart.restore(first, 0);
+      expect(c.read(cartProvider).map((l) => l.id), [first.id, second.id]);
+
+      cart.restore(first, 0); // a second Undo tap changes nothing
+      expect(c.read(cartProvider), hasLength(2));
+    });
+  });
+
+  group('sold-out lines', () {
+    test('flags a pack that sold out after it was added, and the cart can drop it', () async {
+      SharedPreferences.setMockInitialValues({});
+      final line = _line('chicken-curry-cut', '500 g');
+      // The admin marks that pack sold out; the cart's saved line is now stale.
+      final catalog = [
+        for (final p in mockProducts)
+          p.id == line.productId
+              ? p.copyWith(
+                  variants: [
+                    for (final v in p.variants)
+                      v.id == line.variantId ? v.copyWith(inStock: false) : v,
+                  ],
+                )
+              : p,
+      ];
+      final c = ProviderContainer(
+        overrides: [
+          sharedPrefsProvider.overrideWithValue(await SharedPreferences.getInstance()),
+          authSessionProvider.overrideWith(_SignedIn.new),
+          productsProvider.overrideWith((ref) async => catalog),
+        ],
+      );
+      addTearDown(c.dispose);
+      c.listen(soldOutLineIdsProvider, (_, _) {});
+      c.read(cartProvider.notifier).add(line);
+
+      expect(c.read(soldOutLineIdsProvider), isEmpty); // catalog still loading: no guess
+      await c.read(productsProvider.future);
+      expect(c.read(soldOutLineIdsProvider), {line.id});
+
+      c.read(cartProvider.notifier).removeAll({line.id});
+      expect(c.read(cartProvider), isEmpty);
+      expect(c.read(soldOutLineIdsProvider), isEmpty);
     });
   });
 
@@ -179,10 +250,15 @@ void main() {
 
       final missing = await c.read(placeOrderProvider.notifier).submit(method: PaymentMethod.upi);
       expect(missing, isNull);
-      expect(c.read(placeOrderProvider).error.toString(), contains('upload your payment screenshot'));
+      expect(
+        c.read(placeOrderProvider).error.toString(),
+        contains('upload your payment screenshot'),
+      );
       expect(c.read(cartProvider), isNotEmpty);
 
-      final order = await c.read(placeOrderProvider.notifier).submit(
+      final order = await c
+          .read(placeOrderProvider.notifier)
+          .submit(
             method: PaymentMethod.upi,
             proof: PickedImage(bytes: Uint8List(64), name: 'paid.png'),
             paymentReference: '427816390521',
@@ -204,7 +280,9 @@ void main() {
       await on.read(addressesProvider.notifier).save(_address);
       on.read(checkoutProvider.notifier).schedule(slot);
       expect(on.read(deliveryModeProvider), DeliveryMode.scheduled);
-      final scheduled = await on.read(placeOrderProvider.notifier).submit(method: PaymentMethod.cash);
+      final scheduled = await on
+          .read(placeOrderProvider.notifier)
+          .submit(method: PaymentMethod.cash);
       expect(scheduled!.slot?.id, 's1');
 
       final off = await _container(checkout: _ScheduleOff());
@@ -228,10 +306,12 @@ void main() {
 
       // A fresh container reads the same saved list back.
       final prefs = c.read(sharedPrefsProvider);
-      final again = ProviderContainer(overrides: [
-        sharedPrefsProvider.overrideWithValue(prefs),
-        authSessionProvider.overrideWith(_SignedIn.new),
-      ]);
+      final again = ProviderContainer(
+        overrides: [
+          sharedPrefsProvider.overrideWithValue(prefs),
+          authSessionProvider.overrideWith(_SignedIn.new),
+        ],
+      );
       addTearDown(again.dispose);
       expect(again.read(addressesProvider).single.id, 'a1');
     });
@@ -242,10 +322,12 @@ void main() {
 
       final prefs = c.read(sharedPrefsProvider);
       ProviderContainer restart() {
-        final next = ProviderContainer(overrides: [
-          sharedPrefsProvider.overrideWithValue(prefs),
-          authSessionProvider.overrideWith(_SignedIn.new),
-        ]);
+        final next = ProviderContainer(
+          overrides: [
+            sharedPrefsProvider.overrideWithValue(prefs),
+            authSessionProvider.overrideWith(_SignedIn.new),
+          ],
+        );
         addTearDown(next.dispose);
         return next;
       }

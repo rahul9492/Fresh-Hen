@@ -7,6 +7,7 @@ import '../../checkout/providers/checkout_providers.dart';
 import '../models/address.dart';
 import '../providers/address_providers.dart';
 import 'address_form_sheet.dart';
+import '../../../core/constants/spacing.dart';
 
 IconData addressIcon(AddressLabel label) => switch (label) {
       AddressLabel.home => Icons.home_rounded,
@@ -47,15 +48,15 @@ class _AddressPickerSheet extends ConsumerWidget {
               },
               onEdit: () => showAddressFormSheet(context, existing: a),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
           ],
           InkWell(
             onTap: addNew,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(AppRadius.md),
             child: Container(
               height: 52,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(AppRadius.md),
                 border: Border.all(color: AppColors.primary),
               ),
               child: const Row(
@@ -98,14 +99,14 @@ class _AddressOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: selected ? AppColors.accentSoft.withValues(alpha: 0.5) : Colors.white,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: deliverable ? onTap : null,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
           padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(AppRadius.md),
             border: Border.all(
               color: selected ? AppColors.primary : AppColors.border,
               width: selected ? 1.4 : 1,
@@ -119,7 +120,7 @@ class _AddressOption extends StatelessWidget {
                 color: selected ? AppColors.primary : AppColors.muted,
                 size: 22,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,7 +142,7 @@ class _AddressOption extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                             decoration: BoxDecoration(
                               color: AppColors.successSoft,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
                             ),
                             child: const Text(
                               'Default',
@@ -171,7 +172,7 @@ class _AddressOption extends StatelessWidget {
                         "We don't deliver to ${address.pincode} yet",
                         style: const TextStyle(
                           color: AppColors.accent,
-                          fontSize: 12.5,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

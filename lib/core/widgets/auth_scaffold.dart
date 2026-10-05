@@ -54,14 +54,14 @@ class AuthScaffold extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: showBack ? 100 : 170),
-                        if (showBadge) ...[const BrandBadge(), const SizedBox(height: 14)],
+                        if (showBadge) ...[const BrandBadge(), const SizedBox(height: 16)],
                         Text(title, style: text.headlineMedium?.copyWith(fontSize: 26)),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 12),
                         Text(
                           subtitle,
                           style: text.bodyLarge?.copyWith(color: AppColors.body, height: 1.4),
                         ),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 24),
                         child,
                       ],
                     ),

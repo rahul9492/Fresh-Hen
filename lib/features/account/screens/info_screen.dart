@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../data/info_content.dart';
+import '../../../core/constants/spacing.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key, required this.title, required this.sections});
@@ -21,7 +22,7 @@ class InfoScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
             border: Border.all(color: AppColors.border),
           ),
           child: Column(

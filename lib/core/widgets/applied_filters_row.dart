@@ -34,7 +34,7 @@ class AppliedFiltersRow extends StatelessWidget {
           labelStyle: const TextStyle(
             color: AppColors.primary,
             fontWeight: FontWeight.w600,
-            fontSize: 12.5,
+            fontSize: 12,
           ),
         ),
       ),

@@ -11,6 +11,7 @@ import '../../../core/widgets/small_widgets.dart';
 import '../../cart/models/cart_models.dart';
 import '../../cart/providers/cart_providers.dart';
 import '../models/catalog_models.dart';
+import '../../../core/constants/spacing.dart';
 
 Future<void> showProductOptionsSheet(BuildContext context, Product product) {
   return showAppSheet<void>(context, builder: (_) => ProductOptionsSheet(product: product));
@@ -34,12 +35,12 @@ class ProductOptionsSheet extends ConsumerWidget {
           Row(
             children: [
               ProductImage(asset: product.image, size: 52),
-              const SizedBox(width: 14),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(product.name, style: text.titleMedium?.copyWith(fontSize: 17)),
+                    Text(product.name, style: text.titleMedium?.copyWith(fontSize: 16)),
                     const SizedBox(height: 2),
                     RatingLabel(rating: product.rating, count: product.ratingCount),
                   ],
@@ -61,7 +62,7 @@ class ProductOptionsSheet extends ConsumerWidget {
             ],
           ),
           if (product.accompaniments.isNotEmpty) ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             _GroupTitle(title: 'Add Accompaniments', hint: 'Select any', style: text),
             _Group(
               children: [
@@ -90,7 +91,7 @@ class _GroupTitle extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: style.titleMedium?.copyWith(fontSize: 16)),
-          Text(hint, style: const TextStyle(color: AppColors.body, fontSize: 12.5)),
+          Text(hint, style: const TextStyle(color: AppColors.body, fontSize: 12)),
         ],
       ),
     );
@@ -107,7 +108,7 @@ class _Group extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: AppColors.border),
         boxShadow: const [
           BoxShadow(color: Color(0x0F000000), blurRadius: 14, offset: Offset(0, 4)),
@@ -137,14 +138,14 @@ class _VariantRow extends ConsumerWidget {
       child: Row(
         children: [
           const NonVegMark(),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Row(
               children: [
                 Flexible(
                   child: Text(
                     '${variant.label} • ',
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14.5),
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                   ),
                 ),
                 PriceText(price: variant.price, mrp: variant.mrp),

@@ -7,6 +7,7 @@ import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/widgets/product_image.dart';
 import '../../catalog/models/catalog_models.dart';
+import '../../../core/constants/spacing.dart';
 
 class PromoCarousel extends StatefulWidget {
   const PromoCarousel({super.key, required this.banners});
@@ -58,7 +59,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
             ),
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -89,9 +90,9 @@ class _BannerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         gradient: const LinearGradient(colors: [Color(0xFFFBE3D6), Color(0xFFF3D3C4)]),
         border: Border.all(color: AppColors.border),
       ),
@@ -116,14 +117,14 @@ class _BannerCard extends StatelessWidget {
                   banner.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: text.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
+                  style: text.titleMedium?.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 Text(
                   banner.highlight,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: text.titleMedium?.copyWith(
-                    fontSize: 17,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
                   ),
@@ -157,7 +158,7 @@ class _BannerCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           ProductImage(asset: banner.image, size: 110, radius: 14),
         ],
       ),

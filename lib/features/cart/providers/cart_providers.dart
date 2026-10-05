@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/storage/prefs_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../catalog/models/catalog_models.dart';
+import '../../catalog/providers/catalog_providers.dart';
 import '../models/cart_models.dart';
 
 part 'cart_providers.g.dart';
@@ -33,9 +34,8 @@ class Cart extends _$Cart {
 
   /// Carts saved before lines carried their pack id: recover it from the line
   /// id (`productId:variantId`) so the order can still be priced by the server.
-  static CartLine _withVariantId(CartLine l) => l.isAddon || l.variantId != null
-      ? l
-      : l.copyWith(variantId: l.id.split(':').last);
+  static CartLine _withVariantId(CartLine l) =>
+      l.isAddon || l.variantId != null ? l : l.copyWith(variantId: l.id.split(':').last);
 
   void _save(List<CartLine> lines) {
     final prefs = ref.read(sharedPrefsProvider);
@@ -85,6 +85,20 @@ class Cart extends _$Cart {
 
   void clear() => state = const [];
 
+  /// Puts a removed [line] back where it was (the snackbar's Undo).
+  void restore(CartLine line, int index) {
+    if (state.any((l) => l.id == line.id)) return;
+    final next = [...state];
+    next.insert(index.clamp(0, next.length), line);
+    state = next;
+  }
+
+  /// Drops the lines with these ids, e.g. the ones that sold out.
+  void removeAll(Set<String> ids) => state = [
+    for (final l in state)
+      if (!ids.contains(l.id)) l,
+  ];
+
   void _update(String id, int delta) {
     state = [
       for (final line in state)
@@ -112,7 +126,31 @@ int productQuantity(Ref ref, String productId) => ref
     .fold(0, (sum, l) => sum + l.quantity);
 
 @riverpod
-int lineQuantity(Ref ref, String lineId) => ref
-    .watch(cartProvider)
-    .where((l) => l.id == lineId)
-    .fold(0, (sum, l) => sum + l.quantity);
+int lineQuantity(Ref ref, String lineId) =>
+    ref.watch(cartProvider).where((l) => l.id == lineId).fold(0, (sum, l) => sum + l.quantity);
+
+/// Ids of cart lines that can't be bought right now: the pack or add-on sold out
+/// after it was added (the cart is saved between sessions), or it left the
+/// catalog. Empty while the catalog is still loading, so nothing is blocked on a guess.
+@riverpod
+Set<String> soldOutLineIds(Ref ref) {
+  final products = ref.watch(productsProvider).value;
+  if (products == null) return const {};
+
+  final byId = {for (final p in products) p.id: p};
+  final addons = {
+    for (final p in products)
+      for (final a in p.accompaniments) a.id: a,
+  };
+
+  bool available(CartLine line) {
+    if (line.isAddon) return addons[line.productId]?.inStock ?? false;
+    final variants = byId[line.productId]?.variants ?? const <ProductVariant>[];
+    return variants.any((v) => v.id == line.variantId && v.inStock);
+  }
+
+  return {
+    for (final line in ref.watch(cartProvider))
+      if (!available(line)) line.id,
+  };
+}

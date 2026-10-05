@@ -5,6 +5,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/widgets/app_button.dart';
 import '../data/onboarding_pages.dart';
 import '../providers/onboarding_provider.dart';
+import '../../../core/constants/spacing.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -100,14 +101,14 @@ class _PageContent extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           Text.rich(_highlight(page.title, titleStyle)),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(page.subtitle, style: text.bodyLarge?.copyWith(color: AppColors.body)),
-          const SizedBox(height: 28),
+          const SizedBox(height: 24),
           Expanded(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(AppRadius.xl),
               child: Image.asset(
                 page.image,
                 width: double.infinity,
@@ -115,7 +116,7 @@ class _PageContent extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 24),
         ],
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
+import 'press_scale.dart';
+import '../constants/spacing.dart';
 
 /// White rounded card used on grey pages (cart, checkout, order details).
 class AppCard extends StatelessWidget {
@@ -22,18 +24,12 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = Padding(padding: padding, child: child);
-    return DecoratedBox(
+    final card = DecoratedBox(
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(radius),
         border: Border.all(color: AppColors.hairline),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.035),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppShadow.card,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius - 1),
@@ -45,6 +41,8 @@ class AppCard extends StatelessWidget {
               ),
       ),
     );
+    // Only cards you can tap shrink a little when pressed.
+    return onTap == null ? card : PressScale(scale: 0.985, child: card);
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../media/image_picking.dart';
+import '../constants/spacing.dart';
 
 /// Split upload button: the wide part picks from the gallery, the square part
 /// beside it opens the camera. Handles picking and its errors; the screen only
@@ -66,7 +67,7 @@ class _ImageUploadButtonState extends State<ImageUploadButton> {
 
   @override
   Widget build(BuildContext context) {
-    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(14));
+    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md));
     return Row(
       children: [
         Expanded(
@@ -108,7 +109,7 @@ class _ImageUploadButtonState extends State<ImageUploadButton> {
           ),
         ),
         if (widget.showCamera) ...[
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Tooltip(
             message: widget.cameraTooltip,
             child: SizedBox.square(

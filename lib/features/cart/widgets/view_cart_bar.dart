@@ -5,8 +5,11 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/fly_to_cart.dart';
+import '../../../core/widgets/press_scale.dart';
 import '../../../core/widgets/product_image.dart';
 import '../providers/cart_providers.dart';
+import '../../../core/constants/spacing.dart';
 
 /// Floating "View cart" pill shown above the bottom nav while the cart has items.
 class ViewCartBar extends ConsumerWidget {
@@ -34,17 +37,22 @@ class ViewCartBar extends ConsumerWidget {
           : Padding(
               key: const ValueKey('bar'),
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-              child: Material(
+              child: PressScale(
+                scale: 0.98,
+                child: Material(
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () => context.push(Routes.cart),
-                  borderRadius: BorderRadius.circular(40),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                   child: Ink(
                     padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
                       gradient: LinearGradient(
-                        colors: [AppColors.primary, Color.lerp(AppColors.primary, Colors.black, 0.22)!],
+                        colors: [
+                          AppColors.primary,
+                          Color.lerp(AppColors.primary, Colors.black, 0.22)!,
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -59,7 +67,10 @@ class ViewCartBar extends ConsumerWidget {
                     ),
                     child: Row(
                       children: [
-                        _Thumbs(images: [for (final l in thumbs) l.image]),
+                        SizedBox(
+                          key: cartFlyTargetKey,
+                          child: _Thumbs(images: [for (final l in thumbs) l.image]),
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -75,12 +86,29 @@ class ViewCartBar extends ConsumerWidget {
                                 ),
                               ),
                               const SizedBox(height: 1),
-                              Text(
-                                '$count ${count == 1 ? 'item' : 'items'} · ${rupees(summary.itemTotal)}',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.85),
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w500,
+                              // Pops each time the count or total changes.
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 220),
+                                transitionBuilder: (child, animation) => FadeTransition(
+                                  opacity: animation,
+                                  child: ScaleTransition(
+                                    scale: Tween(begin: 0.85, end: 1.0).animate(animation),
+                                    alignment: Alignment.centerLeft,
+                                    child: child,
+                                  ),
+                                ),
+                                layoutBuilder: (current, previous) => Stack(
+                                  alignment: Alignment.centerLeft,
+                                  children: [...previous, ?current],
+                                ),
+                                child: Text(
+                                  '$count ${count == 1 ? 'item' : 'items'} · ${rupees(summary.itemTotal)}',
+                                  key: ValueKey('$count-${summary.itemTotal}'),
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ],
@@ -102,6 +130,7 @@ class ViewCartBar extends ConsumerWidget {
                       ],
                     ),
                   ),
+                ),
                 ),
               ),
             ),
@@ -130,7 +159,9 @@ class _Thumbs extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(2),
                 decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
-                child: ClipOval(child: ProductImage(asset: images[i], size: _size - 4, radius: 0)),
+                child: ClipOval(
+                  child: ProductImage(asset: images[i], size: _size - 4, radius: 0),
+                ),
               ),
             ),
         ],

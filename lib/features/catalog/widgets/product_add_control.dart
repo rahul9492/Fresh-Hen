@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/widgets/add_control.dart';
+import '../../../core/widgets/fly_to_cart.dart';
 import '../../cart/models/cart_models.dart';
 import '../../cart/providers/cart_providers.dart';
 import '../models/catalog_models.dart';
@@ -27,9 +28,14 @@ class ProductAddControl extends ConsumerWidget {
       style: style,
       quantity: quantity,
       available: product.inStock,
-      onAdd: () => product.needsOptions
-          ? showProductOptionsSheet(context, product)
-          : cart.add(CartLine.fromVariant(product, product.defaultVariant)),
+      onAdd: () {
+        if (product.needsOptions) {
+          showProductOptionsSheet(context, product);
+          return;
+        }
+        flyToCart(context, product.image); // before the Add button turns into a stepper
+        cart.add(CartLine.fromVariant(product, product.defaultVariant));
+      },
       onIncrement: () => cart.increment(line()!.id),
       onDecrement: () => cart.decrement(line()!.id),
     );

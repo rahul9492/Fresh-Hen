@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/routes.dart';
 import '../../../core/widgets/app_search_bar.dart';
 import '../../../core/widgets/async_view.dart';
+import '../../../core/widgets/brand_refresh.dart';
 import '../../../core/widgets/shimmer_box.dart';
+import '../../../core/widgets/staggered_fade_in.dart';
 import '../../../core/widgets/small_widgets.dart';
 import '../../cart/providers/cart_providers.dart';
 import '../models/order_models.dart';
@@ -61,7 +63,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
       body: AsyncView(
         value: ref.watch(ordersProvider),
         onRetry: () => ref.invalidate(ordersProvider),
-        loading: const ShimmerList(itemCount: 4, itemHeight: 190),
+        loading: const OrderListSkeleton(),
         data: (orders) {
           if (orders.isEmpty) {
             return EmptyState(
@@ -92,23 +94,26 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                         title: 'No matching orders',
                         message: 'Try another item name or order ID.',
                       )
-                    : RefreshIndicator(
+                    : BrandRefresh(
                         onRefresh: _refresh,
                         child: ListView.separated(
                           physics: const AlwaysScrollableScrollPhysics(),
                           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                           padding: EdgeInsets.fromLTRB(16, 12, 16, hasCart ? 96 : 24),
                           itemCount: visible.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 14),
+                          separatorBuilder: (_, _) => const SizedBox(height: 16),
                           itemBuilder: (_, i) {
                             final order = visible[i];
-                            return OrderCard(
+                            return StaggeredFadeIn(
                               key: ValueKey(order.id),
-                              order: order,
-                              onTap: () => context.push(Routes.orderFor(order.id)),
-                              onReorder: () => repeatOrder(context, ref, order),
-                              onRate: () => rateOrder(context, ref, order),
-                              onHelp: () => context.push(Routes.help),
+                              index: i,
+                              child: OrderCard(
+                                order: order,
+                                onTap: () => context.push(Routes.orderFor(order.id)),
+                                onReorder: () => repeatOrder(context, ref, order),
+                                onRate: () => rateOrder(context, ref, order),
+                                onHelp: () => context.push(Routes.help),
+                              ),
                             );
                           },
                         ),

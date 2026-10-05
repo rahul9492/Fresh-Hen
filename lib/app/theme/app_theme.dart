@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
+import '../../core/constants/spacing.dart';
 
 abstract final class AppTheme {
   static ThemeData get light {
@@ -54,6 +55,8 @@ abstract final class AppTheme {
         // indicatorColor: AppColors.accentSoft,
         indicatorColor: Colors.transparent, // the animated icon marks the selected tab
         surfaceTintColor: Colors.transparent,
+        // No grey pill behind a tab while it is pressed or selected.
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
         labelTextStyle: WidgetStatePropertyAll(
           textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
@@ -61,14 +64,18 @@ abstract final class AppTheme {
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.ink,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         showDragHandle: true,
+        // A clearer pill than the default faint one.
+        dragHandleColor: Color(0xFFD3D5DC),
+        dragHandleSize: Size(44, 5),
+        clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
         ),
       ),
     );

@@ -87,7 +87,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
           child: Row(
             children: [
               const Icon(Icons.search_rounded, color: AppColors.body),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Text(widget.hint, style: const TextStyle(color: AppColors.muted, fontSize: 15)),
             ],
           ),

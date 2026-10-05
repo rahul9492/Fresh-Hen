@@ -7,6 +7,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/open_link.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../checkout/providers/checkout_providers.dart';
+import '../../../core/constants/spacing.dart';
 
 /// Help & Support: reach the store by phone call or WhatsApp. The number comes
 /// from the admin app's settings, falling back to the built-in one.
@@ -45,9 +46,9 @@ class SupportScreen extends ConsumerWidget {
           const Text(
             'Questions about your order, cut quality, weight or refunds? Talk to us directly.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.body, fontSize: 13.5, height: 1.4),
+            style: TextStyle(color: AppColors.body, fontSize: 14, height: 1.4),
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 24),
           _ContactOption(
             icon: const Icon(Icons.call_rounded, color: Colors.white, size: 26),
             color: AppColors.primary,
@@ -103,18 +104,18 @@ class _ContactOption extends StatelessWidget {
           Container(
             width: 48,
             height: 48,
-            decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(14)),
+            decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(AppRadius.md)),
             alignment: Alignment.center,
             child: icon,
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 2),
-                Text(subtitle, style: const TextStyle(color: AppColors.body, fontSize: 13.5)),
+                Text(subtitle, style: const TextStyle(color: AppColors.body, fontSize: 14)),
               ],
             ),
           ),

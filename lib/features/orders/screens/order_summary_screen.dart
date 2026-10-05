@@ -22,6 +22,7 @@ import '../providers/order_providers.dart';
 import '../widgets/order_actions.dart';
 import '../widgets/order_timeline.dart';
 import '../widgets/order_status_style.dart';
+import '../../../core/constants/spacing.dart';
 
 class OrderSummaryScreen extends ConsumerStatefulWidget {
   const OrderSummaryScreen({super.key, required this.orderId});
@@ -87,7 +88,7 @@ class _OrderSummaryScreenState extends ConsumerState<OrderSummaryScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.accent,
                         side: const BorderSide(color: AppColors.accent),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
                         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                       child: const Text('Cancel order'),
@@ -130,7 +131,7 @@ class _Body extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       order.statusDetail(eta: eta),
-                      style: const TextStyle(color: AppColors.body, fontSize: 13.5),
+                      style: const TextStyle(color: AppColors.body, fontSize: 14),
                     ),
                   ),
                 ],
@@ -159,13 +160,13 @@ class _Body extends ConsumerWidget {
             ],
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         AppCard(child: OrderTimeline(order: order)),
         if (order.status == OrderStatus.outForDelivery && order.rider != null) ...[
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           RiderCard(rider: order.rider!),
         ],
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         AppCard(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
           child: Column(
@@ -182,7 +183,7 @@ class _Body extends ConsumerWidget {
             ],
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         AppCard(
           child: BillSummary(
             bill: order.bill,
@@ -191,13 +192,13 @@ class _Body extends ConsumerWidget {
             highlightTotal: !paid,
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         _DetailsCard(order: order),
         if (order.status == OrderStatus.delivered) ...[
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           _RatingCard(order: order),
         ],
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         const _HelpCard(),
       ],
     );
@@ -221,11 +222,11 @@ class _ItemRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(line.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5)),
+                Text(line.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
                 const SizedBox(height: 3),
                 Text(
                   '${line.unitLabel} x ${line.quantity}${line.isAddon ? ' • Add-on' : ''}',
-                  style: const TextStyle(color: AppColors.body, fontSize: 12.5),
+                  style: const TextStyle(color: AppColors.body, fontSize: 12),
                 ),
               ],
             ),
@@ -238,7 +239,7 @@ class _ItemRow extends StatelessWidget {
                     text: '${rupees(line.mrpTotal)}  ',
                     style: const TextStyle(
                       color: AppColors.muted,
-                      fontSize: 12.5,
+                      fontSize: 12,
                       fontWeight: FontWeight.w400,
                       decoration: TextDecoration.lineThrough,
                     ),
@@ -320,7 +321,7 @@ class _Detail extends StatelessWidget {
   final String? value;
   final Widget? child;
 
-  static const valueStyle = TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, height: 1.35);
+  static const valueStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 1.35);
 
   @override
   Widget build(BuildContext context) {
@@ -329,7 +330,7 @@ class _Detail extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.body, fontSize: 12.5)),
+          Text(label, style: const TextStyle(color: AppColors.body, fontSize: 12)),
           const SizedBox(height: 3),
           child ?? Text(value!, style: valueStyle),
         ],
@@ -405,10 +406,10 @@ class _HelpCard extends StatelessWidget {
           const SizedBox(height: 12),
           Material(
             color: const Color(0xFFF1F2FD),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.md),
             child: InkWell(
               onTap: () => context.push(Routes.help),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppRadius.md),
               child: const Padding(
                 padding: EdgeInsets.all(12),
                 child: Row(
@@ -425,12 +426,12 @@ class _HelpCard extends StatelessWidget {
                         children: [
                           Text(
                             'Contact Fresh Hen',
-                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
+                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                           ),
                           SizedBox(height: 2),
                           Text(
                             'Cut quality, weight, or refund queries',
-                            style: TextStyle(color: AppColors.body, fontSize: 12.5),
+                            style: TextStyle(color: AppColors.body, fontSize: 12),
                           ),
                         ],
                       ),

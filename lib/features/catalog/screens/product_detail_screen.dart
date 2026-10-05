@@ -15,11 +15,15 @@ import '../../cart/providers/cart_providers.dart';
 import '../models/catalog_models.dart';
 import '../providers/catalog_providers.dart';
 import '../widgets/product_grid.dart';
+import '../../../core/constants/spacing.dart';
 
 class ProductDetailScreen extends ConsumerWidget {
-  const ProductDetailScreen({super.key, required this.productId});
+  const ProductDetailScreen({super.key, required this.productId, this.heroTag});
 
   final String productId;
+
+  /// Tag of the product card image that opened this page, so it can grow into the gallery.
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,16 +35,17 @@ class ProductDetailScreen extends ConsumerWidget {
         onRetry: () => ref.invalidate(productByIdProvider(productId)),
         data: (p) => p == null
             ? const EmptyState(icon: Icons.search_off_rounded, title: 'Item not available')
-            : _Detail(product: p),
+            : _Detail(product: p, heroTag: heroTag),
       ),
     );
   }
 }
 
 class _Detail extends ConsumerStatefulWidget {
-  const _Detail({required this.product});
+  const _Detail({required this.product, this.heroTag});
 
   final Product product;
+  final String? heroTag;
 
   @override
   ConsumerState<_Detail> createState() => _DetailState();
@@ -78,7 +83,7 @@ class _DetailState extends ConsumerState<_Detail> {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              _Gallery(product: _product),
+              _Gallery(product: _product, heroTag: widget.heroTag),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -107,9 +112,9 @@ class _DetailState extends ConsumerState<_Detail> {
                       _product.name,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22),
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 16),
                     const Text('Select unit(s)', style: TextStyle(fontSize: 15)),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         for (final v in _product.variants)
@@ -160,9 +165,10 @@ class _DetailState extends ConsumerState<_Detail> {
 }
 
 class _Gallery extends ConsumerStatefulWidget {
-  const _Gallery({required this.product});
+  const _Gallery({required this.product, this.heroTag});
 
   final Product product;
+  final String? heroTag;
 
   @override
   ConsumerState<_Gallery> createState() => _GalleryState();
@@ -214,8 +220,13 @@ class _GalleryState extends ConsumerState<_Gallery> {
             itemBuilder: (_, i) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: AppImage(source: images[i], width: double.infinity),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                child: i == 0 && widget.heroTag != null
+                    ? Hero(
+                        tag: widget.heroTag!,
+                        child: AppImage(source: images[i], width: double.infinity),
+                      )
+                    : AppImage(source: images[i], width: double.infinity),
               ),
             ),
           ),
@@ -264,7 +275,7 @@ class _UnitTile extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: selected ? AppColors.accentSoft : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(color: selected ? AppColors.primary : AppColors.border),
         ),
         child: Column(
@@ -290,7 +301,7 @@ class _UnitTile extends StatelessWidget {
                   const Text('Sold out', style: TextStyle(color: AppColors.muted, fontSize: 11)),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
@@ -363,7 +374,7 @@ class _BottomBar extends StatelessWidget {
                           onDecrement: onDecrement,
                           height: 54,
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: AppButton(
                             label: 'View cart',

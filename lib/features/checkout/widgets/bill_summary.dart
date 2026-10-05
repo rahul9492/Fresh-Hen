@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/animated_rupees.dart';
 import '../../../core/widgets/dashed_divider.dart';
 import '../../orders/models/order_models.dart';
+import '../../../core/constants/spacing.dart';
 
 /// Bill breakdown used in the cart, on the payment screen and in order details.
 class BillSummary extends StatelessWidget {
@@ -33,19 +35,22 @@ class BillSummary extends StatelessWidget {
       children: [
         Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
         const SizedBox(height: 12),
-        _Row('Item Subtotal', rupees(bill.itemTotal)),
+        _Row('Item Subtotal', rupees(bill.itemTotal), amount: bill.itemTotal),
         _Row(
           'Delivery Fee',
           bill.deliveryFee == 0 ? 'FREE' : rupees(bill.deliveryFee),
+          amount: bill.deliveryFee == 0 ? null : bill.deliveryFee,
           valueColor: bill.deliveryFee == 0 ? AppColors.success : null,
         ),
         if (bill.discount > 0)
           _Row(
             bill.couponCode == null ? 'Discount' : 'Coupon (${bill.couponCode})',
             '−${rupees(bill.discount)}',
+            amount: bill.discount,
+            prefix: '−',
             valueColor: AppColors.success,
           ),
-        _Row('Taxes & Packaging', rupees(bill.taxes)),
+        _Row('Taxes & Packaging', rupees(bill.taxes), amount: bill.taxes),
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 10),
           child: DashedDivider(),
@@ -58,11 +63,11 @@ class BillSummary extends StatelessWidget {
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
             ),
-            Text(
-              rupees(bill.total),
+            AnimatedRupees(
+              bill.total,
               style: TextStyle(
                 fontSize: highlightTotal ? 19 : 16,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 color: highlightTotal ? AppColors.primary : AppColors.ink,
               ),
             ),
@@ -72,18 +77,22 @@ class BillSummary extends StatelessWidget {
           const SizedBox(height: 12),
           _SavingsBanner(amount: bill.savings),
         ],
-        if (footer != null) ...[const SizedBox(height: 10), footer!],
+        if (footer != null) ...[const SizedBox(height: 12), footer!],
       ],
     );
   }
 }
 
 class _Row extends StatelessWidget {
-  const _Row(this.label, this.value, {this.valueColor});
+  const _Row(this.label, this.value, {this.valueColor, this.amount, this.prefix = ''});
 
   final String label;
   final String value;
   final Color? valueColor;
+
+  /// When set, the value counts to a new amount instead of just changing.
+  final int? amount;
+  final String prefix;
 
   @override
   Widget build(BuildContext context) {
@@ -92,16 +101,18 @@ class _Row extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(label, style: const TextStyle(color: AppColors.body, fontSize: 13.5)),
+            child: Text(label, style: const TextStyle(color: AppColors.body, fontSize: 14)),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13.5,
+          () {
+            final style = TextStyle(
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: valueColor ?? AppColors.ink,
-            ),
-          ),
+            );
+            return amount == null
+                ? Text(value, style: style)
+                : AnimatedRupees(amount!, prefix: prefix, style: style);
+          }(),
         ],
       ),
     );
@@ -119,7 +130,7 @@ class _SavingsBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
         color: AppColors.successSoft,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Row(
         children: [
@@ -132,7 +143,7 @@ class _SavingsBanner extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: rupees(amount),
-                    style: const TextStyle(fontWeight: FontWeight.w800),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   const TextSpan(text: ' on this order'),
                 ],

@@ -15,6 +15,7 @@ import '../../cart/widgets/view_cart_bar.dart';
 import '../models/catalog_models.dart';
 import '../providers/catalog_providers.dart';
 import '../widgets/product_options_sheet.dart';
+import '../../../core/constants/spacing.dart';
 
 class WishlistScreen extends ConsumerWidget {
   const WishlistScreen({super.key});
@@ -48,7 +49,7 @@ class WishlistScreen extends ConsumerWidget {
               return ListView.separated(
                 padding: EdgeInsets.fromLTRB(16, 8, 16, hasCart ? 96 : 24),
                 itemCount: saved.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 14),
+                separatorBuilder: (_, _) => const SizedBox(height: 16),
                 itemBuilder: (_, i) => _WishlistCard(product: saved[i]),
               );
             },
@@ -85,7 +86,7 @@ class _WishlistCard extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.06),
@@ -100,7 +101,7 @@ class _WishlistCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ProductImage(asset: product.image, size: 64, radius: 12),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +122,7 @@ class _WishlistCard extends ConsumerWidget {
                               text: ' / ${variant.label}',
                               style: const TextStyle(
                                 color: AppColors.muted,
-                                fontSize: 12.5,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
@@ -161,8 +162,8 @@ class _WishlistCard extends ConsumerWidget {
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           padding: const EdgeInsets.symmetric(horizontal: 22),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
+                          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                         ),
                         child: const Text('Add to Cart'),
                       ),

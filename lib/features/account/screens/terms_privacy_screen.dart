@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/context_x.dart';
 import '../data/info_content.dart';
+import '../../../core/constants/spacing.dart';
 
 /// Terms of Service and Privacy Policy, one tab each. Every tab ends with a
 /// link that opens the full page in the browser.
@@ -25,24 +26,30 @@ class TermsPrivacyScreen extends StatelessWidget {
         body: Column(
           children: [
             Container(
-              margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              // Space below the app bar grows a little on taller screens.
+              margin: EdgeInsets.fromLTRB(
+                16,
+                (MediaQuery.sizeOf(context).height * 0.02).clamp(12.0, 20.0),
+                16,
+                12,
+              ),
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: AppColors.surfaceMuted,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.md),
                 border: Border.all(color: AppColors.border),
               ),
               child: TabBar(
                 indicator: BoxDecoration(
                   color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(9),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: Colors.transparent,
                 labelColor: Colors.white,
                 unselectedLabelColor: AppColors.body,
                 labelStyle: const TextStyle(fontWeight: FontWeight.w600),
-                splashBorderRadius: BorderRadius.circular(9),
+                splashBorderRadius: BorderRadius.circular(AppRadius.md),
                 tabs: const [
                   Tab(height: 40, text: 'Terms of Service'),
                   Tab(height: 40, text: 'Privacy Policy'),
@@ -86,7 +93,7 @@ class _SectionList extends StatelessWidget {
             sections[i].body,
             style: const TextStyle(color: AppColors.body, height: 1.5),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
         ],
         _WebLink(label: linkLabel),
       ],
@@ -112,11 +119,11 @@ class _WebLink extends StatelessWidget {
     return Material(
       color: AppColors.surfaceMuted,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         side: const BorderSide(color: AppColors.border),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         onTap: () => _open(context),
         child: Padding(
           padding: const EdgeInsets.all(16),

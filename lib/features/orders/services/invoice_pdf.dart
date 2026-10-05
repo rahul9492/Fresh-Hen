@@ -100,7 +100,7 @@ Future<Uint8List> buildInvoicePdf(Order order, StoreSettings seller) async {
   doc.addPage(
     pw.Page(
       pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(36),
+      margin: const pw.EdgeInsets.all(32),
       build: (_) => pw.DefaultTextStyle(
         style: const pw.TextStyle(fontSize: 10),
         child: pw.Column(
@@ -155,9 +155,9 @@ Future<Uint8List> buildInvoicePdf(Order order, StoreSettings seller) async {
                 ),
               ],
             ),
-            pw.SizedBox(height: 18),
+            pw.SizedBox(height: 16),
             pw.Container(
-              padding: const pw.EdgeInsets.all(10),
+              padding: const pw.EdgeInsets.all(12),
               decoration: pw.BoxDecoration(
                 border: pw.Border.all(color: line),
                 borderRadius: pw.BorderRadius.circular(6),
@@ -213,7 +213,7 @@ Future<Uint8List> buildInvoicePdf(Order order, StoreSettings seller) async {
                   ],
               ],
             ),
-            pw.SizedBox(height: 14),
+            pw.SizedBox(height: 16),
             pw.Row(
               children: [
                 pw.Spacer(),
@@ -229,7 +229,7 @@ Future<Uint8List> buildInvoicePdf(Order order, StoreSettings seller) async {
                 ),
               ],
             ),
-            pw.SizedBox(height: 14),
+            pw.SizedBox(height: 16),
             pw.Text('Payment: ${order.paymentMethod.label} • ${order.paymentStatus.label}'),
             if (order.paymentReference != null) pw.Text('UPI reference: ${order.paymentReference}'),
             pw.Spacer(),

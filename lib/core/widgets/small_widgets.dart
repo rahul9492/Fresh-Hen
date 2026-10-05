@@ -30,7 +30,7 @@ class SectionHeader extends StatelessWidget {
                 style: const TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
-                  fontSize: 13.5,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -98,28 +98,59 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 36,
-              backgroundColor: AppColors.accentSoft,
-              child: Icon(icon, size: 34, color: AppColors.primary),
-            ),
-            const SizedBox(height: 16),
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-            if (message != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                message!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.body),
+        // The badge pops in and the text fades up, so the state doesn't just appear.
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutCubic,
+          builder: (_, t, child) => Opacity(
+            opacity: t,
+            child: Transform.translate(offset: Offset(0, (1 - t) * 14), child: child),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.6, end: 1),
+                duration: const Duration(milliseconds: 650),
+                curve: Curves.elasticOut,
+                builder: (_, scale, child) => Transform.scale(scale: scale, child: child),
+                child: Container(
+                  width: 112,
+                  height: 112,
+                  decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFFFF3F1)),
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundColor: AppColors.accentSoft,
+                      child: Icon(icon, size: 38, color: AppColors.primary),
+                    ),
+                  ),
+                ),
               ),
+              const SizedBox(height: 24),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700, fontSize: 18),
+              ),
+              if (message != null) ...[
+                const SizedBox(height: 8),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 300),
+                  child: Text(
+                    message!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppColors.body, height: 1.4),
+                  ),
+                ),
+              ],
+              if (action != null) ...[const SizedBox(height: 24), action!],
             ],
-            if (action != null) ...[const SizedBox(height: 20), action!],
-          ],
+          ),
         ),
       ),
     );

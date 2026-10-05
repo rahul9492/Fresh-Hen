@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../core/constants/spacing.dart';
 
 /// Illustrated empty state for the cart. Everything scales with the screen, and
 /// the illustration, text and button sit together in the vertical centre.
@@ -44,11 +45,11 @@ class EmptyCartView extends StatelessWidget {
                         child: Text(
                           'Add your favorite products to get started.',
                           maxLines: 1,
-                          style: TextStyle(color: AppColors.body, fontSize: 14.5),
+                          style: TextStyle(color: AppColors.body, fontSize: 14),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       height: 54,
@@ -56,7 +57,7 @@ class EmptyCartView extends StatelessWidget {
                         onPressed: onBrowse,
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
                           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                         child: const Text('Browse Products'),

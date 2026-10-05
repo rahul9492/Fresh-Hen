@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
+import '../constants/spacing.dart';
 
 enum AddControlStyle { pill, round }
 
@@ -26,6 +27,16 @@ class AddControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Add <-> stepper swap with a small pop, so adding an item feels responsive.
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 180),
+      switchInCurve: Curves.easeOutBack,
+      transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+      child: KeyedSubtree(key: ValueKey(quantity > 0), child: _content()),
+    );
+  }
+
+  Widget _content() {
     if (quantity > 0) {
       return QtyStepper(quantity: quantity, onIncrement: onIncrement, onDecrement: onDecrement);
     }
@@ -52,7 +63,7 @@ class AddControl extends StatelessWidget {
           disabledForegroundColor: AppColors.muted,
           side: BorderSide(color: available ? AppColors.primaryDark : AppColors.border),
           padding: EdgeInsets.symmetric(horizontal: available ? 22 : 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         ),
         child: Text(available ? 'Add' : 'Sold out'),
@@ -68,6 +79,7 @@ class QtyStepper extends StatelessWidget {
     required this.onIncrement,
     required this.onDecrement,
     this.height = 34,
+    this.light = false,
   });
 
   final int quantity;
@@ -75,27 +87,32 @@ class QtyStepper extends StatelessWidget {
   final VoidCallback onDecrement;
   final double height;
 
+  /// Quieter look for lists: white with a red outline instead of a solid red block.
+  final bool light;
+
   @override
   Widget build(BuildContext context) {
+    final fg = light ? AppColors.primaryDark : Colors.white;
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.primaryDark,
-        borderRadius: BorderRadius.circular(8),
+        color: light ? Colors.white : AppColors.primaryDark,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: light ? Border.all(color: AppColors.primaryDark.withValues(alpha: 0.6)) : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _StepButton(icon: Icons.remove_rounded, onTap: onDecrement),
+          _StepButton(icon: Icons.remove_rounded, onTap: onDecrement, color: fg),
           ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 24),
             child: Text(
               '$quantity',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+              style: TextStyle(color: fg, fontWeight: FontWeight.w700),
             ),
           ),
-          _StepButton(icon: Icons.add_rounded, onTap: onIncrement),
+          _StepButton(icon: Icons.add_rounded, onTap: onIncrement, color: fg),
         ],
       ),
     );
@@ -103,19 +120,20 @@ class QtyStepper extends StatelessWidget {
 }
 
 class _StepButton extends StatelessWidget {
-  const _StepButton({required this.icon, required this.onTap});
+  const _StepButton({required this.icon, required this.onTap, required this.color});
 
   final IconData icon;
   final VoidCallback onTap;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AppRadius.sm),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-        child: Icon(icon, color: Colors.white, size: 18),
+        child: Icon(icon, color: color, size: 18),
       ),
     );
   }

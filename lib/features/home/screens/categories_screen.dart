@@ -9,6 +9,7 @@ import '../../../core/widgets/product_image.dart';
 import '../../address/providers/address_providers.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../../catalog/providers/catalog_providers.dart';
+import '../../../core/constants/spacing.dart';
 
 class CategoriesScreen extends ConsumerWidget {
   const CategoriesScreen({super.key});
@@ -105,7 +106,7 @@ class _AddressHeader extends ConsumerWidget {
                       Text(
                         address == null ? 'Add delivery address' : 'Deliver to ${address.title}',
                         style: const TextStyle(
-                          fontSize: 12.5,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -152,7 +153,7 @@ class _Title extends StatelessWidget {
                 '$count ${count == 1 ? 'Collection' : 'Collections'}',
                 style: const TextStyle(
                   color: AppColors.primary,
-                  fontSize: 12.5,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -161,7 +162,7 @@ class _Title extends StatelessWidget {
           const SizedBox(height: 2),
           const Text(
             'Hand-trimmed fresh cuts delivered cold',
-            style: TextStyle(color: AppColors.body, fontSize: 12.5),
+            style: TextStyle(color: AppColors.body, fontSize: 12),
           ),
         ],
       ),
@@ -178,7 +179,7 @@ class _CategoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppRadius.lg),
       onTap: () => context.push(
         Routes.productsFor(title: category.name, category: category.id),
       ),
@@ -204,7 +205,7 @@ class _CategoryTile extends StatelessWidget {
               child: ProductImage(asset: category.image, size: 86, radius: 0),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
             category.name,
             maxLines: 1,
@@ -214,7 +215,7 @@ class _CategoryTile extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             '$items ${items == 1 ? 'Item' : 'Items'}',
-            style: const TextStyle(color: AppColors.body, fontSize: 12.5),
+            style: const TextStyle(color: AppColors.body, fontSize: 12),
           ),
         ],
       ),

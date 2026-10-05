@@ -5,6 +5,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../models/order_models.dart';
+import '../../../core/constants/spacing.dart';
 
 /// The customer's rating: 1-5 stars and an optional comment.
 typedef OrderReview = ({int stars, String comment});
@@ -87,20 +88,20 @@ class _RateExperienceSheetState extends State<_RateExperienceSheet> {
               ),
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           const Text.rich(
             TextSpan(
               text: 'Additional Comments ',
               children: [
                 TextSpan(
                   text: '(Optional)',
-                  style: TextStyle(color: AppColors.muted, fontSize: 12.5, fontWeight: FontWeight.w400),
+                  style: TextStyle(color: AppColors.muted, fontSize: 12, fontWeight: FontWeight.w400),
                 ),
               ],
             ),
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           TextField(
             controller: _comment,
             minLines: 3,
@@ -114,13 +115,13 @@ class _RateExperienceSheetState extends State<_RateExperienceSheet> {
               hintStyle: const TextStyle(color: AppColors.muted, fontSize: 13),
               filled: true,
               fillColor: AppColors.surfaceMuted,
-              contentPadding: const EdgeInsets.all(14),
+              contentPadding: const EdgeInsets.all(16),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(AppRadius.md),
                 borderSide: const BorderSide(color: AppColors.hairline),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(AppRadius.md),
                 borderSide: const BorderSide(color: AppColors.primary),
               ),
             ),

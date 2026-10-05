@@ -50,7 +50,7 @@ abstract final class AppSnackbar {
           content: Row(
             children: [
               Icon(icon, color: color, size: 20),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(child: Text(message)),
             ],
           ),

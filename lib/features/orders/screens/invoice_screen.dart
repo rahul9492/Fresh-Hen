@@ -14,6 +14,7 @@ import '../../checkout/providers/checkout_providers.dart';
 import '../models/order_models.dart';
 import '../providers/order_providers.dart';
 import '../services/invoice_pdf.dart';
+import '../../../core/constants/spacing.dart';
 
 class InvoiceScreen extends ConsumerStatefulWidget {
   const InvoiceScreen({super.key, required this.orderId});
@@ -97,7 +98,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             children: [
               _InvoiceCard(order: order),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               SizedBox(
                 height: 54,
                 child: FilledButton.icon(
@@ -114,16 +115,16 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
                     disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
                     foregroundColor: Colors.white,
                     disabledForegroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
                     textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               const Text(
                 'Saves the PDF to your Downloads folder.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.muted, fontSize: 12.5),
+                style: TextStyle(color: AppColors.muted, fontSize: 12),
               ),
             ],
           );
@@ -211,19 +212,19 @@ class _InvoiceCard extends StatelessWidget {
                     children: [
                       Text(
                         order.lines[i].name,
-                        style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '${order.lines[i].unitLabel} x ${order.lines[i].quantity}',
-                        style: const TextStyle(color: AppColors.muted, fontSize: 12.5),
+                        style: const TextStyle(color: AppColors.muted, fontSize: 12),
                       ),
                     ],
                   ),
                 ),
                 Text(
                   rupees(order.lines[i].total),
-                  style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -259,12 +260,12 @@ class _InvoiceCard extends StatelessWidget {
               const Expanded(
                 child: Text(
                   'Payment Method',
-                  style: TextStyle(color: AppColors.muted, fontSize: 12.5),
+                  style: TextStyle(color: AppColors.muted, fontSize: 12),
                 ),
               ),
               Text(
                 order.paymentMethod == PaymentMethod.upi ? 'UPI • Scan & Pay' : 'Cash on Delivery',
-                style: const TextStyle(color: AppColors.body, fontSize: 12.5),
+                style: const TextStyle(color: AppColors.body, fontSize: 12),
               ),
             ],
           ),

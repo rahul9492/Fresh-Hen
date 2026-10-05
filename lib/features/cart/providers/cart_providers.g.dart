@@ -43,7 +43,7 @@ final class CartProvider extends $NotifierProvider<Cart, List<CartLine>> {
   }
 }
 
-String _$cartHash() => r'60240da1734bee2417cc653a4281824cb54bd626';
+String _$cartHash() => r'4670d6da2be17404469fc4558aa696790b178e67';
 
 /// The cart, kept on the device per phone number so it survives an app restart.
 
@@ -257,3 +257,55 @@ final class LineQuantityFamily extends $Family
   @override
   String toString() => r'lineQuantityProvider';
 }
+
+/// Ids of cart lines that can't be bought right now: the pack or add-on sold out
+/// after it was added (the cart is saved between sessions), or it left the
+/// catalog. Empty while the catalog is still loading, so nothing is blocked on a guess.
+
+@ProviderFor(soldOutLineIds)
+final soldOutLineIdsProvider = SoldOutLineIdsProvider._();
+
+/// Ids of cart lines that can't be bought right now: the pack or add-on sold out
+/// after it was added (the cart is saved between sessions), or it left the
+/// catalog. Empty while the catalog is still loading, so nothing is blocked on a guess.
+
+final class SoldOutLineIdsProvider
+    extends $FunctionalProvider<Set<String>, Set<String>, Set<String>>
+    with $Provider<Set<String>> {
+  /// Ids of cart lines that can't be bought right now: the pack or add-on sold out
+  /// after it was added (the cart is saved between sessions), or it left the
+  /// catalog. Empty while the catalog is still loading, so nothing is blocked on a guess.
+  SoldOutLineIdsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'soldOutLineIdsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$soldOutLineIdsHash();
+
+  @$internal
+  @override
+  $ProviderElement<Set<String>> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Set<String> create(Ref ref) {
+    return soldOutLineIds(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Set<String> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Set<String>>(value),
+    );
+  }
+}
+
+String _$soldOutLineIdsHash() => r'cb2bc420be3a8b73043e41d89fc331fbd00f1e42';
