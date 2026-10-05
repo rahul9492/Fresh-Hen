@@ -34,7 +34,10 @@ class HomeHeader extends ConsumerWidget {
                   style: text.headlineMedium?.copyWith(fontSize: 26),
                   children: const [
                     TextSpan(text: 'Fresh '),
-                    TextSpan(text: 'Hen', style: TextStyle(color: AppColors.primary)),
+                    TextSpan(
+                      text: 'Hen',
+                      style: TextStyle(color: AppColors.primary),
+                    ),
                   ],
                 ),
               ),
@@ -85,24 +88,70 @@ class HomeHeader extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: AppSearchBar.readOnly(onTap: () => context.push(Routes.search))),
-              const SizedBox(width: 12),
-              FilterButton(
-                bordered: true,
-                onPressed: () async {
-                  final query = await showFilterSheet(context, const ProductQuery());
-                  if (query != null && context.mounted) {
-                    context.push(Routes.search, extra: query);
-                  }
-                },
-              ),
-            ],
-          ),
         ],
       ),
     );
   }
+}
+
+/// Search bar and filter button. On Home this stays pinned under the status bar
+/// while the logo and address above it scroll away.
+class HomeSearchRow extends StatelessWidget {
+  const HomeSearchRow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: AppSearchBar.readOnly(onTap: () => context.push(Routes.search))),
+        const SizedBox(width: 12),
+        FilterButton(
+          bordered: true,
+          onPressed: () async {
+            final query = await showFilterSheet(context, const ProductQuery());
+            if (query != null && context.mounted) {
+              context.push(Routes.search, extra: query);
+            }
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// Pins [HomeSearchRow]; a soft shadow fades in once content scrolls beneath it.
+class HomeSearchPinnedDelegate extends SliverPersistentHeaderDelegate {
+  const HomeSearchPinnedDelegate();
+
+  static const extent = 72.0; // 12 + 48 (search bar) + 12
+
+  @override
+  double get minExtent => extent;
+
+  @override
+  double get maxExtent => extent;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: overlapsContent
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.07),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : const [],
+      ),
+      child: const HomeSearchRow(),
+    );
+  }
+
+  @override
+  bool shouldRebuild(HomeSearchPinnedDelegate oldDelegate) => false;
 }

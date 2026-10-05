@@ -1,3 +1,4 @@
+import '../../cart/providers/cart_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -67,7 +68,12 @@ class AccountScreen extends ConsumerWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(title: const Text('Profile'), backgroundColor: Colors.white),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          8,
+          16,
+          ref.watch(cartSummaryProvider).isEmpty ? 24 : 96, // clear of the View cart bar
+        ),
         children: [
           _ProfileHeader(user: user, onEdit: () => _edit(context, user)),
           const SizedBox(height: 24),

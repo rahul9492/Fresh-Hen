@@ -70,6 +70,8 @@ class _DeliverySlotSheetState extends ConsumerState<_DeliverySlotSheet> {
               ),
             );
           }
+          // Sizes follow the user's text size so nothing overflows on large-font phones.
+          final scale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.6);
           final index = _dayIndex ?? _initialDay(days);
           final day = days[index];
           return Column(
@@ -77,7 +79,7 @@ class _DeliverySlotSheetState extends ConsumerState<_DeliverySlotSheet> {
             children: [
               const SizedBox(height: 6),
               SizedBox(
-                height: 62,
+                height: 62 * scale,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: days.length,
@@ -113,7 +115,8 @@ class _DeliverySlotSheetState extends ConsumerState<_DeliverySlotSheet> {
                   physics: const NeverScrollableScrollPhysics(),
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
-                  childAspectRatio: 3.6,
+                  // Row height grows with text size; a fixed ratio would clip the labels.
+                  childAspectRatio: 3.6 / scale,
                   children: [
                     for (final s in day.slots)
                       _SlotChip(
@@ -162,10 +165,23 @@ class _DayChip extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(title, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 14)),
+              // Shrinks a long day name ("Wednesday") onto one line instead of wrapping.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 14),
+                  ),
+                ),
+              ),
               const SizedBox(height: 2),
               Text(
                 open ? DateFormat('d MMM').format(day.date) : (day.closedReason ?? 'Full'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: fg.withValues(alpha: 0.85), fontSize: 12),
               ),
             ],
@@ -206,8 +222,11 @@ class _SlotChip extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
                 slot.timeLabel,
+                maxLines: 1,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
@@ -216,6 +235,7 @@ class _SlotChip extends StatelessWidget {
                       : (available ? AppColors.ink : AppColors.muted),
                   decoration: available ? null : TextDecoration.lineThrough,
                 ),
+              ),
               ),
               if (!available)
                 const Text('Unavailable', style: TextStyle(fontSize: 10.5, color: AppColors.muted)),

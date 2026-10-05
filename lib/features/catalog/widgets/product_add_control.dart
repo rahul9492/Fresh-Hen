@@ -24,6 +24,9 @@ class ProductAddControl extends ConsumerWidget {
         .where((l) => l.productId == product.id && !l.isAddon)
         .firstOrNull;
 
+    int lineCount() =>
+        ref.read(cartProvider).where((l) => l.productId == product.id && !l.isAddon).length;
+
     return AddControl(
       style: style,
       quantity: quantity,
@@ -36,8 +39,13 @@ class ProductAddControl extends ConsumerWidget {
         flyToCart(context, product.image); // before the Add button turns into a stepper
         cart.add(CartLine.fromVariant(product, product.defaultVariant));
       },
-      onIncrement: () => cart.increment(line()!.id),
-      onDecrement: () => cart.decrement(line()!.id),
+      // With several variants the card can't know which one to change, so the sheet opens.
+      onIncrement: () => product.needsOptions
+          ? showProductOptionsSheet(context, product)
+          : cart.increment(line()!.id),
+      onDecrement: () => lineCount() > 1
+          ? showProductOptionsSheet(context, product)
+          : cart.decrement(line()!.id),
     );
   }
 }

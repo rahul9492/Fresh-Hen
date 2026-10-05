@@ -150,8 +150,12 @@ class _WishlistCard extends ConsumerWidget {
               child: quantity > 0
                   ? QtyStepper(
                       quantity: quantity,
-                      onIncrement: () => cart.increment(line()!.id),
-                      onDecrement: () => cart.decrement(line()!.id),
+                      onIncrement: () => product.needsOptions
+                          ? showProductOptionsSheet(context, product)
+                          : cart.increment(line()!.id),
+                      onDecrement: () => product.needsOptions
+                          ? showProductOptionsSheet(context, product)
+                          : cart.decrement(line()!.id),
                     )
                   : SizedBox(
                       height: 34,

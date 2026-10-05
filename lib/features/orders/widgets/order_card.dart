@@ -69,7 +69,10 @@ class _OrderCardState extends State<OrderCard> {
               ),
             ),
             const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: _hairline),
-            Padding(
+            // The item list opens the order too; the "more" toggle inside still wins its own taps.
+            InkWell(
+              onTap: widget.onTap,
+              child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
               child: AnimatedSize(
                 duration: const Duration(milliseconds: 220),
@@ -90,6 +93,7 @@ class _OrderCardState extends State<OrderCard> {
                   ],
                 ),
               ),
+            ),
             ),
             _Footer(actions: _actions(order)),
           ],

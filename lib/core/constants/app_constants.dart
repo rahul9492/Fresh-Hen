@@ -16,7 +16,7 @@ abstract final class Assets {
   static const splash1 = '$_dir/splash1.png';
   static const splash2 = '$_dir/splash2.png';
   static const splash3 = '$_dir/splash3.png';
-  static const chickenCurry = '$_dir/chicken_curry.jpg';
+  static const chickenCurry = '$_dir/chicken_curry_cut.jpg';
   static const chickenDrumstick = '$_dir/chicken_drumstick.jpg';
   static const chickenBoneless = '$_dir/chicken_boneless.jpg';
   static const chickenBreast = '$_dir/chicken_breast.jpg';

@@ -26,6 +26,12 @@ class _PromoCarouselState extends State<PromoCarousel> {
   @override
   void initState() {
     super.initState();
+    _startAutoScroll();
+  }
+
+  void _startAutoScroll() {
+    _timer?.cancel();
+    if (widget.banners.length < 2) return;
     _timer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (!_controller.hasClients) return;
       _controller.animateToPage(
@@ -35,6 +41,9 @@ class _PromoCarouselState extends State<PromoCarousel> {
       );
     });
   }
+
+  /// Stops the auto-scroll while a finger is on the banners, so it never jumps away mid-swipe.
+  void _pauseAutoScroll() => _timer?.cancel();
 
   @override
   void dispose() {
@@ -49,13 +58,29 @@ class _PromoCarouselState extends State<PromoCarousel> {
       children: [
         SizedBox(
           height: 176,
-          child: PageView.builder(
-            controller: _controller,
-            itemCount: widget.banners.length,
-            onPageChanged: (i) => setState(() => _index = i),
-            itemBuilder: (_, i) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _BannerCard(banner: widget.banners[i]),
+          child: Listener(
+            onPointerDown: (_) => _pauseAutoScroll(),
+            onPointerUp: (_) => _startAutoScroll(),
+            onPointerCancel: (_) => _startAutoScroll(),
+            child: PageView.builder(
+              controller: _controller,
+              itemCount: widget.banners.length,
+              onPageChanged: (i) => setState(() => _index = i),
+              itemBuilder: (_, i) => AnimatedBuilder(
+                animation: _controller,
+                // The banners next to the current one are a little smaller.
+                builder: (_, child) {
+                  final page = _controller.hasClients && _controller.position.haveDimensions
+                      ? (_controller.page ?? _index.toDouble())
+                      : _index.toDouble();
+                  final distance = (page - i).abs().clamp(0.0, 1.0);
+                  return Transform.scale(scale: 1 - 0.05 * distance, child: child);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _BannerCard(banner: widget.banners[i]),
+                ),
+              ),
             ),
           ),
         ),
