@@ -43,8 +43,11 @@ class ActionInfoRow extends StatelessWidget {
     required this.icon,
     required this.title,
     this.subtitle,
+    this.subtitleMaxLines = 2,
+    this.extra,
     this.actionLabel,
     this.onAction,
+    this.onTap,
   });
 
   final IconData icon;
@@ -52,46 +55,57 @@ class ActionInfoRow extends StatelessWidget {
   /// Usually a [Text.rich] so part of it can be bold.
   final Widget title;
   final String? subtitle;
+  final int subtitleMaxLines;
+
+  /// Optional line under the subtitle, e.g. the delivery time.
+  final Widget? extra;
   final String? actionLabel;
   final VoidCallback? onAction;
 
+  /// Tapping anywhere on the row (not just the link) does this.
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 1),
-            child: Icon(icon, size: 18, color: AppColors.body),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DefaultTextStyle.merge(
-                  style: const TextStyle(fontSize: 13.5, color: AppColors.ink),
-                  child: title,
-                ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppColors.body, fontSize: 12.5),
-                  ),
-                ],
-              ],
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 1),
+              child: Icon(icon, size: 18, color: AppColors.body),
             ),
-          ),
-          if (actionLabel != null) ...[
-            const SizedBox(width: 8),
-            LinkAction(label: actionLabel!, onTap: onAction),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DefaultTextStyle.merge(
+                    style: const TextStyle(fontSize: 13.5, color: AppColors.ink),
+                    child: title,
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle!,
+                      maxLines: subtitleMaxLines,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: AppColors.body, fontSize: 12.5),
+                    ),
+                  ],
+                  if (extra != null) ...[const SizedBox(height: 4), extra!],
+                ],
+              ),
+            ),
+            if (actionLabel != null) ...[
+              const SizedBox(width: 8),
+              LinkAction(label: actionLabel!, onTap: onAction),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -99,7 +113,12 @@ class ActionInfoRow extends StatelessWidget {
 
 /// Small green "✎ change address" style link.
 class LinkAction extends StatelessWidget {
-  const LinkAction({super.key, required this.label, this.onTap, this.icon = Icons.edit_note_rounded});
+  const LinkAction({
+    super.key,
+    required this.label,
+    this.onTap,
+    this.icon = Icons.edit_note_rounded,
+  });
 
   final String label;
   final VoidCallback? onTap;

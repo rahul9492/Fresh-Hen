@@ -64,7 +64,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 
     final address = ref.read(selectedAddressProvider);
     if (address != null && !settings.deliversTo(address.pincode)) {
-      context.showError("We don't deliver to ${address.pincode} yet. Please choose another address.");
+      context.showError(
+        "We don't deliver to ${address.pincode} yet. Please choose another address.",
+      );
       return showAddressPickerSheet(context);
     }
 
@@ -154,7 +156,11 @@ class _ItemsCard extends StatelessWidget {
         children: [
           Text(
             'Items in cart ($count)',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.body),
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.body,
+            ),
           ),
           for (var i = 0; i < lines.length; i++) ...[
             if (i > 0) const Divider(height: 1, color: AppColors.hairline),
@@ -348,7 +354,10 @@ class _CouponTile extends ConsumerWidget {
             Icon(Icons.local_offer_outlined, size: 20, color: AppColors.primary),
             SizedBox(width: 10),
             Expanded(
-              child: Text('Use Coupons', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              child: Text(
+                'Use Coupons',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              ),
             ),
             Icon(Icons.chevron_right_rounded, color: AppColors.body),
           ],
@@ -541,7 +550,11 @@ class _FreeDeliveryHint extends ConsumerWidget {
         Expanded(
           child: Text(
             'Add ${rupees(remaining)} more for FREE delivery',
-            style: const TextStyle(color: AppColors.primary, fontSize: 12.5, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
@@ -596,49 +609,36 @@ class _CheckoutBar extends ConsumerWidget {
 
     final (label, action) = switch (step) {
       CheckoutStep.address => (
-          settings.scheduleEnabled ? 'Add Address & Slot' : 'Add Delivery Address',
-          onAddAddress,
-        ),
+        settings.scheduleEnabled ? 'Add Address & Slot' : 'Add Delivery Address',
+        onAddAddress,
+      ),
       CheckoutStep.payment => ('Proceed to Payment', onProceed),
     };
 
     return BottomActionBar(
       button: AppButton(label: label, loading: placing, onPressed: action),
       children: [
-        if (step == CheckoutStep.payment)
-          mode == DeliveryMode.scheduled && slot != null
-              ? ActionInfoRow(
-                  icon: Icons.schedule_rounded,
-                  title: Text.rich(
-                    TextSpan(
-                      text: 'Delivery scheduled for: ',
-                      style: const TextStyle(color: AppColors.body),
-                      children: [
-                        TextSpan(
-                          text: slot.shortLabel,
-                          style: const TextStyle(color: AppColors.ink, fontWeight: FontWeight.w700),
-                        ),
-                      ],
-                    ),
+        // A scheduled order gets its own row (it has its own "Change" link); for
+        // "Order now" the delivery time sits inside the address row below.
+        if (step == CheckoutStep.payment && mode == DeliveryMode.scheduled && slot != null)
+          ActionInfoRow(
+            icon: Icons.schedule_rounded,
+            title: Text.rich(
+              TextSpan(
+                text: 'Delivery scheduled for: ',
+                style: const TextStyle(color: AppColors.body),
+                children: [
+                  TextSpan(
+                    text: slot.shortLabel,
+                    style: const TextStyle(color: AppColors.ink, fontWeight: FontWeight.w700),
                   ),
-                  actionLabel: 'change slot',
-                  onAction: onPickSlot,
-                )
-              : ActionInfoRow(
-                  icon: Icons.bolt_rounded,
-                  title: Text.rich(
-                    TextSpan(
-                      text: 'Delivery in ',
-                      style: const TextStyle(color: AppColors.body),
-                      children: [
-                        TextSpan(
-                          text: settings.etaLabel,
-                          style: const TextStyle(color: AppColors.ink, fontWeight: FontWeight.w700),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                ],
+              ),
+            ),
+            actionLabel: 'Change',
+            onAction: onPickSlot,
+            onTap: onPickSlot,
+          ),
         if (address != null)
           ActionInfoRow(
             icon: Icons.location_on_outlined,
@@ -656,8 +656,30 @@ class _CheckoutBar extends ConsumerWidget {
             subtitle: settings.deliversTo(address.pincode)
                 ? address.line
                 : "We don't deliver to ${address.pincode} yet. Please choose another address.",
-            actionLabel: 'change address',
+            extra: step == CheckoutStep.payment && !(mode == DeliveryMode.scheduled && slot != null)
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.bolt_rounded, size: 15, color: AppColors.success),
+                      const SizedBox(width: 3),
+                      Flexible(
+                        child: Text(
+                          'Delivery in ${settings.etaLabel}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.success,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : null,
+            actionLabel: 'Change',
             onAction: () => showAddressPickerSheet(context),
+            onTap: () => showAddressPickerSheet(context),
           ),
       ],
     );
