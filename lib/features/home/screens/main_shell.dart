@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/widgets/animated_nav_icon.dart';
 import '../../../core/widgets/confirm_dialog.dart';
 import '../../cart/widgets/view_cart_bar.dart';
 
@@ -13,22 +14,22 @@ class MainShell extends StatelessWidget {
   static const _destinations = [
     NavigationDestination(
       icon: Icon(Icons.home_outlined),
-      selectedIcon: Icon(Icons.home_rounded),
+      selectedIcon: AnimatedNavIcon(Icons.home_rounded),
       label: 'Home',
     ),
     NavigationDestination(
       icon: Icon(Icons.grid_view_outlined),
-      selectedIcon: Icon(Icons.grid_view_rounded),
+      selectedIcon: AnimatedNavIcon(Icons.grid_view_rounded),
       label: 'Categories',
     ),
     NavigationDestination(
       icon: Icon(Icons.receipt_long_outlined),
-      selectedIcon: Icon(Icons.receipt_long_rounded),
+      selectedIcon: AnimatedNavIcon(Icons.receipt_long_rounded),
       label: 'Orders',
     ),
     NavigationDestination(
       icon: Icon(Icons.person_outline_rounded),
-      selectedIcon: Icon(Icons.person_rounded),
+      selectedIcon: AnimatedNavIcon(Icons.person_rounded),
       label: 'Account',
     ),
   ];
@@ -70,8 +71,7 @@ class MainShell extends StatelessWidget {
         bottomNavigationBar: NavigationBar(
           selectedIndex: shell.currentIndex,
           destinations: _destinations,
-          onDestinationSelected: (i) =>
-              shell.goBranch(i, initialLocation: i == shell.currentIndex),
+          onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
         ),
       ),
     );
