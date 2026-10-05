@@ -29,6 +29,22 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     setState(() => _busy = true);
     try {
       final seller = await ref.read(storeSettingsProvider.future);
+      // await shareInvoicePdf(order, seller);
+      final saved = await downloadInvoicePdf(order, seller);
+      if (saved && mounted) context.showSnack('Invoice saved to Downloads');
+    } catch (e) {
+      if (mounted) context.showError('Could not create the invoice. Please try again.');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _share() async {
+    final order = ref.read(orderProvider(widget.orderId)).value;
+    if (order == null || !order.hasInvoice) return;
+    setState(() => _busy = true);
+    try {
+      final seller = await ref.read(storeSettingsProvider.future);
       await shareInvoicePdf(order, seller);
     } catch (e) {
       if (mounted) context.showError('Could not create the invoice. Please try again.');
@@ -41,7 +57,17 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.page,
-      appBar: AppBar(title: const Text('Download Invoice')),
+      appBar: AppBar(
+        title: const Text('Download Invoice'),
+        actions: [
+          // Sharing stays available for people who want to send the PDF on.
+          IconButton(
+            tooltip: 'Share invoice',
+            icon: const Icon(Icons.share_outlined),
+            onPressed: _busy ? null : _share,
+          ),
+        ],
+      ),
       body: AsyncView(
         value: ref.watch(orderProvider(widget.orderId)),
         onRetry: () => ref.invalidate(ordersProvider),
@@ -81,7 +107,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Saves a PDF you can share, print or keep for your records.',
+                'Saves the PDF to your Downloads folder.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.muted, fontSize: 12.5),
               ),
@@ -104,30 +130,30 @@ class _InvoiceCard extends StatelessWidget {
     final paid = order.paymentStatus == PaymentStatus.paid;
 
     Widget row(String label, String value, {Color? color, bool bold = false}) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: bold ? AppColors.ink : AppColors.body,
-                    fontSize: bold ? 15.5 : 13,
-                    fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
-                  ),
-                ),
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: bold ? AppColors.ink : AppColors.body,
+                fontSize: bold ? 15.5 : 13,
+                fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
               ),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: bold ? 15.5 : 13,
-                  fontWeight: FontWeight.w700,
-                  color: color ?? AppColors.ink,
-                ),
-              ),
-            ],
+            ),
           ),
-        );
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: bold ? 15.5 : 13,
+              fontWeight: FontWeight.w700,
+              color: color ?? AppColors.ink,
+            ),
+          ),
+        ],
+      ),
+    );
 
     return AppCard(
       padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
@@ -217,7 +243,10 @@ class _InvoiceCard extends StatelessWidget {
           Row(
             children: [
               const Expanded(
-                child: Text('Payment Method', style: TextStyle(color: AppColors.muted, fontSize: 12.5)),
+                child: Text(
+                  'Payment Method',
+                  style: TextStyle(color: AppColors.muted, fontSize: 12.5),
+                ),
               ),
               Text(
                 order.paymentMethod == PaymentMethod.upi ? 'UPI • Scan & Pay' : 'Cash on Delivery',

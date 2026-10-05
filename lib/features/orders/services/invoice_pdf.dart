@@ -1,3 +1,5 @@
+import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -10,7 +12,30 @@ import '../models/order_models.dart';
 /// Builds a tax invoice PDF for [order] and opens the system share / save sheet.
 Future<void> shareInvoicePdf(Order order, StoreSettings seller) async {
   final bytes = await buildInvoicePdf(order, seller);
-  await Printing.sharePdf(bytes: bytes, filename: 'FreshHen-Invoice-${order.id}.pdf');
+  await Printing.sharePdf(bytes: bytes, filename: _invoiceName(order));
+}
+
+String _invoiceName(Order order) => 'FreshHen-Invoice-${order.id}.pdf';
+
+/// Saves the invoice PDF into the phone's Downloads folder (Android 10+ needs no
+/// permission). Returns true when it was saved there. On iOS, which has no shared
+/// Downloads folder, or if saving fails (e.g. Android 9 without storage access),
+/// the share / save sheet opens instead and this returns false.
+Future<bool> downloadInvoicePdf(Order order, StoreSettings seller) async {
+  final bytes = await buildInvoicePdf(order, seller);
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    try {
+      await FileSaver.instance.saveToDownloads(
+        name: 'FreshHen-Invoice-${order.id}',
+        bytes: bytes,
+        fileExtension: 'pdf',
+        mimeType: MimeType.pdf,
+      );
+      return true;
+    } catch (_) {}
+  }
+  await Printing.sharePdf(bytes: bytes, filename: _invoiceName(order));
+  return false;
 }
 
 /// Bundled Noto Sans, since the built-in PDF fonts have no ₹ sign.
@@ -28,7 +53,10 @@ List<(String, String)> invoiceTotals(Order order) {
     ('Item subtotal', rupees(bill.itemTotal)),
     ('Delivery fee', bill.deliveryFee == 0 ? 'FREE' : rupees(bill.deliveryFee)),
     if (bill.discount > 0)
-      (bill.couponCode == null ? 'Discount' : 'Coupon (${bill.couponCode})', '-${rupees(bill.discount)}'),
+      (
+        bill.couponCode == null ? 'Discount' : 'Coupon (${bill.couponCode})',
+        '-${rupees(bill.discount)}',
+      ),
     ('Taxes & packaging', rupees(bill.taxes)),
     (order.paymentStatus == PaymentStatus.paid ? 'Total paid' : 'Total amount', rupees(bill.total)),
   ];
@@ -42,16 +70,25 @@ Future<Uint8List> buildInvoicePdf(Order order, StoreSettings seller) async {
   final invoiceNo = 'INV-${order.id}';
 
   pw.Widget kv(String k, String v, {bool bold = false, PdfColor? color}) => pw.Padding(
-        padding: const pw.EdgeInsets.symmetric(vertical: 2.5),
-        child: pw.Row(
-          children: [
-            pw.Expanded(
-              child: pw.Text(k, style: pw.TextStyle(color: bold ? null : muted, fontWeight: bold ? pw.FontWeight.bold : null)),
+    padding: const pw.EdgeInsets.symmetric(vertical: 2.5),
+    child: pw.Row(
+      children: [
+        pw.Expanded(
+          child: pw.Text(
+            k,
+            style: pw.TextStyle(
+              color: bold ? null : muted,
+              fontWeight: bold ? pw.FontWeight.bold : null,
             ),
-            pw.Text(v, style: pw.TextStyle(fontWeight: bold ? pw.FontWeight.bold : null, color: color)),
-          ],
+          ),
         ),
-      );
+        pw.Text(
+          v,
+          style: pw.TextStyle(fontWeight: bold ? pw.FontWeight.bold : null, color: color),
+        ),
+      ],
+    ),
+  );
 
   final doc = pw.Document(
     title: 'Invoice $invoiceNo',
@@ -75,23 +112,38 @@ Future<Uint8List> buildInvoicePdf(Order order, StoreSettings seller) async {
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      pw.Text('Fresh Hen',
-                          style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: brand)),
+                      pw.Text(
+                        'Fresh Hen',
+                        style: pw.TextStyle(
+                          fontSize: 22,
+                          fontWeight: pw.FontWeight.bold,
+                          color: brand,
+                        ),
+                      ),
                       pw.SizedBox(height: 4),
-                      pw.Text(seller.legalName, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.Text(
+                        seller.legalName,
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                      ),
                       if (seller.storeAddress.isNotEmpty)
                         pw.Text(seller.storeAddress, style: const pw.TextStyle(color: muted)),
                       if (seller.gstin.isNotEmpty)
                         pw.Text('GSTIN: ${seller.gstin}', style: const pw.TextStyle(color: muted)),
                       if (seller.fssaiLicense.isNotEmpty)
-                        pw.Text('FSSAI Lic. No: ${seller.fssaiLicense}', style: const pw.TextStyle(color: muted)),
+                        pw.Text(
+                          'FSSAI Lic. No: ${seller.fssaiLicense}',
+                          style: const pw.TextStyle(color: muted),
+                        ),
                     ],
                   ),
                 ),
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
-                    pw.Text('TAX INVOICE', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                    pw.Text(
+                      'TAX INVOICE',
+                      style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+                    ),
                     pw.SizedBox(height: 6),
                     pw.Text('Invoice No: $invoiceNo'),
                     pw.Text('Order ID: ${order.id}'),
@@ -112,7 +164,10 @@ Future<Uint8List> buildInvoicePdf(Order order, StoreSettings seller) async {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text('BILL TO / DELIVER TO', style: const pw.TextStyle(color: muted, fontSize: 9)),
+                  pw.Text(
+                    'BILL TO / DELIVER TO',
+                    style: const pw.TextStyle(color: muted, fontSize: 9),
+                  ),
                   pw.SizedBox(height: 3),
                   pw.Text(order.addressLabel, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                   pw.Text(order.address),

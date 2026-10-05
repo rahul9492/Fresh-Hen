@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/widgets/animated_nav_icon.dart';
 import '../../../core/widgets/confirm_dialog.dart';
+import '../../../core/widgets/lottie_nav_icon.dart';
 import '../../cart/widgets/view_cart_bar.dart';
 
 class MainShell extends StatelessWidget {
@@ -14,22 +14,28 @@ class MainShell extends StatelessWidget {
   static const _destinations = [
     NavigationDestination(
       icon: Icon(Icons.home_outlined),
-      selectedIcon: AnimatedNavIcon(Icons.home_rounded),
+      selectedIcon: LottieNavIcon('assets/lottie/home.json', fallback: Icons.home_rounded),
       label: 'Home',
     ),
     NavigationDestination(
       icon: Icon(Icons.grid_view_outlined),
-      selectedIcon: AnimatedNavIcon(Icons.grid_view_rounded),
+      selectedIcon: LottieNavIcon(
+        'assets/lottie/categories.json',
+        fallback: Icons.grid_view_rounded,
+      ),
       label: 'Categories',
     ),
     NavigationDestination(
       icon: Icon(Icons.receipt_long_outlined),
-      selectedIcon: AnimatedNavIcon(Icons.receipt_long_rounded),
+      selectedIcon: LottieNavIcon(
+        'assets/lottie/orders.json',
+        fallback: Icons.receipt_long_rounded,
+      ),
       label: 'Orders',
     ),
     NavigationDestination(
       icon: Icon(Icons.person_outline_rounded),
-      selectedIcon: AnimatedNavIcon(Icons.person_rounded),
+      selectedIcon: LottieNavIcon('assets/lottie/account.json', fallback: Icons.person_rounded),
       label: 'Account',
     ),
   ];

@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- API calls, remote product images and the admin's UPI QR image. Debug builds
          get this automatically; release builds need it declared here. -->
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -8,7 +9,8 @@
          add an image to the gallery. -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="29"/>
+        android:maxSdkVersion="29"
+        tools:replace="android:maxSdkVersion"/>
 
     <application
         android:label="Fresh Hen"

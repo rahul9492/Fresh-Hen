@@ -51,7 +51,8 @@ abstract final class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white,
-        indicatorColor: AppColors.accentSoft,
+        // indicatorColor: AppColors.accentSoft,
+        indicatorColor: Colors.transparent, // the animated icon marks the selected tab
         surfaceTintColor: Colors.transparent,
         labelTextStyle: WidgetStatePropertyAll(
           textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
