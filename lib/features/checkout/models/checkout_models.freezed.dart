@@ -952,8 +952,7 @@ as String?,
 /// @nodoc
 mixin _$CheckoutState {
 
- String get instructions; Coupon? get coupon; DeliveryMode get mode; DeliverySlot? get slot;/// True once the customer tapped "Continue" and picked how to receive the order.
- bool get timingConfirmed;
+ String get instructions; Coupon? get coupon; DeliveryMode get mode; DeliverySlot? get slot;
 /// Create a copy of CheckoutState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -965,20 +964,20 @@ $CheckoutStateCopyWith<CheckoutState> get copyWith => _$CheckoutStateCopyWithImp
 @override
 bool operator ==(Object other) {
   final _this = this as CheckoutState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutState&&(identical(other.instructions, _this.instructions) || other.instructions == _this.instructions)&&(identical(other.coupon, _this.coupon) || other.coupon == _this.coupon)&&(identical(other.mode, _this.mode) || other.mode == _this.mode)&&(identical(other.slot, _this.slot) || other.slot == _this.slot)&&(identical(other.timingConfirmed, _this.timingConfirmed) || other.timingConfirmed == _this.timingConfirmed));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutState&&(identical(other.instructions, _this.instructions) || other.instructions == _this.instructions)&&(identical(other.coupon, _this.coupon) || other.coupon == _this.coupon)&&(identical(other.mode, _this.mode) || other.mode == _this.mode)&&(identical(other.slot, _this.slot) || other.slot == _this.slot));
 }
 
 
 @override
 int get hashCode {
   final _this = this as CheckoutState;
-  return Object.hash(runtimeType,_this.instructions,_this.coupon,_this.mode,_this.slot,_this.timingConfirmed);
+  return Object.hash(runtimeType,_this.instructions,_this.coupon,_this.mode,_this.slot);
 }
 
 @override
 String toString() {
   final _this = this as CheckoutState;
-  return 'CheckoutState(instructions: ${_this.instructions}, coupon: ${_this.coupon}, mode: ${_this.mode}, slot: ${_this.slot}, timingConfirmed: ${_this.timingConfirmed})';
+  return 'CheckoutState(instructions: ${_this.instructions}, coupon: ${_this.coupon}, mode: ${_this.mode}, slot: ${_this.slot})';
 }
 
 
@@ -989,7 +988,7 @@ abstract mixin class $CheckoutStateCopyWith<$Res>  {
   factory $CheckoutStateCopyWith(CheckoutState value, $Res Function(CheckoutState) _then) = _$CheckoutStateCopyWithImpl;
 @useResult
 $Res call({
- String instructions, Coupon? coupon, DeliveryMode mode, DeliverySlot? slot, bool timingConfirmed
+ String instructions, Coupon? coupon, DeliveryMode mode, DeliverySlot? slot
 });
 
 
@@ -1006,14 +1005,13 @@ class _$CheckoutStateCopyWithImpl<$Res>
 
 /// Create a copy of CheckoutState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? instructions = null,Object? coupon = freezed,Object? mode = null,Object? slot = freezed,Object? timingConfirmed = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? instructions = null,Object? coupon = freezed,Object? mode = null,Object? slot = freezed,}) {
   return _then(CheckoutState(
 instructions: null == instructions ? _self.instructions : instructions // ignore: cast_nullable_to_non_nullable
 as String,coupon: freezed == coupon ? _self.coupon : coupon // ignore: cast_nullable_to_non_nullable
 as Coupon?,mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
 as DeliveryMode,slot: freezed == slot ? _self.slot : slot // ignore: cast_nullable_to_non_nullable
-as DeliverySlot?,timingConfirmed: null == timingConfirmed ? _self.timingConfirmed : timingConfirmed // ignore: cast_nullable_to_non_nullable
-as bool,
+as DeliverySlot?,
   ));
 }
 /// Create a copy of CheckoutState
@@ -1122,10 +1120,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String instructions,  Coupon? coupon,  DeliveryMode mode,  DeliverySlot? slot,  bool timingConfirmed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String instructions,  Coupon? coupon,  DeliveryMode mode,  DeliverySlot? slot)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CheckoutState() when $default != null:
-return $default(_that.instructions,_that.coupon,_that.mode,_that.slot,_that.timingConfirmed);case _:
+return $default(_that.instructions,_that.coupon,_that.mode,_that.slot);case _:
   return orElse();
 
 }
@@ -1143,10 +1141,10 @@ return $default(_that.instructions,_that.coupon,_that.mode,_that.slot,_that.timi
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String instructions,  Coupon? coupon,  DeliveryMode mode,  DeliverySlot? slot,  bool timingConfirmed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String instructions,  Coupon? coupon,  DeliveryMode mode,  DeliverySlot? slot)  $default,) {final _that = this;
 switch (_that) {
 case _CheckoutState():
-return $default(_that.instructions,_that.coupon,_that.mode,_that.slot,_that.timingConfirmed);case _:
+return $default(_that.instructions,_that.coupon,_that.mode,_that.slot);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1163,10 +1161,10 @@ return $default(_that.instructions,_that.coupon,_that.mode,_that.slot,_that.timi
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String instructions,  Coupon? coupon,  DeliveryMode mode,  DeliverySlot? slot,  bool timingConfirmed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String instructions,  Coupon? coupon,  DeliveryMode mode,  DeliverySlot? slot)?  $default,) {final _that = this;
 switch (_that) {
 case _CheckoutState() when $default != null:
-return $default(_that.instructions,_that.coupon,_that.mode,_that.slot,_that.timingConfirmed);case _:
+return $default(_that.instructions,_that.coupon,_that.mode,_that.slot);case _:
   return null;
 
 }
@@ -1178,15 +1176,13 @@ return $default(_that.instructions,_that.coupon,_that.mode,_that.slot,_that.timi
 
 
 class _CheckoutState implements CheckoutState {
-  const _CheckoutState({this.instructions = '', this.coupon, this.mode = DeliveryMode.now, this.slot, this.timingConfirmed = false});
+  const _CheckoutState({this.instructions = '', this.coupon, this.mode = DeliveryMode.now, this.slot});
   
 
 @override@JsonKey() final  String instructions;
 @override final  Coupon? coupon;
 @override@JsonKey() final  DeliveryMode mode;
 @override final  DeliverySlot? slot;
-/// True once the customer tapped "Continue" and picked how to receive the order.
-@override@JsonKey() final  bool timingConfirmed;
 
 /// Create a copy of CheckoutState
 /// with the given fields replaced by the non-null parameter values.
@@ -1198,18 +1194,18 @@ _$CheckoutStateCopyWith<_CheckoutState> get copyWith => __$CheckoutStateCopyWith
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CheckoutState&&(identical(other.instructions, instructions) || other.instructions == instructions)&&(identical(other.coupon, coupon) || other.coupon == coupon)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.slot, slot) || other.slot == slot)&&(identical(other.timingConfirmed, timingConfirmed) || other.timingConfirmed == timingConfirmed));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CheckoutState&&(identical(other.instructions, instructions) || other.instructions == instructions)&&(identical(other.coupon, coupon) || other.coupon == coupon)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.slot, slot) || other.slot == slot));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,instructions,coupon,mode,slot,timingConfirmed);
+    return Object.hash(runtimeType,instructions,coupon,mode,slot);
 }
 
 @override
 String toString() {
-    return 'CheckoutState(instructions: $instructions, coupon: $coupon, mode: $mode, slot: $slot, timingConfirmed: $timingConfirmed)';
+    return 'CheckoutState(instructions: $instructions, coupon: $coupon, mode: $mode, slot: $slot)';
 }
 
 
@@ -1220,7 +1216,7 @@ abstract mixin class _$CheckoutStateCopyWith<$Res> implements $CheckoutStateCopy
   factory _$CheckoutStateCopyWith(_CheckoutState value, $Res Function(_CheckoutState) _then) = __$CheckoutStateCopyWithImpl;
 @override @useResult
 $Res call({
- String instructions, Coupon? coupon, DeliveryMode mode, DeliverySlot? slot, bool timingConfirmed
+ String instructions, Coupon? coupon, DeliveryMode mode, DeliverySlot? slot
 });
 
 
@@ -1237,14 +1233,13 @@ class __$CheckoutStateCopyWithImpl<$Res>
 
 /// Create a copy of CheckoutState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? instructions = null,Object? coupon = freezed,Object? mode = null,Object? slot = freezed,Object? timingConfirmed = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? instructions = null,Object? coupon = freezed,Object? mode = null,Object? slot = freezed,}) {
   return _then(_CheckoutState(
 instructions: null == instructions ? _self.instructions : instructions // ignore: cast_nullable_to_non_nullable
 as String,coupon: freezed == coupon ? _self.coupon : coupon // ignore: cast_nullable_to_non_nullable
 as Coupon?,mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
 as DeliveryMode,slot: freezed == slot ? _self.slot : slot // ignore: cast_nullable_to_non_nullable
-as DeliverySlot?,timingConfirmed: null == timingConfirmed ? _self.timingConfirmed : timingConfirmed // ignore: cast_nullable_to_non_nullable
-as bool,
+as DeliverySlot?,
   ));
 }
 

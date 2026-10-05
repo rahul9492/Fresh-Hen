@@ -44,9 +44,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   }
 
   Future<void> _addAddress() async {
-    final saved = await showAddressFormSheet(context);
-    // Address added: go straight to delivery timing.
-    if (saved != null) ref.read(checkoutProvider.notifier).confirmTiming();
+    await showAddressFormSheet(context);
   }
 
   Future<void> _pickSlot() async {
@@ -135,7 +133,6 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         step: step,
         onAddAddress: _addAddress,
         onPickSlot: _pickSlot,
-        onContinue: () => ref.read(checkoutProvider.notifier).confirmTiming(),
         onProceed: _proceedToPayment,
       ),
     );
@@ -581,14 +578,12 @@ class _CheckoutBar extends ConsumerWidget {
     required this.step,
     required this.onAddAddress,
     required this.onPickSlot,
-    required this.onContinue,
     required this.onProceed,
   });
 
   final CheckoutStep step;
   final VoidCallback onAddAddress;
   final VoidCallback onPickSlot;
-  final VoidCallback onContinue;
   final VoidCallback onProceed;
 
   @override
@@ -604,7 +599,6 @@ class _CheckoutBar extends ConsumerWidget {
           settings.scheduleEnabled ? 'Add Address & Slot' : 'Add Delivery Address',
           onAddAddress,
         ),
-      CheckoutStep.timing => ('Continue', onContinue),
       CheckoutStep.payment => ('Proceed to Payment', onProceed),
     };
 

@@ -136,11 +136,8 @@ abstract class CheckoutState with _$CheckoutState {
     Coupon? coupon,
     @Default(DeliveryMode.now) DeliveryMode mode,
     DeliverySlot? slot,
-
-    /// True once the customer tapped "Continue" and picked how to receive the order.
-    @Default(false) bool timingConfirmed,
   }) = _CheckoutState;
 }
 
 /// Where the cart's main button takes the customer next.
-enum CheckoutStep { address, timing, payment }
+enum CheckoutStep { address, payment }

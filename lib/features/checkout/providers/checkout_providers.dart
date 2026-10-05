@@ -54,13 +54,10 @@ class Checkout extends _$Checkout {
 
   void removeCoupon() => state = state.copyWith(coupon: null);
 
-  void orderNow() => state = state.copyWith(mode: DeliveryMode.now, timingConfirmed: true);
+  void orderNow() => state = state.copyWith(mode: DeliveryMode.now);
 
   void schedule(DeliverySlot slot) =>
-      state = state.copyWith(mode: DeliveryMode.scheduled, slot: slot, timingConfirmed: true);
-
-  /// "Continue": shows the delivery timing options, starting with "Order now".
-  void confirmTiming() => state = state.copyWith(timingConfirmed: true);
+      state = state.copyWith(mode: DeliveryMode.scheduled, slot: slot);
 
   /// After an order is placed, start the next checkout from scratch.
   void reset() => state = const CheckoutState();
@@ -107,8 +104,5 @@ OrderBill checkoutBill(Ref ref) {
 
 @riverpod
 CheckoutStep checkoutStep(Ref ref) {
-  if (ref.watch(selectedAddressProvider) == null) return CheckoutStep.address;
-  return ref.watch(checkoutProvider.select((s) => s.timingConfirmed))
-      ? CheckoutStep.payment
-      : CheckoutStep.timing;
+  return ref.watch(selectedAddressProvider) == null ? CheckoutStep.address : CheckoutStep.payment;
 }

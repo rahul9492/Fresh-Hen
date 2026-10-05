@@ -106,16 +106,13 @@ void main() {
   });
 
   group('checkout', () {
-    test('steps: address, then timing, then payment', () async {
+    test('steps: address, then payment', () async {
       final c = await _container();
       c.read(cartProvider.notifier).add(_line('chicken-curry-cut', '500 g'));
       expect(c.read(checkoutStepProvider), CheckoutStep.address);
 
       await c.read(addressesProvider.notifier).save(_address);
       expect(c.read(selectedAddressProvider)?.isDefault, isTrue); // first address
-      expect(c.read(checkoutStepProvider), CheckoutStep.timing);
-
-      c.read(checkoutProvider.notifier).confirmTiming();
       expect(c.read(checkoutStepProvider), CheckoutStep.payment);
     });
 
