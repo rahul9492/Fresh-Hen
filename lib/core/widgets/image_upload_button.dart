@@ -73,7 +73,7 @@ class _ImageUploadButtonState extends State<ImageUploadButton> {
           child: SizedBox(
             height: ImageUploadButton.height,
             child: FilledButton(
-              onPressed: _busy ? null : () => _pick(ImageSource.gallery),
+              onPressed: widget.loading ? null : () => _pick(ImageSource.gallery),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.55),
@@ -83,7 +83,9 @@ class _ImageUploadButtonState extends State<ImageUploadButton> {
                 shape: shape,
                 textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
-              child: _busy
+              // The spinner is for the upload only; while the camera or gallery is
+              // open the button keeps its label (taps are ignored by _pick).
+              child: widget.loading
                   ? const SizedBox.square(
                       dimension: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
@@ -112,7 +114,7 @@ class _ImageUploadButtonState extends State<ImageUploadButton> {
             child: SizedBox.square(
               dimension: ImageUploadButton.height,
               child: OutlinedButton(
-                onPressed: _busy ? null : () => _pick(ImageSource.camera),
+                onPressed: widget.loading ? null : () => _pick(ImageSource.camera),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   padding: EdgeInsets.zero,

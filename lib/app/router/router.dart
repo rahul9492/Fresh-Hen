@@ -2,10 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../features/account/data/info_content.dart';
+// import '../../features/account/data/info_content.dart';
 import '../../features/account/screens/account_screen.dart';
-import '../../features/account/screens/info_screen.dart';
+// import '../../features/account/screens/info_screen.dart';
 import '../../features/account/screens/support_screen.dart';
+import '../../features/account/screens/terms_privacy_screen.dart';
 import '../../features/address/screens/addresses_screen.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/screens/login_screen.dart';
@@ -98,7 +99,8 @@ GoRouter goRouter(Ref ref) {
       ),
       GoRoute(
         path: Routes.terms,
-        builder: (_, _) => const InfoScreen(title: 'Terms & Privacy', sections: termsSections),
+        // builder: (_, _) => const InfoScreen(title: 'Terms & Privacy', sections: termsSections),
+        builder: (_, _) => const TermsPrivacyScreen(),
       ),
       GoRoute(path: Routes.wishlist, builder: (_, _) => const WishlistScreen()),
       GoRoute(path: Routes.cart, builder: (_, _) => const CartScreen()),
