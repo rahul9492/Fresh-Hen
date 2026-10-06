@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_colors.dart';
+import '../../app/theme/app_theme.dart';
 import 'press_scale.dart';
 import '../constants/spacing.dart';
 
@@ -28,7 +28,7 @@ class AppCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: AppColors.hairline),
+        // Shadow only: a border on top of it just adds noise.
         boxShadow: AppShadow.card,
       ),
       child: ClipRRect(
@@ -61,7 +61,7 @@ class CardTitle extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w700),
+            style: AppType.display(size: fontSize + 1),
           ),
         ),
         ?trailing,

@@ -85,6 +85,11 @@ class Cart extends _$Cart {
 
   void clear() => state = const [];
 
+  /// Puts a whole cleared cart back (the "Clear cart" snackbar's Undo).
+  void restoreAll(List<CartLine> lines) {
+    if (state.isEmpty) state = lines;
+  }
+
   /// Puts a removed [line] back where it was (the snackbar's Undo).
   void restore(CartLine line, int index) {
     if (state.any((l) => l.id == line.id)) return;

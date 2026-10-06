@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../constants/spacing.dart';
+import 'pop_on_change.dart';
+import 'press_scale.dart';
 
 enum AddControlStyle { pill, round }
 
@@ -41,32 +43,40 @@ class AddControl extends StatelessWidget {
       return QtyStepper(quantity: quantity, onIncrement: onIncrement, onDecrement: onDecrement);
     }
     if (style == AddControlStyle.round) {
-      return Material(
-        color: available ? AppColors.primary : AppColors.border,
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: available ? onAdd : null,
-          child: const SizedBox.square(
-            dimension: 34,
-            child: Icon(Icons.add_rounded, color: Colors.white, size: 22),
+      return PressScale(
+        scale: 0.88,
+        enabled: available,
+        child: Material(
+          color: available ? AppColors.primary : AppColors.border,
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: available ? onAdd : null,
+            child: const SizedBox.square(
+              dimension: 34,
+              child: Icon(Icons.add_rounded, color: Colors.white, size: 22),
+            ),
           ),
         ),
       );
     }
-    return SizedBox(
-      height: 34,
-      child: OutlinedButton(
-        onPressed: available ? onAdd : null,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primaryDark,
-          disabledForegroundColor: AppColors.muted,
-          side: BorderSide(color: available ? AppColors.primaryDark : AppColors.border),
-          padding: EdgeInsets.symmetric(horizontal: available ? 22 : 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+    return PressScale(
+      scale: 0.94,
+      enabled: available,
+      child: SizedBox(
+        height: 34,
+        child: OutlinedButton(
+          onPressed: available ? onAdd : null,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primaryDark,
+            disabledForegroundColor: AppColors.muted,
+            side: BorderSide(color: available ? AppColors.primaryDark : AppColors.border),
+            padding: EdgeInsets.symmetric(horizontal: available ? 22 : 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
+            textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          ),
+          child: Text(available ? 'Add' : 'Sold out'),
         ),
-        child: Text(available ? 'Add' : 'Sold out'),
       ),
     );
   }
@@ -106,9 +116,8 @@ class QtyStepper extends StatelessWidget {
           _StepButton(icon: Icons.remove_rounded, onTap: onDecrement, color: fg),
           ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 24),
-            child: Text(
-              '$quantity',
-              textAlign: TextAlign.center,
+            child: QtyCount(
+              quantity: quantity,
               style: TextStyle(color: fg, fontWeight: FontWeight.w700),
             ),
           ),
@@ -128,12 +137,68 @@ class _StepButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.sm),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-        child: Icon(icon, color: color, size: 18),
+    return PressScale(
+      scale: 0.8,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+          child: Icon(icon, color: color, size: 18),
+        ),
+      ),
+    );
+  }
+}
+
+/// A stepper's number. It rolls like an odometer (up when it grows, down
+/// when it shrinks) and gives a small spring pop as it lands.
+class QtyCount extends StatefulWidget {
+  const QtyCount({super.key, required this.quantity, required this.style});
+
+  final int quantity;
+  final TextStyle style;
+
+  @override
+  State<QtyCount> createState() => _QtyCountState();
+}
+
+class _QtyCountState extends State<QtyCount> {
+  var _up = true;
+
+  @override
+  void didUpdateWidget(QtyCount old) {
+    super.didUpdateWidget(old);
+    if (old.quantity != widget.quantity) _up = widget.quantity > old.quantity;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final current = ValueKey(widget.quantity);
+    final text = Text('${widget.quantity}', key: current, textAlign: TextAlign.center, style: widget.style);
+    if (MediaQuery.disableAnimationsOf(context)) return text;
+
+    return PopOnChange(
+      value: widget.quantity,
+      amount: 0.2,
+      child: ClipRect(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 240),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          layoutBuilder: (top, previous) => Stack(alignment: Alignment.center, children: [...previous, ?top]),
+          transitionBuilder: (child, animation) {
+            // The new number comes in from below when counting up (above when down);
+            // the old one leaves the opposite way.
+            final incoming = child.key == current;
+            final from = (_up == incoming) ? 0.9 : -0.9;
+            return SlideTransition(
+              position: Tween(begin: Offset(0, from), end: Offset.zero).animate(animation),
+              child: FadeTransition(opacity: animation, child: child),
+            );
+          },
+          child: text,
+        ),
       ),
     );
   }

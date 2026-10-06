@@ -186,6 +186,18 @@ abstract class Order with _$Order {
   /// The customer may cancel only until the store starts preparing it.
   bool get canCancel => status == OrderStatus.confirmed;
 
+  /// A UPI order whose payment screenshot the store has not checked yet. The
+  /// server sends it as `confirmed` + `verifying`; it is really confirmed only
+  /// once the admin accepts it (payment `paid`) and moves it along.
+  bool get awaitingConfirmation =>
+      status == OrderStatus.confirmed &&
+      paymentMethod == PaymentMethod.upi &&
+      paymentStatus == PaymentStatus.verifying;
+
+  /// The store could not verify the UPI payment and the order is still open:
+  /// the customer has to get in touch to sort it out.
+  bool get paymentIssue => status.isActive && paymentStatus == PaymentStatus.rejected;
+
   /// A delivered order can be invoiced; so can a paid one still on its way.
   bool get hasInvoice =>
       status == OrderStatus.delivered ||

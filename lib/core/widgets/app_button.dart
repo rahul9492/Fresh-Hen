@@ -21,7 +21,7 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PressScale(
-      scale: 0.98,
+      scale: 0.96,
       enabled: !loading && onPressed != null,
       child: SizedBox(
       width: double.infinity,

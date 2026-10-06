@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/open_link.dart';
 import '../../../core/widgets/app_card.dart';
@@ -37,10 +38,10 @@ class SupportScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'How can we help?',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            style: AppType.display(size: 24),
           ),
           const SizedBox(height: 6),
           const Text(
@@ -113,7 +114,7 @@ class _ContactOption extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                Text(title, style: AppType.display(size: 17)),
                 const SizedBox(height: 2),
                 Text(subtitle, style: const TextStyle(color: AppColors.body, fontSize: 14)),
               ],

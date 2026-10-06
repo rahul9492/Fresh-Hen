@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/app_card.dart';
@@ -153,9 +154,9 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
               ),
             ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Available Coupons',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            style: AppType.display(size: 17),
           ),
           const SizedBox(height: 12),
           AsyncView(

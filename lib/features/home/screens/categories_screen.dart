@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/product_image.dart';
+import '../../../core/widgets/staggered_fade_in.dart';
 import '../../address/providers/address_providers.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../../catalog/providers/catalog_providers.dart';
@@ -46,9 +48,13 @@ class CategoriesScreen extends ConsumerWidget {
                               mainAxisExtent: 156,
                             ),
                         itemCount: categories.length,
-                        itemBuilder: (_, i) => _CategoryTile(
-                          category: categories[i],
-                          items: counts[categories[i].id] ?? 0,
+                        itemBuilder: (_, i) => StaggeredFadeIn(
+                          index: i,
+                          maxAnimated: 12,
+                          child: _CategoryTile(
+                            category: categories[i],
+                            items: counts[categories[i].id] ?? 0,
+                          ),
                         ),
                       ),
                     ),
@@ -80,11 +86,7 @@ class _AddressHeader extends ConsumerWidget {
             child: Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
-                border: Border.all(color: AppColors.border),
-              ),
+              decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.shell),
               child: const Icon(Icons.keyboard_arrow_down_rounded, size: 22),
             ),
           ),
@@ -143,10 +145,10 @@ class _Title extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Select Category',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                  style: AppType.display(size: 24),
                 ),
               ),
               Text(
@@ -192,14 +194,8 @@ class _CategoryTile extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white,
-              border: Border.all(color: AppColors.border),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              // Shadow only, per the surface rule (no outline on top).
+              boxShadow: AppShadow.card,
             ),
             child: ClipOval(
               child: ProductImage(asset: category.image, size: 86, radius: 0),

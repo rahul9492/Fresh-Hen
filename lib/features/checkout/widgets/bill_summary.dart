@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/animated_rupees.dart';
 import '../../../core/widgets/dashed_divider.dart';
@@ -60,7 +61,7 @@ class BillSummary extends StatelessWidget {
             Expanded(
               child: Text(
                 totalLabel,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style: AppType.display(size: 17),
               ),
             ),
             AnimatedRupees(

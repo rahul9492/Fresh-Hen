@@ -2,8 +2,18 @@ import 'package:flutter/material.dart';
 
 import 'product_image.dart';
 
-/// Put on the cart bar's thumbnails, so the fly animation knows where to land.
-final cartFlyTargetKey = GlobalKey();
+/// A cart bar on some page: its own context, and the key on its thumbnails
+/// (which only exist while the cart has items).
+typedef CartFlyTarget = ({BuildContext bar, GlobalKey thumbs});
+
+/// Several pages show a cart bar (tabs, wishlist, product lists) and can be
+/// stacked, so each bar registers itself; the one on the current page is the target.
+final _cartFlyTargets = <CartFlyTarget>[];
+
+/// Registers a cart bar as a landing spot; [unregisterCartFlyTarget] on dispose.
+void registerCartFlyTarget(CartFlyTarget target) => _cartFlyTargets.add(target);
+
+void unregisterCartFlyTarget(CartFlyTarget target) => _cartFlyTargets.remove(target);
 
 /// Flies a small copy of [image] from the widget behind [context] (the Add
 /// button) to the "View cart" bar. Does nothing when the bar isn't on screen,
@@ -12,15 +22,19 @@ void flyToCart(BuildContext context, String image) {
   if (MediaQuery.disableAnimationsOf(context)) return;
   final overlay = Overlay.maybeOf(context);
   final source = context.findRenderObject();
-  final targetContext = cartFlyTargetKey.currentContext;
   if (overlay == null || source is! RenderBox || !source.attached) return;
 
-  // The bar only exists, and is only visible, on the tab pages.
-  final targetRoute = targetContext == null ? null : ModalRoute.of(targetContext);
+  // Land on the bar of the add button's own page; pages without one get no fly.
+  final route = ModalRoute.of(context);
+  if (route == null || !route.isCurrent) return;
+  final target = _cartFlyTargets
+      .where((t) => t.bar.mounted && ModalRoute.of(t.bar) == route)
+      .lastOrNull;
+  if (target == null) return;
+
   final Offset end;
-  if (targetContext != null && targetRoute != null) {
-    if (!targetRoute.isCurrent) return;
-    final box = targetContext.findRenderObject() as RenderBox;
+  if (target.thumbs.currentContext?.findRenderObject() case final RenderBox box
+      when box.attached) {
     end = box.localToGlobal(box.size.center(Offset.zero));
   } else {
     // The bar is about to slide in (first item): aim where its thumbnails will be.

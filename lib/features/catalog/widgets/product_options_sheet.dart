@@ -5,6 +5,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/add_control.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
+import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/price_text.dart';
 import '../../../core/widgets/product_image.dart';
 import '../../../core/widgets/small_widgets.dart';
@@ -29,6 +30,7 @@ class ProductOptionsSheet extends ConsumerWidget {
 
     return AppSheet(
       bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      footer: _DoneButton(product: product),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -76,6 +78,31 @@ class ProductOptionsSheet extends ConsumerWidget {
   }
 }
 
+/// Closes the sheet, showing what has been picked in it so far: this product's
+/// packs plus its add-ons, e.g. "Done • 2 items • ₹260".
+class _DoneButton extends ConsumerWidget {
+  const _DoneButton({required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final addonIds = {for (final a in product.accompaniments) CartLine.fromAccompaniment(a).id};
+    final picked = ref.watch(cartProvider).where(
+          (l) => l.isAddon ? addonIds.contains(l.id) : l.productId == product.id,
+        );
+    final count = picked.fold(0, (sum, l) => sum + l.quantity);
+    final total = picked.fold(0, (sum, l) => sum + l.total);
+
+    return AppButton(
+      label: count == 0
+          ? 'Done'
+          : 'Done • $count ${count == 1 ? 'item' : 'items'} • ${rupees(total)}',
+      onPressed: () => Navigator.of(context).pop(),
+    );
+  }
+}
+
 class _GroupTitle extends StatelessWidget {
   const _GroupTitle({required this.title, required this.hint, required this.style});
 
@@ -109,10 +136,7 @@ class _Group extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.border),
-        boxShadow: const [
-          BoxShadow(color: Color(0x0F000000), blurRadius: 14, offset: Offset(0, 4)),
-        ],
+        boxShadow: AppShadow.card,
         color: Colors.white,
       ),
       child: Column(children: children),

@@ -17,13 +17,23 @@ abstract final class AppSpacing {
 }
 
 /// Soft shadows so surfaces lift off the page. Keep them this light.
+///
+/// Surface rule: a card gets a soft shadow *or* a hairline border, never both.
+/// Shadows for cards that float (on grey pages, product cards); hairlines only
+/// for flat, inset or selectable tiles.
 abstract final class AppShadow {
-  /// Cards sitting on a grey page.
+  /// Cards: a tight contact shadow plus a wide, faint ambient one, like soft daylight.
   static final card = [
     BoxShadow(
-      color: Colors.black.withValues(alpha: 0.035),
-      blurRadius: 12,
-      offset: const Offset(0, 4),
+      color: const Color(0xFF3A1A12).withValues(alpha: 0.04),
+      blurRadius: 3,
+      offset: const Offset(0, 1),
+    ),
+    BoxShadow(
+      color: const Color(0xFF3A1A12).withValues(alpha: 0.06),
+      blurRadius: 22,
+      spreadRadius: -4,
+      offset: const Offset(0, 8),
     ),
   ];
 

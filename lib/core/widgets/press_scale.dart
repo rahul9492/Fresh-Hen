@@ -39,10 +39,11 @@ class _PressScaleState extends State<PressScale> {
       },
       onPointerUp: (_) => _set(false),
       onPointerCancel: (_) => _set(false),
+      // Quick squash in; a springier, slightly longer release that overshoots and settles.
       child: AnimatedScale(
         scale: _pressed ? widget.scale : 1,
-        duration: Duration(milliseconds: _pressed ? 90 : 180),
-        curve: _pressed ? Curves.easeOut : Curves.easeOutBack,
+        duration: Duration(milliseconds: _pressed ? 90 : 320),
+        curve: _pressed ? Curves.easeOut : const ElasticOutCurve(0.55),
         child: widget.child,
       ),
     );

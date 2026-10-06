@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
+import '../../app/theme/app_theme.dart';
 import '../utils/formatters.dart';
 
 class SectionHeader extends StatelessWidget {
@@ -134,8 +135,7 @@ class EmptyState extends StatelessWidget {
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700, fontSize: 18),
+                style: AppType.display(size: 19),
               ),
               if (message != null) ...[
                 const SizedBox(height: 8),

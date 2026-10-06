@@ -9,6 +9,8 @@ import '../../../core/widgets/applied_filters_row.dart';
 import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/filter_button.dart';
 import '../../../core/widgets/small_widgets.dart';
+import '../../cart/providers/cart_providers.dart';
+import '../../cart/widgets/view_cart_bar.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../../catalog/providers/catalog_providers.dart';
 import '../../catalog/widgets/filter_sheet.dart';
@@ -86,18 +88,28 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         ),
         actions: [FilterButton(onPressed: _openFilters, isActive: _hasFilters)],
       ),
-      body: _hasCriteria
-          ? Column(
-              children: [
-                AppliedFiltersRow(filters: _appliedFilters(categories)),
-                Expanded(child: _results()),
-              ],
-            )
-          : _Suggestions(onSelected: _setSearch),
+      // The View cart bar floats over the results (and above the keyboard while typing).
+      body: Stack(
+        children: [
+          _hasCriteria
+              ? Column(
+                  children: [
+                    AppliedFiltersRow(filters: _appliedFilters(categories)),
+                    Expanded(child: _results()),
+                  ],
+                )
+              : _Suggestions(onSelected: _setSearch),
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(top: false, child: ViewCartBar()),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _results() {
+    final hasCart = !ref.watch(cartSummaryProvider).isEmpty;
     return AsyncView(
       value: ref.watch(filteredProductsProvider(_query)),
       onRetry: () => ref.invalidate(filteredProductsProvider(_query)),
@@ -107,7 +119,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               title: 'No items found',
               message: 'Try a different search or adjust filters.',
             )
-          : ProductGrid(products: products),
+          // Room at the bottom so the last row isn't hidden behind the cart bar.
+          : ProductGrid(products: products, bottomPadding: hasCart ? 96 : 16),
     );
   }
 

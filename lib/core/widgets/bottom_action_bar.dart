@@ -18,7 +18,6 @@ class BottomActionBar extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: const Border(top: BorderSide(color: AppColors.hairline)),
         boxShadow: AppShadow.bar,
       ),
       child: SafeArea(

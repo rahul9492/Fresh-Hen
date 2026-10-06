@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/constants/spacing.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/open_link.dart';
@@ -47,21 +48,34 @@ class OrderTimeline extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Text('Order status', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            Text('Order status', style: AppType.display(size: 17)),
             if (order.status.isActive) ...[const SizedBox(width: 8), const _LiveBadge()],
           ],
         ),
         const SizedBox(height: 16),
         for (var i = 0; i < steps.length; i++)
           _Step(
-            label: steps[i].label,
-            hint: i == current ? _hint(steps[i]) : null,
+            // Until the store accepts a UPI order, its first step is not "Confirmed" yet.
+            label: i == 0 && order.paymentIssue
+                ? 'Payment issue'
+                : i == 0 && order.awaitingConfirmation
+                    ? 'Awaiting confirmation'
+                    : steps[i].label,
+            hint: i == 0 && order.paymentIssue
+                ? "We couldn't verify your payment"
+                : i == 0 && order.awaitingConfirmation
+                    ? "We're checking your payment screenshot"
+                    : i == current
+                        ? _hint(steps[i])
+                        : null,
             time: order.reachedAt(steps[i]),
-            state: i < current
-                ? _StepState.done
-                : i == current
-                    ? (cancelled ? _StepState.cancelled : _StepState.current)
-                    : _StepState.upcoming,
+            state: i == 0 && order.paymentIssue
+                ? _StepState.cancelled
+                : i < current
+                    ? _StepState.done
+                    : i == current
+                        ? (cancelled ? _StepState.cancelled : _StepState.current)
+                        : _StepState.upcoming,
             // The line below a step is filled once the next step is reached.
             lineFilled: i < current,
             // The scooter rides the line below "Out for delivery" while it is on its way.

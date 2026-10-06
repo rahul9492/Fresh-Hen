@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/utils/context_x.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/app_button.dart';
@@ -19,7 +20,9 @@ import '../../checkout/providers/checkout_providers.dart';
 import '../../checkout/widgets/bill_summary.dart';
 import '../models/order_models.dart';
 import '../providers/order_providers.dart';
+import '../widgets/live_order_refresh.dart';
 import '../widgets/order_actions.dart';
+import '../widgets/order_status_scene.dart';
 import '../widgets/order_timeline.dart';
 import '../widgets/order_status_style.dart';
 import '../../../core/constants/spacing.dart';
@@ -52,24 +55,28 @@ class _OrderSummaryScreenState extends ConsumerState<OrderSummaryScreen> {
     return Scaffold(
       backgroundColor: AppColors.page,
       appBar: AppBar(title: const Text('Order Summary')),
-      body: AsyncView(
-        value: order,
-        onRetry: () => ref.invalidate(ordersProvider),
-        loading: const ShimmerList(itemCount: 4, itemHeight: 140),
-        data: (order) => order == null
-            ? EmptyState(
-                icon: Icons.receipt_long_outlined,
-                title: 'Order not found',
-                message: 'We could not find order #$orderId.',
-                action: OutlinedButton(
-                  onPressed: () => context.go(Routes.orders),
-                  child: const Text('See all orders'),
+      // While this order is on its way, its status keeps itself up to date.
+      body: LiveOrderRefresh(
+        active: current?.status.isActive ?? false,
+        child: AsyncView(
+          value: order,
+          onRetry: () => ref.invalidate(ordersProvider),
+          loading: const ShimmerList(itemCount: 4, itemHeight: 140),
+          data: (order) => order == null
+              ? EmptyState(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'Order not found',
+                  message: 'We could not find order #$orderId.',
+                  action: OutlinedButton(
+                    onPressed: () => context.go(Routes.orders),
+                    child: const Text('See all orders'),
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: () => ref.refresh(ordersProvider.future),
+                  child: _Body(order: order),
                 ),
-              )
-            : RefreshIndicator(
-                onRefresh: () => ref.refresh(ordersProvider.future),
-                child: _Body(order: order),
-              ),
+        ),
       ),
       bottomNavigationBar: canRepeat
           ? BottomActionBar(
@@ -114,17 +121,18 @@ class _Body extends ConsumerWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       children: [
+        OrderStatusScene(order: order),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Order Summary', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              Text('Order Summary', style: AppType.display(size: 19)),
               const SizedBox(height: 8),
               Row(
                 children: [
                   CircleAvatar(
                     radius: 9,
-                    backgroundColor: order.status.color,
+                    backgroundColor: order.statusColor,
                     child: Icon(order.statusIcon, size: 12, color: Colors.white),
                   ),
                   const SizedBox(width: 8),
@@ -174,7 +182,7 @@ class _Body extends ConsumerWidget {
             children: [
               Text(
                 '${order.itemCount} ${order.itemCount == 1 ? 'item' : 'items'} in this order',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style: AppType.display(size: 17),
               ),
               for (var i = 0; i < order.lines.length; i++) ...[
                 if (i > 0) const Divider(height: 1, color: AppColors.hairline),
@@ -275,7 +283,7 @@ class _DetailsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Order Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          Text('Order Details', style: AppType.display(size: 17)),
           const SizedBox(height: 4),
           _Detail(
             label: 'Order ID',
@@ -399,9 +407,9 @@ class _HelpCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
+          Text(
             'Need help with your order?',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            style: AppType.display(size: 17),
           ),
           const SizedBox(height: 12),
           Material(

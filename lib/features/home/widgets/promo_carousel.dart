@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/widgets/product_image.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../../../core/constants/spacing.dart';
@@ -113,13 +114,11 @@ class _BannerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.lg),
         gradient: const LinearGradient(colors: [Color(0xFFFBE3D6), Color(0xFFF3D3C4)]),
-        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
@@ -133,8 +132,9 @@ class _BannerCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 9.5,
-                    color: Color(0xFF3F6B34),
+                    color: AppColors.primaryDark,
                     fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -142,16 +142,17 @@ class _BannerCard extends StatelessWidget {
                   banner.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: text.titleMedium?.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
+                  style: AppType.display(size: 18, weight: FontWeight.w700, height: 1.15),
                 ),
                 Text(
                   banner.highlight,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: text.titleMedium?.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                  style: AppType.display(
+                    size: 18,
+                    weight: FontWeight.w700,
                     color: AppColors.primary,
+                    height: 1.15,
                   ),
                 ),
                 const SizedBox(height: 4),

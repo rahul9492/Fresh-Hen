@@ -5,6 +5,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/context_x.dart';
 import '../../../core/widgets/confirm_dialog.dart';
 import '../../../core/widgets/small_widgets.dart';
+import '../../../core/widgets/staggered_fade_in.dart';
 import '../models/address.dart';
 import '../providers/address_providers.dart';
 import '../widgets/address_form_sheet.dart';
@@ -56,13 +57,17 @@ class AddressesScreen extends ConsumerWidget {
                 message: 'Add your home, work or any other address for faster checkout.',
               ),
             ),
-          for (final a in addresses)
-            _AddressCard(
-              address: a,
-              isDefault: a.isDefault,
-              onMakeDefault: () => send(notifier.makeDefault(a.id)),
-              onEdit: () => showAddressFormSheet(context, existing: a),
-              onDelete: () => delete(a),
+          for (final (i, a) in addresses.indexed)
+            StaggeredFadeIn(
+              key: ValueKey(a.id),
+              index: i,
+              child: _AddressCard(
+                address: a,
+                isDefault: a.isDefault,
+                onMakeDefault: () => send(notifier.makeDefault(a.id)),
+                onEdit: () => showAddressFormSheet(context, existing: a),
+                onDelete: () => delete(a),
+              ),
             ),
           OutlinedButton.icon(
             onPressed: () => showAddressFormSheet(context),
@@ -109,9 +114,7 @@ class _AddressCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        boxShadow: const [
-          BoxShadow(color: Color(0x14000000), blurRadius: 14, offset: Offset(0, 4)),
-        ],
+        boxShadow: AppShadow.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

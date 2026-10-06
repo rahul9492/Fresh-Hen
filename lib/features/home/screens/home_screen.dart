@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/routes.dart';
 import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/brand_refresh.dart';
+import '../../../core/widgets/scroll_fade_away.dart';
 import '../../cart/providers/cart_providers.dart';
 import '../../../core/widgets/small_widgets.dart';
 import '../../catalog/models/catalog_models.dart';
@@ -43,20 +44,23 @@ class HomeScreen extends ConsumerWidget {
               SliverList(
                 delegate: SliverChildListDelegate([
                   const SizedBox(height: 8),
-                  SizedBox(
-                    height: 194,
-                    child: AsyncView(
-                      value: banners,
-                      data: (list) => PromoCarousel(banners: list),
+                  // Drifts, shrinks and fades as it slides under the pinned search bar.
+                  ScrollFadeAway(
+                    child: SizedBox(
+                      height: 194,
+                      child: AsyncView(
+                        value: banners,
+                        data: (list) => PromoCarousel(banners: list),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   SectionHeader(
                     title: 'Categories',
                     actionLabel: 'See All',
                     onAction: () => context.go(Routes.categories),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   categories.maybeWhen(
                     data: (list) => CategoryStrip(
                       categories: list,
@@ -102,7 +106,7 @@ class _Section extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final products = ref.watch(filteredProductsProvider(query));
     return Padding(
-      padding: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.only(top: 22),
       child: Column(
         children: [
           SectionHeader(

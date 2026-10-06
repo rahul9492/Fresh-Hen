@@ -1,17 +1,22 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/add_control.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_image.dart';
 import '../../../core/widgets/async_view.dart';
+import '../../../core/widgets/press_scale.dart';
+import '../../../core/widgets/product_hero.dart';
 import '../../../core/widgets/small_widgets.dart';
 import '../../cart/models/cart_models.dart';
 import '../../cart/providers/cart_providers.dart';
+import '../../cart/widgets/view_cart_bar.dart';
 import '../models/catalog_models.dart';
 import '../providers/catalog_providers.dart';
 import '../widgets/product_grid.dart';
@@ -54,6 +59,18 @@ class _Detail extends ConsumerStatefulWidget {
 class _DetailState extends ConsumerState<_Detail> {
   late ProductVariant _variant = _initialVariant();
 
+  /// How far the page is pulled down past its top; the photo zooms in with it.
+  final _pull = ValueNotifier(0.0);
+  late final ScrollController _scroll = ScrollController()
+    ..addListener(() => _pull.value = _scroll.offset < 0 ? -_scroll.offset : 0);
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    _pull.dispose();
+    super.dispose();
+  }
+
   Product get _product => widget.product;
 
   ProductVariant _initialVariant() {
@@ -77,78 +94,93 @@ class _DetailState extends ConsumerState<_Detail> {
             .toList() ??
         const <Product>[];
 
+    final hasCart = !ref.watch(cartSummaryProvider).isEmpty;
+
     return Column(
       children: [
         Expanded(
-          child: ListView(
-            padding: EdgeInsets.zero,
+          // The View cart button floats over the page, just above the bottom bar.
+          child: Stack(
             children: [
-              _Gallery(product: _product, heroTag: widget.heroTag),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              ListView(
+                controller: _scroll,
+                // Lets the top be pulled down, so the photo can zoom with the pull.
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                padding: EdgeInsets.zero,
+                children: [
+                  _Gallery(product: _product, heroTag: widget.heroTag, pull: _pull),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        for (var i = 0; i < 5; i++)
-                          Icon(
-                            i < _product.rating.round()
-                                ? Icons.star_rounded
-                                : Icons.star_border_rounded,
-                            color: AppColors.star,
-                            size: 18,
-                          ),
-                        const SizedBox(width: 6),
+                        Row(
+                          children: [
+                            for (var i = 0; i < 5; i++)
+                              Icon(
+                                i < _product.rating.round()
+                                    ? Icons.star_rounded
+                                    : Icons.star_border_rounded,
+                                color: AppColors.star,
+                                size: 18,
+                              ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${_product.rating} (${compactCount(_product.ratingCount)})',
+                              style: const TextStyle(fontSize: 13, color: AppColors.body),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         Text(
-                          '${_product.rating} (${compactCount(_product.ratingCount)})',
-                          style: const TextStyle(fontSize: 13, color: AppColors.body),
+                          _product.name,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('Select unit(s)', style: TextStyle(fontSize: 15)),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            for (final v in _product.variants)
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    right: v == _product.variants.last ? 0 : 10,
+                                  ),
+                                  child: _UnitTile(
+                                    variant: v,
+                                    selected: v == _variant,
+                                    inCart: inCartIds.contains(CartLine.fromVariant(_product, v).id),
+                                    onTap: () => setState(() => _variant = v),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _product.name,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text('Select unit(s)', style: TextStyle(fontSize: 15)),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        for (final v in _product.variants)
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                right: v == _product.variants.last ? 0 : 10,
-                              ),
-                              child: _UnitTile(
-                                variant: v,
-                                selected: v == _variant,
-                                inCart: inCartIds.contains(CartLine.fromVariant(_product, v).id),
-                                onTap: () => setState(() => _variant = v),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              if (similar.isNotEmpty) ...[
-                const SizedBox(height: 24),
-                SectionHeader(
-                  title: 'Similar meat',
-                  actionLabel: 'View all →',
-                  onAction: () => context.push(
-                    Routes.productsFor(title: 'Similar meat', category: _product.categoryId),
                   ),
-                ),
-                const SizedBox(height: 12),
-                ProductRail(products: similar),
-              ],
-              const SizedBox(height: 16),
+                  if (similar.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    SectionHeader(
+                      title: 'Similar meat',
+                      actionLabel: 'View all →',
+                      onAction: () => context.push(
+                        Routes.productsFor(title: 'Similar meat', category: _product.categoryId),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ProductRail(products: similar),
+                  ],
+                  // Room so the last row can scroll clear of the floating cart button.
+                  SizedBox(height: hasCart ? 88 : 16),
+                ],
+              ),
+              const Align(
+                alignment: Alignment.bottomCenter,
+                child: ViewCartBar(compact: true),
+              ),
             ],
           ),
         ),
@@ -165,10 +197,13 @@ class _DetailState extends ConsumerState<_Detail> {
 }
 
 class _Gallery extends ConsumerStatefulWidget {
-  const _Gallery({required this.product, this.heroTag});
+  const _Gallery({required this.product, this.heroTag, required this.pull});
 
   final Product product;
   final String? heroTag;
+
+  /// Pixels the page is pulled down past its top.
+  final ValueListenable<double> pull;
 
   @override
   ConsumerState<_Gallery> createState() => _GalleryState();
@@ -182,13 +217,10 @@ class _GalleryState extends ConsumerState<_Gallery> {
     final images = widget.product.images;
     final isFavorite = ref.watch(favoritesProvider.select((f) => f.contains(widget.product.id)));
 
-    Widget circle(IconData icon, VoidCallback onTap, {Color? color}) => IconButton.outlined(
+    Widget circle(IconData icon, VoidCallback onTap, {Color? color}) => IconButton(
           onPressed: onTap,
           icon: Icon(icon, size: 20, color: color),
-          style: IconButton.styleFrom(
-            backgroundColor: Colors.white,
-            side: const BorderSide(color: AppColors.border),
-          ),
+          style: IconButton.styleFrom(backgroundColor: AppColors.shell),
         );
 
     return Column(
@@ -219,14 +251,22 @@ class _GalleryState extends ConsumerState<_Gallery> {
             onPageChanged: (i) => setState(() => _index = i),
             itemBuilder: (_, i) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
+              // Pulling the page down zooms the photo inside its frame.
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppRadius.lg),
-                child: i == 0 && widget.heroTag != null
-                    ? Hero(
-                        tag: widget.heroTag!,
-                        child: AppImage(source: images[i], width: double.infinity),
-                      )
-                    : AppImage(source: images[i], width: double.infinity),
+                child: ValueListenableBuilder(
+                  valueListenable: widget.pull,
+                  builder: (_, pull, child) =>
+                      Transform.scale(scale: 1 + (pull / 260).clamp(0.0, 0.35), child: child),
+                  child: i == 0 && widget.heroTag != null
+                      ? ProductHero(
+                          tag: widget.heroTag!,
+                          source: images[i],
+                          radius: AppRadius.lg,
+                          width: double.infinity,
+                        )
+                      : AppImage(source: images[i], width: double.infinity),
+                ),
               ),
             ),
           ),
@@ -309,11 +349,75 @@ class _UnitTile extends StatelessWidget {
                 const Text('MRP ', style: TextStyle(color: AppColors.muted, fontSize: 11)),
                 Text(
                   rupees(variant.price),
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  style: AppType.display(size: 16, weight: FontWeight.w700),
                 ),
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The bar's quantity stepper: a compact pill on the right with roomy tap
+/// targets at each end and the count in the middle (rolling and popping like
+/// the small steppers).
+class _WideStepper extends StatelessWidget {
+  const _WideStepper({required this.quantity, required this.onIncrement, required this.onDecrement});
+
+  final int quantity;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+        child: SizedBox(
+        width: 150,
+        height: 54,
+        child: Material(
+          color: AppColors.primaryDark,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          clipBehavior: Clip.antiAlias,
+          child: Row(
+            children: [
+              _WideStepButton(icon: Icons.remove_rounded, onTap: onDecrement, label: 'Remove one'),
+              Expanded(
+                child: Center(
+                  child: QtyCount(
+                    quantity: quantity,
+                    style: AppType.display(size: 20, weight: FontWeight.w700, color: Colors.white),
+                  ),
+                ),
+              ),
+              _WideStepButton(icon: Icons.add_rounded, onTap: onIncrement, label: 'Add one more'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WideStepButton extends StatelessWidget {
+  const _WideStepButton({required this.icon, required this.onTap, required this.label});
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: PressScale(
+        scale: 0.85,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox(width: 48, height: 54, child: Icon(icon, color: Colors.white, size: 22)),
         ),
       ),
     );
@@ -354,35 +458,23 @@ class _BottomBar extends StatelessWidget {
                 Text(variant.label, style: const TextStyle(color: AppColors.muted, fontSize: 14)),
                 Text(
                   rupees(variant.price),
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
+                  style: AppType.display(size: 22, weight: FontWeight.w700),
                 ),
               ],
             ),
             const SizedBox(width: 16),
             Expanded(
+              // Add, then a full-width stepper; "View cart" floats above the bar.
               child: quantity == 0
                   ? AppButton(
                       label: variant.inStock ? 'Add to cart' : 'Out of stock',
                       onPressed: variant.inStock ? onAdd : null,
                       height: 54,
                     )
-                  : Row(
-                      children: [
-                        QtyStepper(
-                          quantity: quantity,
-                          onIncrement: onIncrement,
-                          onDecrement: onDecrement,
-                          height: 54,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: AppButton(
-                            label: 'View cart',
-                            height: 54,
-                            onPressed: () => context.push(Routes.cart),
-                          ),
-                        ),
-                      ],
+                  : _WideStepper(
+                      quantity: quantity,
+                      onIncrement: onIncrement,
+                      onDecrement: onDecrement,
                     ),
             ),
           ],

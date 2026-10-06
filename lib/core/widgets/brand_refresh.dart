@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../../app/theme/app_colors.dart';
 
@@ -41,18 +42,30 @@ class _BrandRefreshState extends State<BrandRefresh> {
         _start();
       }
       if (pull != _pull || dragging != _dragging) {
-        setState(() {
+        _update(() {
           _pull = pull;
           _dragging = dragging;
         });
       }
     } else if (n is ScrollEndNotification && _pull != 0) {
-      setState(() {
+      _update(() {
         _pull = 0;
         _dragging = false;
       });
     }
     return false;
+  }
+
+  /// setState, but deferred to after the frame when the notification fires
+  /// mid-layout (e.g. the list's content size changes while it's pulled down).
+  void _update(VoidCallback fn) {
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(fn);
+      });
+    } else {
+      setState(fn);
+    }
   }
 
   Future<void> _start() async {

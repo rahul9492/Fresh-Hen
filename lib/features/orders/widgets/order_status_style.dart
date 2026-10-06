@@ -22,16 +22,37 @@ extension OrderStatusStyle on OrderStatus {
       };
 }
 
-extension OrderDisplay on Order {
-  /// "Scheduled" for a confirmed order with a slot, else the status label.
-  String get statusLabel =>
-      status == OrderStatus.confirmed && slot != null ? 'Scheduled' : status.label;
+/// Amber for "waiting on the store", between the pending blue and the busy orange.
+const _waitingColor = Color(0xFFB7791F);
 
-  IconData get statusIcon =>
-      status == OrderStatus.confirmed && slot != null ? Icons.event_available_rounded : status.icon;
+extension OrderDisplay on Order {
+  /// "Awaiting confirmation" while a UPI payment is being checked, "Payment
+  /// issue" if it was rejected, "Scheduled" for a confirmed order with a slot,
+  /// else the status label.
+  String get statusLabel {
+    if (paymentIssue) return 'Payment issue';
+    if (awaitingConfirmation) return 'Awaiting confirmation';
+    return status == OrderStatus.confirmed && slot != null ? 'Scheduled' : status.label;
+  }
+
+  IconData get statusIcon {
+    if (paymentIssue) return Icons.error_outline_rounded;
+    if (awaitingConfirmation) return Icons.hourglass_top_rounded;
+    return status == OrderStatus.confirmed && slot != null ? Icons.event_available_rounded : status.icon;
+  }
+
+  /// The status colour, accounting for a payment being checked or rejected.
+  Color get statusColor {
+    if (paymentIssue) return AppColors.accent;
+    if (awaitingConfirmation) return _waitingColor;
+    return status.color;
+  }
 
   /// One line under the status, e.g. "Delivered today at 4:37 PM".
   String statusDetail({required String eta}) {
+    if (paymentIssue) return "We couldn't verify your payment. Please contact us.";
+    // No ETA yet: the clock starts once the store accepts the order.
+    if (awaitingConfirmation) return "We're checking your payment and will confirm your order shortly";
     final s = slot;
     return switch (status) {
       OrderStatus.delivered =>

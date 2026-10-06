@@ -40,6 +40,9 @@ abstract final class AppSnackbar {
       ..showSnackBar(
         SnackBar(
           duration: duration ?? const Duration(seconds: 4),
+          // Flutter keeps snack bars with an action (e.g. Undo) open until tapped
+          // by default; ours should still close on their own after [duration].
+          persist: false,
           action: actionLabel == null
               ? null
               : SnackBarAction(

@@ -5,9 +5,11 @@ import 'package:lottie/lottie.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/bottom_action_bar.dart';
+import '../../../core/widgets/hen_mascot.dart';
 import '../../checkout/providers/checkout_providers.dart';
 import '../models/order_models.dart';
 import '../providers/order_providers.dart';
@@ -43,12 +45,28 @@ class OrderSuccessScreen extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const _SuccessAnimation(fallback: _CheckBadge()),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Order Placed!',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                  // The tick lands first, then the hen pops up beside it to cheer.
+                  const SizedBox(
+                    width: 300,
+                    height: 190,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        _SuccessAnimation(fallback: _CheckBadge()),
+                        Positioned(
+                          right: 0,
+                          bottom: 4,
+                          child: HenMascot(
+                            mood: HenMood.cheer,
+                            height: 112,
+                            delay: Duration(milliseconds: 850),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(height: 8),
+                  Text('Order Placed!', style: AppType.display(size: 24)),
                   const SizedBox(height: 4),
                   const Text(
                     "You'll receive updates soon.",
@@ -156,7 +174,12 @@ class _Details extends StatelessWidget {
           _Line(
             icon: slot == null ? Icons.bolt_rounded : Icons.schedule_rounded,
             label: slot == null ? 'Arriving in' : 'Delivery slot',
-            value: slot == null ? eta : slot.label,
+            // A UPI order's clock starts once the store accepts the payment.
+            value: slot != null
+                ? slot.label
+                : order.awaitingConfirmation
+                    ? '$eta after confirmation'
+                    : eta,
           ),
           const SizedBox(height: 12),
           _Line(

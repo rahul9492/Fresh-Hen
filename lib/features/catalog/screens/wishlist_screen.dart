@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/add_control.dart';
 import '../../../core/widgets/async_view.dart';
-import '../../../core/widgets/product_image.dart';
+import '../../../core/widgets/product_hero.dart';
 import '../../../core/widgets/small_widgets.dart';
+import '../../../core/widgets/staggered_fade_in.dart';
 import '../../cart/models/cart_models.dart';
 import '../../cart/providers/cart_providers.dart';
 import '../../cart/widgets/view_cart_bar.dart';
@@ -50,7 +52,11 @@ class WishlistScreen extends ConsumerWidget {
                 padding: EdgeInsets.fromLTRB(16, 8, 16, hasCart ? 96 : 24),
                 itemCount: saved.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 16),
-                itemBuilder: (_, i) => _WishlistCard(product: saved[i]),
+                itemBuilder: (_, i) => StaggeredFadeIn(
+                  key: ValueKey(saved[i].id),
+                  index: i,
+                  child: _WishlistCard(product: saved[i]),
+                ),
               );
             },
           ),
@@ -80,27 +86,23 @@ class _WishlistCard extends ConsumerWidget {
         .where((l) => l.productId == product.id && !l.isAddon)
         .firstOrNull;
 
+    final heroTag = 'wishlist-${product.id}';
+
     return GestureDetector(
-      onTap: () => context.push(Routes.productFor(product.id)),
+      onTap: () => context.push(Routes.productFor(product.id), extra: heroTag),
       child: Container(
         padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 14,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: AppShadow.card,
         ),
         child: Column(
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ProductImage(asset: product.image, size: 64, radius: 12),
+                ProductHero(tag: heroTag, source: product.image, width: 64, height: 64),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -116,7 +118,7 @@ class _WishlistCard extends ConsumerWidget {
                       Text.rich(
                         TextSpan(
                           text: rupees(variant.price),
-                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                          style: AppType.display(size: 19, weight: FontWeight.w700),
                           children: [
                             TextSpan(
                               text: ' / ${variant.label}',

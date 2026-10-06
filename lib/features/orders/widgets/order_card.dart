@@ -53,7 +53,6 @@ class _OrderCardState extends State<OrderCard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: _hairline),
         boxShadow: AppShadow.card,
       ),
       child: ClipRRect(
@@ -68,6 +67,7 @@ class _OrderCardState extends State<OrderCard> {
                 child: _Header(order: order),
               ),
             ),
+            if (order.paymentIssue) _PaymentIssueBanner(onTap: widget.onHelp),
             const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: _hairline),
             // The item list opens the order too; the "more" toggle inside still wins its own taps.
             InkWell(
@@ -135,18 +135,18 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final status = order.status;
+    final color = order.statusColor;
     return Row(
       children: [
         Container(
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: status.color.withValues(alpha: 0.08),
+            color: color.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(color: status.color.withValues(alpha: 0.18)),
+            border: Border.all(color: color.withValues(alpha: 0.18)),
           ),
-          child: Icon(order.statusIcon, color: status.color, size: 22),
+          child: Icon(order.statusIcon, color: color, size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -161,7 +161,7 @@ class _Header extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: status.color,
+                        color: color,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -186,6 +186,44 @@ class _Header extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Red strip under the header when the store couldn't verify the UPI payment.
+class _PaymentIssueBanner extends StatelessWidget {
+  const _PaymentIssueBanner({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      child: Material(
+        color: AppColors.accentSoft,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          child: const Padding(
+            padding: EdgeInsets.fromLTRB(12, 10, 8, 10),
+            child: Row(
+              children: [
+                Icon(Icons.error_outline_rounded, color: AppColors.accent, size: 20),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "We couldn't verify your payment. Tap to contact us.",
+                    style: TextStyle(color: AppColors.primaryDark, fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: AppColors.accent),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

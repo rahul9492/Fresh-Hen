@@ -7,6 +7,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/context_x.dart';
 import '../../../core/widgets/app_search_bar.dart';
 import '../../../core/widgets/filter_button.dart';
+import '../../../core/widgets/pop_on_change.dart';
 import '../../catalog/models/catalog_models.dart';
 import '../../catalog/widgets/filter_sheet.dart';
 import '../../address/providers/address_providers.dart';
@@ -42,18 +43,19 @@ class HomeHeader extends ConsumerWidget {
                 ),
               ),
               const Spacer(),
-              IconButton.outlined(
+              IconButton(
                 onPressed: () => context.push(Routes.cart),
-                icon: Badge(
-                  isLabelVisible: cartCount > 0,
-                  label: Text('$cartCount'),
-                  backgroundColor: AppColors.primary,
-                  child: const Icon(Icons.shopping_cart_outlined),
+                // The cart springs each time its count changes.
+                icon: PopOnChange(
+                  value: cartCount,
+                  child: Badge(
+                    isLabelVisible: cartCount > 0,
+                    label: Text('$cartCount'),
+                    backgroundColor: AppColors.primary,
+                    child: const Icon(Icons.shopping_cart_outlined),
+                  ),
                 ),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  side: const BorderSide(color: AppColors.border),
-                ),
+                style: IconButton.styleFrom(backgroundColor: AppColors.shell),
               ),
             ],
           ),

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/media/image_picking.dart';
 import '../../../core/utils/context_x.dart';
 import '../../../core/utils/formatters.dart';
@@ -148,9 +149,9 @@ class _QrCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
       child: Column(
         children: [
-          const Text(
+          Text(
             'Scan & Pay via Any UPI App',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            style: AppType.display(size: 19),
           ),
           const SizedBox(height: 4),
           const Text(
@@ -588,10 +589,10 @@ class _Unavailable extends StatelessWidget {
           children: [
             const Icon(Icons.qr_code_2_rounded, size: 56, color: AppColors.muted),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'UPI payments are unavailable right now',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              style: AppType.display(size: 17),
             ),
             const SizedBox(height: 6),
             const Text(

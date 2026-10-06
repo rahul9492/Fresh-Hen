@@ -5,9 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/routes.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/press_scale.dart';
-import '../../../core/widgets/product_image.dart';
+import '../../../core/widgets/product_hero.dart';
 import '../../../core/widgets/small_widgets.dart';
 import '../models/catalog_models.dart';
 import '../providers/catalog_providers.dart';
@@ -34,7 +35,6 @@ class ProductCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.border),
         boxShadow: AppShadow.card,
       ),
       child: Column(
@@ -45,7 +45,7 @@ class ProductCard extends ConsumerWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Hero(tag: heroTag, child: ProductImage(asset: product.image)),
+                ProductHero(tag: heroTag, source: product.image),
                 Positioned(
                   top: 6,
                   right: 6,
@@ -91,7 +91,7 @@ class ProductCard extends ConsumerWidget {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     rupees(product.defaultVariant.price),
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                    style: AppType.display(size: 17, weight: FontWeight.w700),
                   ),
                 ),
               ),

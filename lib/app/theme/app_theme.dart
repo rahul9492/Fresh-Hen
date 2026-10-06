@@ -5,6 +5,26 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import '../../core/constants/spacing.dart';
 
+/// The display face: Fraunces, a warm, soft serif that gives headings, titles
+/// and prices a crafted, farm-shop feel. Body text stays Plus Jakarta Sans.
+/// Bundled in assets/google_fonts (SemiBold and Bold), so it never downloads.
+abstract final class AppType {
+  static TextStyle display({
+    double size = 18,
+    FontWeight weight = FontWeight.w600,
+    Color color = AppColors.ink,
+    double? height,
+  }) =>
+      GoogleFonts.fraunces(
+        fontSize: size,
+        // Only SemiBold and Bold are bundled.
+        fontWeight: weight.value >= 700 ? FontWeight.w700 : FontWeight.w600,
+        color: color,
+        height: height,
+        letterSpacing: -0.2,
+      );
+}
+
 abstract final class AppTheme {
   static ThemeData get light {
     final scheme = ColorScheme.fromSeed(
@@ -12,18 +32,13 @@ abstract final class AppTheme {
       primary: AppColors.primary,
       surface: Colors.white,
     );
+    // Body text: Plus Jakarta Sans. Headings: Fraunces (see [AppType]).
     final base = GoogleFonts.plusJakartaSansTextTheme();
     final textTheme = base
         .copyWith(
-          headlineMedium: GoogleFonts.poppins(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            height: 1.2,
-          ),
-          titleLarge: GoogleFonts.poppins(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
+          headlineMedium: AppType.display(size: 28, weight: FontWeight.w700, height: 1.2),
+          headlineSmall: AppType.display(size: 24, weight: FontWeight.w700, height: 1.2),
+          titleLarge: AppType.display(size: 21),
           titleMedium: base.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         )
         .apply(bodyColor: AppColors.ink, displayColor: AppColors.ink);

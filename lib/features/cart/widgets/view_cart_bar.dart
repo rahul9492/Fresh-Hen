@@ -12,15 +12,41 @@ import '../providers/cart_providers.dart';
 import '../../../core/constants/spacing.dart';
 
 /// Floating "View cart" pill shown above the bottom nav while the cart has items.
-class ViewCartBar extends ConsumerWidget {
-  const ViewCartBar({super.key});
+///
+/// [compact] makes it a centred, content-sized floating button (like a FAB),
+/// for pages with their own bottom bar, e.g. product details.
+class ViewCartBar extends ConsumerStatefulWidget {
+  const ViewCartBar({super.key, this.compact = false});
+
+  final bool compact;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ViewCartBar> createState() => _ViewCartBarState();
+}
+
+class _ViewCartBarState extends ConsumerState<ViewCartBar> {
+  // Own key per bar: wishlist or a product list can open over the tabs, each with a bar.
+  late final CartFlyTarget _flyTarget = (bar: context, thumbs: GlobalKey());
+
+  @override
+  void initState() {
+    super.initState();
+    registerCartFlyTarget(_flyTarget);
+  }
+
+  @override
+  void dispose() {
+    unregisterCartFlyTarget(_flyTarget);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final summary = ref.watch(cartSummaryProvider);
     final lines = ref.watch(cartProvider);
     final thumbs = lines.reversed.take(2).toList();
     final count = summary.itemCount;
+    final compact = widget.compact;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 260),
@@ -36,7 +62,9 @@ class ViewCartBar extends ConsumerWidget {
           ? const SizedBox(width: double.infinity, key: ValueKey('empty'))
           : Padding(
               key: const ValueKey('bar'),
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+              padding: compact
+                  ? const EdgeInsets.only(bottom: 12)
+                  : const EdgeInsets.fromLTRB(16, 8, 16, 10),
               child: PressScale(
                 scale: 0.98,
                 child: Material(
@@ -56,23 +84,33 @@ class ViewCartBar extends ConsumerWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
+                      // The compact one floats over content, so it casts a fuller shadow.
                       boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.16),
-                          blurRadius: 10,
-                          spreadRadius: -10,
-                          offset: const Offset(0, 10),
-                        ),
+                        compact
+                            ? BoxShadow(
+                                color: AppColors.primary.withValues(alpha: 0.35),
+                                blurRadius: 18,
+                                spreadRadius: -4,
+                                offset: const Offset(0, 8),
+                              )
+                            : BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.16),
+                                blurRadius: 10,
+                                spreadRadius: -10,
+                                offset: const Offset(0, 10),
+                              ),
                       ],
                     ),
                     child: Row(
+                      mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
                       children: [
                         SizedBox(
-                          key: cartFlyTargetKey,
+                          key: _flyTarget.thumbs,
                           child: _Thumbs(images: [for (final l in thumbs) l.image]),
                         ),
                         const SizedBox(width: 12),
-                        Expanded(
+                        _Fill(
+                          fill: !compact,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -114,6 +152,7 @@ class ViewCartBar extends ConsumerWidget {
                             ],
                           ),
                         ),
+                        if (compact) const SizedBox(width: 14),
                         Container(
                           width: 38,
                           height: 38,
@@ -136,6 +175,17 @@ class ViewCartBar extends ConsumerWidget {
             ),
     );
   }
+}
+
+/// Takes the remaining width in the full bar; just its own width when compact.
+class _Fill extends StatelessWidget {
+  const _Fill({required this.fill, required this.child});
+
+  final bool fill;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => fill ? Expanded(child: child) : child;
 }
 
 class _Thumbs extends StatelessWidget {

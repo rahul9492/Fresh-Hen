@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/utils/context_x.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/open_saved_file.dart';
@@ -183,10 +184,10 @@ class _InvoiceCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Order Invoice',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            style: AppType.display(size: 19),
           ),
           const SizedBox(height: 4),
           Text(

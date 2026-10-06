@@ -72,6 +72,7 @@ flutter:
     - assets/images/ # App images
     - assets/fonts/ # Noto Sans for PDF invoices (has the ₹ sign)
     - assets/lottie/ # Animated bottom-nav icons
+    - assets/google_fonts/ # Fraunces headings, bundled so google_fonts never downloads them
 
 # App icon config (run: dart run flutter_launcher_icons)
 flutter_launcher_icons:

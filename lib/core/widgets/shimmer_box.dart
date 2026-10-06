@@ -89,7 +89,7 @@ class OrderCardSkeleton extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: const Color(0xFFECEDF1)),
+        boxShadow: AppShadow.card,
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,

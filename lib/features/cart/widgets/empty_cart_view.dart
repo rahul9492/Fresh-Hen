@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/constants/spacing.dart';
+import '../../../core/widgets/hen_mascot.dart';
 
 /// Illustrated empty state for the cart. Everything scales with the screen, and
 /// the illustration, text and button sit together in the vertical centre.
@@ -18,6 +20,7 @@ class EmptyCartView extends StatelessWidget {
           final art = (box.maxWidth * 0.62).clamp(150.0, 280.0);
           final fit = box.maxHeight * 0.36;
           final artWidth = art < fit * 1.1 ? art : fit * 1.1;
+          final henHeight = (box.maxHeight * 0.3).clamp(150.0, 230.0);
 
           return SingleChildScrollView(
             child: ConstrainedBox(
@@ -27,15 +30,20 @@ class EmptyCartView extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      width: artWidth,
-                      height: artWidth * _BoxScene.aspect,
-                      child: const CustomPaint(painter: _BoxScene()),
+                    // The hen hops and sways hello; the box drawing stands in if she can't load.
+                    HenMascot(
+                      mood: HenMood.hello,
+                      height: henHeight,
+                      fallback: SizedBox(
+                        width: artWidth,
+                        height: artWidth * _BoxScene.aspect,
+                        child: const CustomPaint(painter: _BoxScene()),
+                      ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
+                    Text(
                       'Your cart is empty',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                      style: AppType.display(size: 24),
                     ),
                     const SizedBox(height: 8),
                     const SizedBox(

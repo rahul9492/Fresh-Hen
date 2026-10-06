@@ -23,4 +23,7 @@ abstract final class AppColors {
 
   /// Inset areas inside a card: item tiles, inputs, upload boxes.
   static const surfaceMuted = Color(0xFFF7F8FA);
+
+  /// Warm eggshell fill for round icon buttons and soft chips, instead of an outline.
+  static const shell = Color(0xFFF7F1EC);
 }

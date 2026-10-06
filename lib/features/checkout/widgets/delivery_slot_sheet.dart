@@ -7,6 +7,7 @@ import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/async_view.dart';
+import '../../../core/widgets/hen_mascot.dart';
 import '../../../core/widgets/shimmer_box.dart';
 import '../../orders/models/order_models.dart';
 import '../models/checkout_models.dart';
@@ -62,11 +63,17 @@ class _DeliverySlotSheetState extends ConsumerState<_DeliverySlotSheet> {
         data: (days) {
           if (!days.any((d) => d.isOpen)) {
             return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 32),
-              child: Text(
-                'No delivery slots are open right now.\nPlease choose "Order now" or try again later.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.body, height: 1.4),
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                children: [
+                  HenMascot(mood: HenMood.sleep, height: 120),
+                  SizedBox(height: 12),
+                  Text(
+                    'No delivery slots are open right now.\nPlease choose "Order now" or try again later.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.body, height: 1.4),
+                  ),
+                ],
               ),
             );
           }
@@ -100,12 +107,21 @@ class _DeliverySlotSheetState extends ConsumerState<_DeliverySlotSheet> {
               if (!day.isOpen)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Text(
-                    day.closedReason == null
-                        ? 'All slots for this day are taken. Please pick another day.'
-                        : 'We are closed on this day (${day.closedReason!.toLowerCase()}).',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.body),
+                  child: Column(
+                    children: [
+                      // The store is shut that day: the hen is having a nap.
+                      if (day.closedReason != null) ...[
+                        const HenMascot(mood: HenMood.sleep, height: 96),
+                        const SizedBox(height: 10),
+                      ],
+                      Text(
+                        day.closedReason == null
+                            ? 'All slots for this day are taken. Please pick another day.'
+                            : 'We are closed on this day (${day.closedReason!.toLowerCase()}).',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: AppColors.body),
+                      ),
+                    ],
                   ),
                 )
               else

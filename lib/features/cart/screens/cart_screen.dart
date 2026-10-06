@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/utils/context_x.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/add_control.dart';
@@ -13,7 +16,12 @@ import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_snackbar.dart';
 import '../../../core/widgets/bottom_action_bar.dart';
 import '../../../core/widgets/celebration.dart';
+import '../../../core/widgets/confirm_dialog.dart';
+import '../../../core/widgets/pop_on_change.dart';
+import '../../../core/widgets/press_scale.dart';
+import '../../../core/widgets/product_hero.dart';
 import '../../../core/widgets/product_image.dart';
+import '../../../core/widgets/staggered_fade_in.dart';
 import '../../address/providers/address_providers.dart';
 import '../../address/widgets/address_form_sheet.dart';
 import '../../address/widgets/address_picker_sheet.dart';
@@ -106,6 +114,31 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     if (order != null && mounted) context.go(Routes.orderSuccessFor(order.id));
   }
 
+  /// Empties the cart after a confirm, with an Undo that brings everything back.
+  Future<void> _clearCart() async {
+    final lines = ref.read(cartProvider);
+    final count = lines.fold<int>(0, (sum, l) => sum + l.quantity);
+    final ok = await showConfirmDialog(
+      context,
+      icon: Icons.remove_shopping_cart_outlined,
+      title: 'Clear your cart?',
+      message: 'This removes all $count ${count == 1 ? 'item' : 'items'} from your cart.',
+      confirmLabel: 'Clear cart',
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    // Grab the cart now: once it's empty this screen shows the empty view,
+    // and the Undo still needs to reach the cart.
+    final cart = ref.read(cartProvider.notifier);
+    cart.clear();
+    AppSnackbar.info(
+      context,
+      'Cart cleared',
+      actionLabel: 'Undo',
+      onAction: () => cart.restoreAll(lines),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(placeOrderProvider, (_, s) {
@@ -124,7 +157,13 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     final step = ref.watch(checkoutStepProvider);
     return Scaffold(
       backgroundColor: AppColors.page,
-      appBar: AppBar(title: const Text('Your cart')),
+      appBar: AppBar(
+        title: const Text('Your cart'),
+        actions: [
+          _ClearCartChip(onTap: _clearCart),
+          const SizedBox(width: 16),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(0, 12, 0, 24),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -156,6 +195,55 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         onPickSlot: _pickSlot,
         onProceed: _proceedToPayment,
         onRemoveSoldOut: _removeSoldOut,
+      ),
+    );
+  }
+}
+
+/// "Clear" in the app bar: a soft rose pill with a sweep icon that squishes
+/// when pressed, so emptying the cart feels deliberate rather than alarming.
+class _ClearCartChip extends StatelessWidget {
+  const _ClearCartChip({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Clear cart',
+      excludeSemantics: true,
+      child: PressScale(
+        scale: 0.92,
+        child: Material(
+          color: AppColors.accentSoft,
+          shape: const StadiumBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            splashColor: AppColors.accent.withValues(alpha: 0.12),
+            highlightColor: AppColors.accent.withValues(alpha: 0.06),
+            child: const Padding(
+              padding: EdgeInsets.fromLTRB(10, 7, 14, 7),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.delete_sweep_rounded, size: 18, color: AppColors.primaryDark),
+                  SizedBox(width: 6),
+                  Text(
+                    'Clear',
+                    style: TextStyle(
+                      color: AppColors.primaryDark,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -204,7 +292,10 @@ class _ItemsCard extends ConsumerWidget {
               direction: DismissDirection.endToStart,
               onDismissed: (_) => _remove(context, ref, lines[i]),
               background: const _SwipeToDeleteBackground(),
-              child: ColoredBox(color: Colors.white, child: _LineTile(line: lines[i])),
+              child: StaggeredFadeIn(
+                index: i,
+                child: ColoredBox(color: Colors.white, child: _LineTile(line: lines[i])),
+              ),
             ),
           ],
         ],
@@ -291,7 +382,21 @@ class _LineTile extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
-            ProductImage(asset: line.image, size: 64, radius: 12),
+            // Tapping a product's photo opens it, the photo growing into the page.
+            // Add-ons aren't catalog products, so theirs is just a picture.
+            if (line.isAddon)
+              ProductImage(asset: line.image, size: 64, radius: 12)
+            else
+              GestureDetector(
+                onTap: () =>
+                    context.push(Routes.productFor(line.productId), extra: 'cart-${line.id}'),
+                child: ProductHero(
+                  tag: 'cart-${line.id}',
+                  source: line.image,
+                  width: 64,
+                  height: 64,
+                ),
+              ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -469,6 +574,43 @@ class _InstructionsCardState extends ConsumerState<_InstructionsCard> {
   }
 }
 
+/// Small green pill: "3 available". Pops when the count changes (e.g. adding
+/// items unlocks another coupon).
+class _CouponsAvailable extends StatelessWidget {
+  const _CouponsAvailable({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopOnChange(
+      value: count,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(8, 4, 10, 4),
+        decoration: BoxDecoration(
+          color: AppColors.successSoft,
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.auto_awesome_rounded, size: 13, color: AppColors.success),
+            const SizedBox(width: 4),
+            Text(
+              '$count available',
+              style: const TextStyle(
+                color: AppColors.success,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _CouponTile extends ConsumerWidget {
   const _CouponTile();
 
@@ -493,19 +635,48 @@ class _CouponTile extends ConsumerWidget {
     final discount = ref.watch(checkoutBillProvider.select((b) => b.discount));
 
     if (coupon == null) {
+      // Coupons that work on this cart right now (same rules as the coupons page).
+      final itemTotal = ref.watch(cartSummaryProvider.select((s) => s.itemTotal));
+      final firstOrder = ref.watch(isFirstOrderProvider);
+      final usable = [
+        for (final c in ref.watch(couponsProvider).value ?? const <Coupon>[])
+          if (c.issueFor(itemTotal: itemTotal, isFirstOrder: firstOrder) == null) c,
+      ];
+      final bestSaving = usable.fold(0, (best, c) => math.max(best, c.discountFor(itemTotal)));
+
       return AppCard(
         onTap: () => _open(context, ref),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.local_offer_outlined, size: 20, color: AppColors.primary),
-            SizedBox(width: 12),
+            const Icon(Icons.local_offer_outlined, size: 20, color: AppColors.primary),
+            const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                'Use Coupons',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Use Coupons',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                  if (bestSaving > 0) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      'Save up to ${rupees(bestSaving)}',
+                      style: const TextStyle(
+                        color: AppColors.success,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: AppColors.body),
+            if (usable.isNotEmpty) ...[
+              _CouponsAvailable(count: usable.length),
+              const SizedBox(width: 4),
+            ],
+            const Icon(Icons.chevron_right_rounded, color: AppColors.body),
           ],
         ),
       );
@@ -721,9 +892,9 @@ class _Recommended extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 12),
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text('Recommended', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          child: Text('Recommended', style: AppType.display(size: 19)),
         ),
         const SizedBox(height: 12),
         ProductRail(products: picks),
