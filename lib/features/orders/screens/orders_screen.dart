@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/routes.dart';
 import '../../../core/widgets/app_search_bar.dart';
 import '../../../core/widgets/async_view.dart';
+import '../../../core/widgets/tab_close_button.dart';
 import '../../../core/widgets/brand_refresh.dart';
 import '../../../core/widgets/shimmer_box.dart';
 import '../../../core/widgets/staggered_fade_in.dart';
@@ -52,13 +53,10 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     return Scaffold(
       backgroundColor: _background,
       appBar: AppBar(
-        leading: IconButton(
-          tooltip: 'Back',
-          icon: const Icon(Icons.arrow_back_rounded),
-          // This is a bottom tab, so there is usually nothing to pop: go Home instead.
-          onPressed: () => context.canPop() ? context.pop() : context.go(Routes.home),
-        ),
-        titleSpacing: 0,
+        // Same soft down-arrow as the Categories tab: closes this tab back to Home.
+        leading: const TabCloseButton(),
+        leadingWidth: TabCloseButton.width,
+        titleSpacing: 12,
         title: const Text('My Orders'),
       ),
       // Keeps statuses fresh while any order is still on its way.

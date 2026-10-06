@@ -10,6 +10,7 @@ import '../../../core/utils/context_x.dart';
 // import '../../../core/utils/open_link.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/confirm_dialog.dart';
+import '../../../core/widgets/tab_close_button.dart';
 import '../../auth/models/app_user.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/widgets/profile_form.dart';
@@ -66,7 +67,14 @@ class AccountScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text('Profile'), backgroundColor: Colors.white),
+      appBar: AppBar(
+        // Same soft down-arrow as the other tabs: closes this tab back to Home.
+        leading: const TabCloseButton(),
+        leadingWidth: TabCloseButton.width,
+        titleSpacing: 12,
+        title: const Text('Profile'),
+        backgroundColor: Colors.white,
+      ),
       body: ListView(
         padding: EdgeInsets.fromLTRB(
           16,
