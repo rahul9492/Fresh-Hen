@@ -1,4 +1,5 @@
 import '../../cart/providers/cart_providers.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,7 +39,8 @@ class AccountScreen extends ConsumerWidget {
       context,
       icon: Icons.person_remove_outlined,
       title: 'Delete your account?',
-      message: 'Your profile, saved addresses and wishlist will be permanently deleted '
+      message:
+          'Your profile, saved addresses and wishlist will be permanently deleted '
           'and you will be logged out. This cannot be undone.',
       confirmLabel: 'Delete account',
       cancelLabel: 'Keep my account',
@@ -189,7 +191,8 @@ class _ProfileHeader extends StatelessWidget {
             radius: 46,
             backgroundColor: AppColors.accentSoft,
             child: Text(
-              user.name.characters.first.toUpperCase(),
+              // A name is required at sign-up, but never trust the server to send one.
+              user.name.trim().isEmpty ? '?' : user.name.trim().characters.first.toUpperCase(),
               style: const TextStyle(
                 color: AppColors.primary,
                 fontSize: 36,

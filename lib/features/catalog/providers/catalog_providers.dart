@@ -92,6 +92,11 @@ class Favorites extends _$Favorites {
 
   WishlistRepository get _repo => ref.read(wishlistRepositoryProvider);
 
+  /// Taps made, and how many are still waiting on the server. A refresh that
+  /// overlaps either would bring back the wishlist as it was before the tap.
+  var _edits = 0;
+  var _pending = 0;
+
   @override
   Set<String> build() {
     final phone = ref.watch(sessionPhoneProvider);
@@ -102,14 +107,18 @@ class Favorites extends _$Favorites {
   /// Reloads from the server. Offline, the cached set stays.
   Future<void> refresh() async {
     final phone = ref.read(sessionPhoneProvider);
+    final edits = _edits;
     try {
       final fresh = await _repo.fetch();
-      if (ref.mounted && ref.read(sessionPhoneProvider) == phone) _set(fresh);
+      // A heart tapped while this was loading is newer than what the server sent.
+      if (ref.mounted && ref.read(sessionPhoneProvider) == phone && edits == _edits && _pending == 0) _set(fresh);
     } catch (_) {}
   }
 
   /// Returns false if the server rejected it (the heart flips back).
   Future<bool> toggle(String productId) async {
+    _edits++;
+    _pending++;
     final adding = !state.contains(productId);
     _set(adding ? {...state, productId} : ({...state}..remove(productId)));
     try {
@@ -120,6 +129,10 @@ class Favorites extends _$Favorites {
         _set(adding ? ({...state}..remove(productId)) : {...state, productId});
       }
       return false;
+    } finally {
+      // Take the server's list once the last tap is answered, in case a refresh
+      // was skipped while taps were in flight.
+      if (--_pending == 0 && ref.mounted) unawaited(refresh());
     }
   }
 

@@ -135,12 +135,16 @@ class HomeSearchPinnedDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    // `overlapsContent` is only set when another pinned sliver sits above this one,
+    // which is not the case on Home. A pinned bar the page has scrolled up to has a
+    // positive `shrinkOffset`, which is the real "content is under me" signal.
+    final lifted = overlapsContent || shrinkOffset > 0;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: overlapsContent
+        boxShadow: lifted
             ? [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.07),

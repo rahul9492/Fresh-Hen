@@ -32,6 +32,11 @@ class Addresses extends _$Addresses {
 
   AddressRepository get _repo => ref.read(addressRepositoryProvider);
 
+  /// Local changes made, and how many are still waiting on the server. A refresh
+  /// that overlaps either would bring back the list as it was before the change.
+  var _edits = 0;
+  var _pending = 0;
+
   @override
   List<Address> build() {
     final phone = ref.watch(sessionPhoneProvider);
@@ -42,9 +47,11 @@ class Addresses extends _$Addresses {
   /// Reloads from the server. Offline, the cached list stays.
   Future<void> refresh() async {
     final phone = ref.read(sessionPhoneProvider);
+    final edits = _edits;
     try {
       final fresh = await _repo.fetch();
-      if (ref.mounted && ref.read(sessionPhoneProvider) == phone) _set(fresh);
+      // A change made while this was loading is newer than what the server sent.
+      if (ref.mounted && ref.read(sessionPhoneProvider) == phone && edits == _edits && _pending == 0) _set(fresh);
     } catch (_) {}
   }
 
@@ -52,6 +59,8 @@ class Addresses extends _$Addresses {
   /// for a new one. Callers that want it used for the next order also call
   /// `selectedAddressIdProvider.notifier.select` with that id.
   Future<Address> save(Address address) async {
+    _edits++;
+    _pending++;
     final isNew = state.every((a) => a.id != address.id);
     final before = state;
     _set(upsertAddress(state, address));
@@ -62,6 +71,8 @@ class Addresses extends _$Addresses {
     } catch (_) {
       _set(before);
       rethrow;
+    } finally {
+      _syncWhenIdle();
     }
   }
 
@@ -74,6 +85,8 @@ class Addresses extends _$Addresses {
       _change(state.where((a) => a.id != id).toList(), () => _repo.remove(id));
 
   Future<void> _change(List<Address> next, Future<void> Function() send) async {
+    _edits++;
+    _pending++;
     final before = state;
     _set(next);
     try {
@@ -81,7 +94,15 @@ class Addresses extends _$Addresses {
     } catch (_) {
       _set(before);
       rethrow;
+    } finally {
+      _syncWhenIdle();
     }
+  }
+
+  /// Once the last change has been answered, take the server's list, which now
+  /// includes it, in case a refresh was skipped while changes were in flight.
+  void _syncWhenIdle() {
+    if (--_pending == 0 && ref.mounted) unawaited(refresh());
   }
 
   void _set(List<Address> addresses) {
