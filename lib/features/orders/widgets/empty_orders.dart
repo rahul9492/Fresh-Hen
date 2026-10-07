@@ -20,7 +20,21 @@ class _EmptyOrdersState extends State<EmptyOrders> with SingleTickerProviderStat
   late final AnimationController _float = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 2400),
-  )..repeat(reverse: true);
+  );
+
+  /// Loops the hero only while the phone allows animation; with "Remove
+  /// animations" on, everything stays at rest.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _float
+        ..stop()
+        ..value = 0;
+    } else if (!_float.isAnimating) {
+      _float.repeat(reverse: true);
+    }
+  }
 
   @override
   void dispose() {
@@ -80,6 +94,7 @@ class _EmptyOrdersState extends State<EmptyOrders> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return EmptyStateEntrance(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -107,8 +122,8 @@ class _EmptyOrdersState extends State<EmptyOrders> with SingleTickerProviderStat
                   ),
                 ),
                 TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0.6, end: 1),
-                  duration: const Duration(milliseconds: 750),
+                  tween: Tween(begin: reduceMotion ? 1 : 0.6, end: 1),
+                  duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 750),
                   curve: Curves.elasticOut,
                   builder: (_, s, child) => Transform.scale(scale: s, child: child),
                   child: FloatingBob(

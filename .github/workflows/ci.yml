@@ -1,16 +1,23 @@
 name: CI
 
 # Runs on every push and pull request: checks the code and runs all the tests.
-# On the main branch it also builds an Android APK you can download and install.
+# The Android APK is built only when you ask for it: open the Actions tab, pick
+# "CI", press "Run workflow" and tick "Build the APK".
 on:
   push:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      build_apk:
+        description: Build the APK
+        type: boolean
+        default: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: subosito/flutter-action@v2
         with:
@@ -28,14 +35,14 @@ jobs:
         run: flutter test
 
   build-apk:
-    # Only after the tests pass, and only for the main branch.
+    # Only when started by hand with "Build the APK" ticked, and after the tests pass.
     needs: test
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && inputs.build_apk
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
@@ -57,7 +64,7 @@ jobs:
         run: flutter build apk --release --dart-define=USE_MOCK=true
 
       - name: Keep the APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: fresh-hen-apk
           path: build/app/outputs/flutter-apk/app-release.apk

@@ -16,7 +16,21 @@ class _EmptyWishlistState extends State<EmptyWishlist> with SingleTickerProvider
   late final AnimationController _pulse = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 2200),
-  )..repeat(reverse: true);
+  );
+
+  /// Loops the hero only while the phone allows animation; with "Remove
+  /// animations" on, everything stays at rest.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _pulse
+        ..stop()
+        ..value = 0;
+    } else if (!_pulse.isAnimating) {
+      _pulse.repeat(reverse: true);
+    }
+  }
 
   @override
   void dispose() {
@@ -36,6 +50,7 @@ class _EmptyWishlistState extends State<EmptyWishlist> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return EmptyStateEntrance(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -75,8 +90,8 @@ class _EmptyWishlistState extends State<EmptyWishlist> with SingleTickerProvider
                   },
                 ),
                 TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0.5, end: 1),
-                  duration: const Duration(milliseconds: 750),
+                  tween: Tween(begin: reduceMotion ? 1 : 0.5, end: 1),
+                  duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 750),
                   curve: Curves.elasticOut,
                   builder: (_, s, child) => Transform.scale(scale: s, child: child),
                   child: AnimatedBuilder(

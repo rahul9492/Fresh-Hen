@@ -15,13 +15,14 @@ class EmptyStateEntrance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return Center(
       child: SingleChildScrollView(
         // Bottom padding keeps the content clear of the floating View cart bar.
         padding: const EdgeInsets.fromLTRB(28, 24, 28, 96),
         child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: 1),
-          duration: const Duration(milliseconds: 550),
+          tween: Tween(begin: reduceMotion ? 1 : 0, end: 1),
+          duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 550),
           curve: Curves.easeOutCubic,
           builder: (_, t, child) => Opacity(
             opacity: t,
@@ -54,6 +55,10 @@ class FloatingBob extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // With "Remove animations" on it sits still at its resting place.
+    if (MediaQuery.disableAnimationsOf(context)) {
+      return Transform.translate(offset: Offset(dx, dy), child: child);
+    }
     return AnimatedBuilder(
       animation: animation,
       builder: (_, child) {
