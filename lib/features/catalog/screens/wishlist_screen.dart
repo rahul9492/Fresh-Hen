@@ -16,6 +16,7 @@ import '../../cart/providers/cart_providers.dart';
 import '../../cart/widgets/view_cart_bar.dart';
 import '../models/catalog_models.dart';
 import '../providers/catalog_providers.dart';
+import '../widgets/empty_wishlist.dart';
 import '../widgets/product_options_sheet.dart';
 import '../../../core/constants/spacing.dart';
 
@@ -28,8 +29,8 @@ class WishlistScreen extends ConsumerWidget {
     final hasCart = !ref.watch(cartSummaryProvider).isEmpty;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
-      appBar: AppBar(title: const Text('Wishlist'), backgroundColor: const Color(0xFFF8F8F8)),
+      backgroundColor: AppColors.page,
+      appBar: AppBar(title: const Text('Wishlist'), backgroundColor: AppColors.page),
       body: Stack(
         children: [
           AsyncView(
@@ -38,15 +39,7 @@ class WishlistScreen extends ConsumerWidget {
             data: (products) {
               final saved = products.where((p) => favorites.contains(p.id)).toList();
               if (saved.isEmpty) {
-                return EmptyState(
-                  icon: Icons.favorite_border_rounded,
-                  title: 'Your wishlist is empty',
-                  message: 'Tap the heart on any item to save it here.',
-                  action: OutlinedButton(
-                    onPressed: () => context.go(Routes.home),
-                    child: const Text('Browse items'),
-                  ),
-                );
+                return EmptyWishlist(onBrowse: () => context.go(Routes.home));
               }
               return ListView.separated(
                 padding: EdgeInsets.fromLTRB(16, 8, 16, hasCart ? 96 : 24),
@@ -81,10 +74,8 @@ class _WishlistCard extends ConsumerWidget {
     final cart = ref.read(cartProvider.notifier);
     final variant = product.defaultVariant;
 
-    CartLine? line() => ref
-        .read(cartProvider)
-        .where((l) => l.productId == product.id && !l.isAddon)
-        .firstOrNull;
+    CartLine? line() =>
+        ref.read(cartProvider).where((l) => l.productId == product.id && !l.isAddon).firstOrNull;
 
     final heroTag = 'wishlist-${product.id}';
 
@@ -168,7 +159,9 @@ class _WishlistCard extends ConsumerWidget {
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           padding: const EdgeInsets.symmetric(horizontal: 22),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.lg),
+                          ),
                           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                         ),
                         child: const Text('Add to Cart'),

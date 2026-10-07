@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/routes.dart';
+import '../../../app/theme/app_colors.dart';
 import '../../../core/widgets/app_search_bar.dart';
 import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/tab_close_button.dart';
@@ -13,6 +14,7 @@ import '../../../core/widgets/small_widgets.dart';
 import '../../cart/providers/cart_providers.dart';
 import '../models/order_models.dart';
 import '../providers/order_providers.dart';
+import '../widgets/empty_orders.dart';
 import '../widgets/order_card.dart';
 import '../widgets/live_order_refresh.dart';
 import '../widgets/order_actions.dart';
@@ -25,7 +27,7 @@ class OrdersScreen extends ConsumerStatefulWidget {
 }
 
 class _OrdersScreenState extends ConsumerState<OrdersScreen> {
-  static const _background = Color(0xFFF8F8F8);
+  static const _background = AppColors.page;
 
   var _query = '';
 
@@ -68,15 +70,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
           loading: const OrderListSkeleton(),
           data: (orders) {
             if (orders.isEmpty) {
-              return EmptyState(
-                icon: Icons.receipt_long_outlined,
-                title: 'No orders yet',
-                message: 'Your fresh orders will show up here.',
-                action: OutlinedButton(
-                  onPressed: () => context.go(Routes.home),
-                  child: const Text('Start shopping'),
-                ),
-              );
+              return EmptyOrders(onShop: () => context.go(Routes.home));
             }
 
             final visible = orders.where(_matches).toList();

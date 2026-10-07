@@ -258,6 +258,18 @@ class _Field extends StatelessWidget {
       child: TextFormField(
         controller: controller,
         validator: validator,
+        // Keeps the message on one line: it shrinks to fit the field's width
+        // on narrow phones instead of being cut off or wrapping.
+        errorBuilder: (context, error) => Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(error, style: const TextStyle(color: AppColors.accent, fontSize: 12)),
+          ),
+        ),
+        // Re-check as the user edits, so an error clears once the value is fixed.
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         keyboardType: keyboardType,
         inputFormatters: [
           ...?formatters,
@@ -359,8 +371,7 @@ class _ReceiverSection extends StatelessWidget {
                     ),
                   ],
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                // Wraps onto a second line instead of cutting off the phone number.
                 style: const TextStyle(fontSize: 13),
               ),
             ),
@@ -400,20 +411,27 @@ class _LabelButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.md),
             border: Border.all(color: selected ? AppColors.primary : AppColors.border),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(_icon, size: 17, color: selected ? Colors.white : AppColors.body),
-              const SizedBox(width: 6),
-              Text(
-                label.title,
-                style: TextStyle(
-                  color: selected ? Colors.white : AppColors.ink,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
+          // Shrinks a little on very narrow screens instead of overflowing.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(_icon, size: 17, color: selected ? Colors.white : AppColors.body),
+                  const SizedBox(width: 6),
+                  Text(
+                    label.title,
+                    style: TextStyle(
+                      color: selected ? Colors.white : AppColors.ink,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

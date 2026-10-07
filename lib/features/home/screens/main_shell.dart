@@ -57,14 +57,21 @@ class _MainShellState extends State<MainShell> with SingleTickerProviderStateMix
     if (MediaQuery.disableAnimationsOf(context)) {
       _nav.value = target;
     } else {
-      _nav.animateTo(target, curve: shown ? Curves.easeOutCubic : Curves.easeInCubic);
+      // Hiding is a touch slower and ends softly, so the bar eases away
+      // instead of dropping off the screen.
+      _nav.animateTo(
+        target,
+        duration: Duration(milliseconds: shown ? 420 : 650),
+        curve: shown ? Curves.easeOutCubic : Curves.easeInOutQuad,
+      );
     }
   }
 
   bool _onScroll(ScrollNotification n) {
     final m = n.metrics;
     if (m.axis != Axis.vertical) return false;
-    if (m.pixels <= m.minScrollExtent + _topZone || m.maxScrollExtent - m.minScrollExtent < _shortList) {
+    if (m.pixels <= m.minScrollExtent + _topZone ||
+        m.maxScrollExtent - m.minScrollExtent < _shortList) {
       if (n is ScrollUpdateNotification || n is ScrollEndNotification) _setNav(true);
       return false;
     }
@@ -156,15 +163,29 @@ class _MainShellState extends State<MainShell> with SingleTickerProviderStateMix
         bottomNavigationBar: SizeTransition(
           sizeFactor: _nav,
           alignment: Alignment.bottomCenter,
-          child: DecoratedBox(
-            decoration: BoxDecoration(color: Colors.white, boxShadow: AppShadow.bar),
-            child: NavigationBar(
-              selectedIndex: shell.currentIndex,
-              destinations: _destinations,
-              onDestinationSelected: (i) {
-                _setNav(true);
-                shell.goBranch(i, initialLocation: i == shell.currentIndex);
-              },
+          // The bar fades out ahead of the shrinking space and slides a little,
+          // so it dissolves rather than being squashed away.
+          child: FadeTransition(
+            opacity: CurvedAnimation(
+              parent: _nav,
+              curve: const Interval(0.0, 0.9, curve: Curves.easeInOut),
+            ),
+            child: SlideTransition(
+              position: Tween(
+                begin: const Offset(0, 0.6),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(parent: _nav, curve: Curves.easeInOut)),
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: Colors.white, boxShadow: AppShadow.bar),
+                child: NavigationBar(
+                  selectedIndex: shell.currentIndex,
+                  destinations: _destinations,
+                  onDestinationSelected: (i) {
+                    _setNav(true);
+                    shell.goBranch(i, initialLocation: i == shell.currentIndex);
+                  },
+                ),
+              ),
             ),
           ),
         ),
