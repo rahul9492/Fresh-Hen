@@ -44,14 +44,17 @@ class OrderRequest {
   /// Body of `POST /orders`. Only ids and quantities: the server prices the
   /// order itself and rejects it if the total no longer matches what the
   /// customer saw (e.g. a price changed while the cart sat saved).
+  ///
+  /// Each item is `{ variantId, grams, quantity }`, the same shape the admin app
+  /// sends for walk-in orders. In the admin's terms what this app calls a
+  /// product (or add-on) is a variant, and a pack is named by its weight.
   Map<String, dynamic> toJson() => {
         'items': [
           for (final l in lines)
             {
-              'productId': l.productId,
-              'variantId': ?l.variantId,
+              'variantId': l.productId,
+              'grams': ?l.grams,
               'quantity': l.quantity,
-              'isAddon': l.isAddon,
             },
         ],
         'addressId': addressId,

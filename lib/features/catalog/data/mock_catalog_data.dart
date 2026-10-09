@@ -1,6 +1,10 @@
 import '../../../core/constants/app_constants.dart';
 import '../models/catalog_models.dart';
 
+// The admin app's demo inventory (FreshHenAdmin, mock_inventory_data.dart) mirrors
+// this catalogue: category ids are its product ids, product and add-on ids its
+// variant ids, with the same names, packs and prices. Change both together.
+
 const mockCategories = [
   Category(id: 'chicken', name: 'Chicken', image: Assets.chicken),
   Category(id: 'duck', name: 'Duck', image: Assets.duck),
@@ -41,6 +45,7 @@ const _masala = Accompaniment(
   id: 'acc-mdh-masala',
   name: 'MDH Chicken Masala',
   weight: '100 g',
+  grams: 100,
   price: 82,
   rating: 4.8,
   ratingCount: 12400,
@@ -51,6 +56,7 @@ const _gingerGarlic = Accompaniment(
   id: 'acc-ginger-garlic',
   name: 'Ginger Garlic Paste',
   weight: '200 g',
+  grams: 200,
   price: 55,
   rating: 4.6,
   ratingCount: 8200,
@@ -61,6 +67,7 @@ const _lemon = Accompaniment(
   id: 'acc-lemon',
   name: 'Fresh Lemon',
   weight: '4 pieces',
+  grams: 200,
   price: 30,
   rating: 4.5,
   ratingCount: 5100,
@@ -71,16 +78,18 @@ const _meatMasala = Accompaniment(
   id: 'acc-meat-masala',
   name: 'Everest Meat Masala',
   weight: '100 g',
+  grams: 100,
   price: 78,
   rating: 4.7,
   ratingCount: 9300,
   image: Assets.masalaMeat,
 );
 
-List<ProductVariant> _weights(String id, int p500, {int? mrp500}) => [
-      ProductVariant(id: '$id-500', label: '500 g', price: p500, mrp: mrp500),
-      ProductVariant(id: '$id-750', label: '750 g', price: (p500 * 1.45).round()),
-      ProductVariant(id: '$id-1000', label: '1 kg', price: (p500 * 1.9).round()),
+List<ProductVariant> _weights(String id, int p500, {int? mrp500, int? max1kg}) => [
+      ProductVariant(id: '$id-500', label: '500 g', grams: 500, price: p500, mrp: mrp500),
+      ProductVariant(id: '$id-750', label: '750 g', grams: 750, price: (p500 * 1.45).round()),
+      // The shop may cap big packs per order (set in the admin app).
+      ProductVariant(id: '$id-1000', label: '1 kg', grams: 1000, price: (p500 * 1.9).round(), maxQuantity: max1kg),
     ];
 
 const _photos = [
@@ -133,7 +142,7 @@ final _products = <Product>[
     image: Assets.chickenBoneless,
     rating: 4.8,
     ratingCount: 12400,
-    variants: _weights('cbl', 250, mrp500: 299),
+    variants: _weights('cbl', 250, mrp500: 299, max1kg: 10),
     accompaniments: const [_masala, _gingerGarlic],
     isPopular: true,
     isRecommended: true,
@@ -146,9 +155,9 @@ final _products = <Product>[
     rating: 4.7,
     ratingCount: 21800,
     variants: const [
-      ProductVariant(id: 'egg-6', label: '6 pieces', price: 90),
-      ProductVariant(id: 'egg-12', label: '12 pieces', price: 170, mrp: 190),
-      ProductVariant(id: 'egg-30', label: '30 pieces', price: 410),
+      ProductVariant(id: 'egg-6', label: '6 pieces', grams: 300, price: 90),
+      ProductVariant(id: 'egg-12', label: '12 pieces', grams: 600, price: 170, mrp: 190),
+      ProductVariant(id: 'egg-30', label: '30 pieces', grams: 1500, price: 410),
     ],
     isRecommended: true,
     isPopular: true,
@@ -190,7 +199,7 @@ final _products = <Product>[
     image: Assets.chickenLiver,
     rating: 4.4,
     ratingCount: 2100,
-    variants: const [ProductVariant(id: 'cli-250', label: '250 g', price: 70)],
+    variants: const [ProductVariant(id: 'cli-250', label: '250 g', grams: 250, price: 70)],
   ),
   Product(
     id: 'country-hen-curry',
@@ -200,8 +209,8 @@ final _products = <Product>[
     rating: 4.9,
     ratingCount: 7200,
     variants: const [
-      ProductVariant(id: 'chc-500', label: '500 g', price: 320),
-      ProductVariant(id: 'chc-1000', label: '1 kg', price: 610, mrp: 660),
+      ProductVariant(id: 'chc-500', label: '500 g', grams: 500, price: 320),
+      ProductVariant(id: 'chc-1000', label: '1 kg', grams: 1000, price: 610, mrp: 660, maxQuantity: 5),
     ],
     accompaniments: const [_masala, _gingerGarlic],
     isPopular: true,
@@ -214,8 +223,8 @@ final _products = <Product>[
     rating: 4.6,
     ratingCount: 1900,
     variants: const [
-      ProductVariant(id: 'dck-500', label: '500 g', price: 380),
-      ProductVariant(id: 'dck-1000', label: '1 kg', price: 730),
+      ProductVariant(id: 'dck-500', label: '500 g', grams: 500, price: 380),
+      ProductVariant(id: 'dck-1000', label: '1 kg', grams: 1000, price: 730),
     ],
     accompaniments: const [_meatMasala],
   ),
@@ -227,8 +236,8 @@ final _products = <Product>[
     rating: 4.8,
     ratingCount: 9600,
     variants: const [
-      ProductVariant(id: 'mtn-500', label: '500 g', price: 449, mrp: 499),
-      ProductVariant(id: 'mtn-1000', label: '1 kg', price: 869, mrp: 949),
+      ProductVariant(id: 'mtn-500', label: '500 g', grams: 500, price: 449, mrp: 499),
+      ProductVariant(id: 'mtn-1000', label: '1 kg', grams: 1000, price: 869, mrp: 949),
     ],
     accompaniments: const [_meatMasala, _gingerGarlic],
     isPopular: true,
@@ -242,8 +251,8 @@ final _products = <Product>[
     rating: 4.7,
     ratingCount: 4300,
     variants: const [
-      ProductVariant(id: 'mkm-250', label: '250 g', price: 259),
-      ProductVariant(id: 'mkm-500', label: '500 g', price: 499),
+      ProductVariant(id: 'mkm-250', label: '250 g', grams: 250, price: 259),
+      ProductVariant(id: 'mkm-500', label: '500 g', grams: 500, price: 499),
     ],
     accompaniments: const [_meatMasala],
   ),
@@ -255,8 +264,8 @@ final _products = <Product>[
     rating: 4.5,
     ratingCount: 3200,
     variants: const [
-      ProductVariant(id: 'roh-500', label: '500 g', price: 210),
-      ProductVariant(id: 'roh-1000', label: '1 kg', price: 399),
+      ProductVariant(id: 'roh-500', label: '500 g', grams: 500, price: 210),
+      ProductVariant(id: 'roh-1000', label: '1 kg', grams: 1000, price: 399),
     ],
     accompaniments: const [_lemon],
   ),
@@ -268,8 +277,8 @@ final _products = <Product>[
     rating: 4.6,
     ratingCount: 6100,
     variants: const [
-      ProductVariant(id: 'deg-6', label: '6 pieces', price: 120),
-      ProductVariant(id: 'deg-12', label: '12 pieces', price: 230),
+      ProductVariant(id: 'deg-6', label: '6 pieces', grams: 300, price: 120),
+      ProductVariant(id: 'deg-12', label: '12 pieces', grams: 600, price: 230),
     ],
     isRecommended: true,
   ),

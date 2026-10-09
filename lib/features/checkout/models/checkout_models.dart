@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../core/utils/formatters.dart';
+import '../../cart/models/cart_models.dart';
 import '../../orders/models/order_models.dart';
 
 part 'checkout_models.freezed.dart';
@@ -30,8 +31,8 @@ abstract class StoreSettings with _$StoreSettings {
     @Default(499) int freeDeliveryAbove,
     @Default(0) int packagingFee,
 
-    /// GST on fresh, unprocessed meat and eggs is nil, so this is usually 0.
-    @Default(0) int taxPercent,
+    /// Name printed at the top of the tax invoice; the shop name in the admin app.
+    @Default('Fresh Hen') String storeName,
 
     // Seller details printed on the tax invoice.
     @Default('Fresh Hen Foods Pvt. Ltd.') String legalName,
@@ -64,8 +65,12 @@ abstract class StoreSettings with _$StoreSettings {
   int deliveryFeeFor(int itemTotal) =>
       itemTotal == 0 || itemTotal >= freeDeliveryAbove ? 0 : deliveryFee;
 
-  int taxesFor(int itemTotal) =>
-      itemTotal == 0 ? 0 : packagingFee + (itemTotal * taxPercent / 100).round();
+  /// Packaging plus each item's own GST (set per product in the admin app), on an
+  /// empty cart nothing.
+  int taxesFor(Iterable<CartLine> lines) {
+    if (lines.every((l) => l.total == 0)) return 0;
+    return packagingFee + lines.fold(0.0, (sum, l) => sum + l.tax).round();
+  }
 }
 
 @freezed

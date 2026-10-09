@@ -471,7 +471,7 @@ final class FavoritesProvider
   }
 }
 
-String _$favoritesHash() => r'd642e1845718de47ff0cfdd78062505a160fb9b5';
+String _$favoritesHash() => r'b43eeb6543b90d060f5acb14df44a1e9090955f6';
 
 /// Wishlisted product ids. Shows the copy cached on the device at once, then
 /// refreshes from the server; a toggle shows immediately and rolls back if the

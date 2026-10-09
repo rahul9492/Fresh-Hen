@@ -477,7 +477,7 @@ final class CheckoutBillProvider
   }
 }
 
-String _$checkoutBillHash() => r'804356e1c9cbc1dc947ded6a1461b2c488046d77';
+String _$checkoutBillHash() => r'51c85288a5f885e522a4a9da451964ca286936e0';
 
 @ProviderFor(checkoutStep)
 final checkoutStepProvider = CheckoutStepProvider._();

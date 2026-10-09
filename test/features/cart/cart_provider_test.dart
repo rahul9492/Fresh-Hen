@@ -10,6 +10,25 @@ CartLine _line(String productId, String variantId, int price, {int quantity = 1}
     CartLine.fromVariant(product(productId), variant(variantId, price)).copyWith(quantity: quantity);
 
 void main() {
+  test("a pack's order limit caps +, re-adding and reorders, and tells the customer", () async {
+    final (c, _) = await makeContainer();
+    addTearDown(c.dispose);
+    final cart = c.read(cartProvider.notifier);
+    final limited = _line('a', '1', 100).copyWith(maxQuantity: 2);
+
+    cart.add(limited);
+    cart.increment('a:1');
+    expect(c.read(cartLimitProvider), isNull);
+    cart.increment('a:1'); // already at 2
+    cart.add(limited);
+    expect(c.read(cartProvider).single.quantity, 2);
+    expect(c.read(cartLimitProvider)?.message, contains('up to 2'));
+
+    cart.clear();
+    cart.addAll([limited.copyWith(quantity: 5)]);
+    expect(c.read(cartProvider).single.quantity, 2);
+  });
+
   test('adding a new pack appends it; adding it again raises the quantity', () async {
     final (c, _) = await makeContainer();
     addTearDown(c.dispose);

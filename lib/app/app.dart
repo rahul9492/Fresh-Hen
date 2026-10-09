@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_constants.dart';
 import '../core/constants/spacing.dart';
 import '../core/push/push_service.dart';
+import '../features/cart/widgets/cart_limit_listener.dart';
 import 'router/router.dart';
 import 'theme/app_theme.dart';
 
@@ -47,7 +48,7 @@ class FreshHenApp extends ConsumerWidget {
                       bottom: (media.viewInsets.bottom - inset).clamp(0, double.infinity),
                     ),
                   ),
-                  child: child!,
+                  child: CartLimitListener(child: child!),
                 ),
               ),
               Container(height: inset, color: Colors.white),

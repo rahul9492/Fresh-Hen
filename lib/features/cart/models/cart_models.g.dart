@@ -17,6 +17,9 @@ _CartLine _$CartLineFromJson(Map<String, dynamic> json) => _CartLine(
   unitMrp: (json['unitMrp'] as num?)?.toInt(),
   quantity: (json['quantity'] as num?)?.toInt() ?? 1,
   isAddon: json['isAddon'] as bool? ?? false,
+  maxQuantity: (json['maxQuantity'] as num?)?.toInt(),
+  grams: (json['grams'] as num?)?.toInt(),
+  taxPercent: (json['taxPercent'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$CartLineToJson(_CartLine instance) => <String, dynamic>{
@@ -30,4 +33,7 @@ Map<String, dynamic> _$CartLineToJson(_CartLine instance) => <String, dynamic>{
   'unitMrp': instance.unitMrp,
   'quantity': instance.quantity,
   'isAddon': instance.isAddon,
+  'maxQuantity': instance.maxQuantity,
+  'grams': instance.grams,
+  'taxPercent': instance.taxPercent,
 };

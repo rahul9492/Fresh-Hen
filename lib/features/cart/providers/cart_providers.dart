@@ -61,9 +61,10 @@ class Cart extends _$Cart {
     for (final line in lines) {
       final index = next.indexWhere((l) => l.id == line.id);
       if (index == -1) {
-        next.add(line);
+        next.add(line.copyWith(quantity: line.capped(line.quantity)));
       } else {
-        next[index] = next[index].copyWith(quantity: next[index].quantity + line.quantity);
+        final merged = next[index].copyWith(quantity: next[index].quantity + line.quantity);
+        next[index] = merged.copyWith(quantity: merged.capped(merged.quantity));
       }
     }
     state = next;
@@ -105,6 +106,11 @@ class Cart extends _$Cart {
   ];
 
   void _update(String id, int delta) {
+    final line = state.where((l) => l.id == id).firstOrNull;
+    if (line != null && delta > 0 && line.capped(line.quantity + delta) < line.quantity + delta) {
+      ref.read(cartLimitProvider.notifier).show(line);
+      return;
+    }
     state = [
       for (final line in state)
         if (line.id != id)
@@ -113,6 +119,24 @@ class Cart extends _$Cart {
           line.copyWith(quantity: line.quantity + delta),
     ];
   }
+}
+
+/// A pack's order limit was hit; shown once by [CartLimitListener].
+class CartLimitNotice {
+  CartLimitNotice(this.line);
+
+  final CartLine line;
+
+  String get message => 'You can order up to ${line.maxQuantity} × ${line.unitLabel} of ${line.name}.';
+}
+
+@riverpod
+class CartLimit extends _$CartLimit {
+  @override
+  CartLimitNotice? build() => null;
+
+  // A new object each time, so tapping + again at the limit shows the message again.
+  void show(CartLine line) => state = CartLimitNotice(line);
 }
 
 @riverpod

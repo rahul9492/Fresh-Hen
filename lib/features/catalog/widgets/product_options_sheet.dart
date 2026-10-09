@@ -164,15 +164,26 @@ class _VariantRow extends ConsumerWidget {
           const NonVegMark(),
           const SizedBox(width: 12),
           Expanded(
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Flexible(
-                  child: Text(
-                    '${variant.label} • ',
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        '${variant.label} • ',
+                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                      ),
+                    ),
+                    PriceText(price: variant.price, mrp: variant.mrp),
+                  ],
                 ),
-                PriceText(price: variant.price, mrp: variant.mrp),
+                // Only once it matters, so the list stays clean.
+                if (variant.maxQuantity != null && quantity >= variant.maxQuantity!)
+                  Text(
+                    'Max ${variant.maxQuantity} per order',
+                    style: const TextStyle(color: AppColors.body, fontSize: 12),
+                  ),
               ],
             ),
           ),

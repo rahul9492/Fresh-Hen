@@ -43,7 +43,7 @@ final class CartProvider extends $NotifierProvider<Cart, List<CartLine>> {
   }
 }
 
-String _$cartHash() => r'4670d6da2be17404469fc4558aa696790b178e67';
+String _$cartHash() => r'58139a0a3d5f018bf12fc2e19ab4fde20638bbba';
 
 /// The cart, kept on the device per phone number so it survives an app restart.
 
@@ -58,6 +58,58 @@ abstract class _$Cart extends $Notifier<List<CartLine>> {
             as $ClassProviderElement<
               AnyNotifier<List<CartLine>, List<CartLine>>,
               List<CartLine>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(CartLimit)
+final cartLimitProvider = CartLimitProvider._();
+
+final class CartLimitProvider
+    extends $NotifierProvider<CartLimit, CartLimitNotice?> {
+  CartLimitProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'cartLimitProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$cartLimitHash();
+
+  @$internal
+  @override
+  CartLimit create() => CartLimit();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CartLimitNotice? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CartLimitNotice?>(value),
+    );
+  }
+}
+
+String _$cartLimitHash() => r'447f8b768cb298a248efb96b8bb8c3fd3050aab0';
+
+abstract class _$CartLimit extends $Notifier<CartLimitNotice?> {
+  CartLimitNotice? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<CartLimitNotice?, CartLimitNotice?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<CartLimitNotice?, CartLimitNotice?>,
+              CartLimitNotice?,
               Object?,
               Object?
             >;

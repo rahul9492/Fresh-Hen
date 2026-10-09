@@ -47,6 +47,17 @@ Future<ProviderContainer> _container() async {
   return c;
 }
 
+CartLine _taxed(int price, int taxPercent, {int quantity = 1}) => CartLine(
+      id: 'p$price',
+      productId: 'p$price',
+      name: 'Item',
+      unitLabel: '500 g',
+      image: '',
+      unitPrice: price,
+      quantity: quantity,
+      taxPercent: taxPercent,
+    );
+
 void main() {
   group('bill math', () {
     test('total = items + delivery + taxes - discount', () {
@@ -81,9 +92,15 @@ void main() {
     });
 
     test('taxes and packaging are nothing on an empty cart, rounded otherwise', () {
-      const s = StoreSettings(packagingFee: 10, taxPercent: 5);
-      expect(s.taxesFor(0), 0);
-      expect(s.taxesFor(301), 10 + 15); // 15.05 rounds to 15
+      const s = StoreSettings(packagingFee: 10);
+      expect(s.taxesFor(const []), 0);
+      expect(s.taxesFor([_taxed(301, 5)]), 10 + 15); // 15.05 rounds to 15
+    });
+
+    test("each item is taxed at its own product's rate, rounded once for the bill", () {
+      const s = StoreSettings();
+      // Masala at 5% (2.05 + 2.05) and chicken at 0%: 4.1 rounds to 4.
+      expect(s.taxesFor([_taxed(41, 5, quantity: 2), _taxed(300, 0)]), 4);
     });
   });
 

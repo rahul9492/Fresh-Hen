@@ -31,18 +31,34 @@ class MockCatalogRepository implements CatalogRepository {
 /// small (one shop), so it is fetched once and filtered on the phone.
 /// * `GET /categories` -> `{ "data": [ { id, name, image } ] }`
 /// * `GET /products` -> `{ "data": [ { id, name, categoryId, image, gallery: [url],
-///   rating, ratingCount, isPopular, isRecommended,
-///   variants: [ { id, label, price, mrp, inStock } ],
-///   accompaniments: [ { id, name, weight, price, rating, ratingCount, image, inStock } ] } ] }`
+///   rating, ratingCount, isPopular, isRecommended, taxPercent,
+///   variants: [ { id, label, grams, price, mrp, maxQuantity, inStock } ],
+///   accompaniments: [ { id, name, weight, grams, price, taxPercent, rating, ratingCount,
+///   image, inStock } ] } ] }`
 /// * `GET /banners` -> `{ "data": [ { eyebrow, title, highlight, description, image, categoryId } ] }`
 ///
 /// Prices are whole rupees. Products with no variants are skipped, since they
 /// cannot be added to the cart.
 ///
-/// Stock comes from the admin app: a pack is `inStock` when the product is
-/// marked "Selling" there and its stock covers at least one pack of that
-/// weight. Products marked "Not selling" can be sent with every pack
-/// `inStock: false` (shown as sold out) or left out.
+/// Built by the server from the admin app's inventory, which uses other names:
+///
+/// | Admin app                              | This app                         |
+/// |----------------------------------------|----------------------------------|
+/// | Product (Chicken: stock, cost, tax)    | Category (`id`, `name`, `image`) |
+/// | Variant (Chicken Keema, images)        | Product (`categoryId` = product) |
+/// | Pack (750 g, price, mrp, maxQuantity)  | ProductVariant (`label` "750 g") |
+/// | Product's tax %                        | Product `taxPercent`             |
+///
+/// `image` is the variant's cover photo and `gallery` the rest. `label` is "500 g",
+/// "1 kg" or "6 pieces", and `grams` the pack weight (pieces count 50 g each);
+/// orders name a pack by `variantId` (this app's product id) and `grams`. `mrp` is the
+/// pack's original price (send null when equal to `price`). `maxQuantity` is the
+/// most packs of that size one order may have; null means no limit.
+///
+/// Only active variants of active products are sent. Stock is shared by every
+/// variant of a product: a pack is `inStock` when that product's stock covers at
+/// least one pack of that weight. The server re-checks prices, stock and
+/// `maxQuantity` when an order is placed.
 class RemoteCatalogRepository implements CatalogRepository {
   RemoteCatalogRepository(this._dio);
 

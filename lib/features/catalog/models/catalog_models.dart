@@ -20,8 +20,16 @@ abstract class ProductVariant with _$ProductVariant {
   const factory ProductVariant({
     required String id,
     required String label,
+
+    /// Pack weight in grams (pieces count 50 g each), sent back when ordering so
+    /// the shop knows which pack of its variant this is.
+    int? grams,
     required int price,
     int? mrp,
+
+    /// Most packs of this size one order may have, set in the admin app.
+    /// Null means no limit.
+    int? maxQuantity,
 
     /// Set from the admin app when this pack runs out for the day.
     @Default(true) bool inStock,
@@ -36,7 +44,13 @@ abstract class Accompaniment with _$Accompaniment {
     required String id,
     required String name,
     required String weight,
+
+    /// Pack weight in grams (pieces count 50 g each), sent back when ordering.
+    int? grams,
     required int price,
+
+    /// GST % of the shop product this add-on comes from.
+    @Default(0) int taxPercent,
     required double rating,
     required int ratingCount,
     required String image,
@@ -60,6 +74,10 @@ abstract class Product with _$Product {
     required int ratingCount,
     required List<ProductVariant> variants,
     @Default(<Accompaniment>[]) List<Accompaniment> accompaniments,
+
+    /// GST % set on the shop product (e.g. Chicken) this comes from, in the admin
+    /// app. Fresh meat and eggs are 0.
+    @Default(0) int taxPercent,
     @Default(false) bool isPopular,
     @Default(false) bool isRecommended,
   }) = _Product;

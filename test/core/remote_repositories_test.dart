@@ -206,6 +206,7 @@ void main() {
             image: 'i',
             unitPrice: 340,
             quantity: 2,
+            grams: 1000,
           ),
           const CartLine(
             id: 'addon:masala',
@@ -215,6 +216,7 @@ void main() {
             image: 'i',
             unitPrice: 30,
             isAddon: true,
+            grams: 50,
           ),
         ],
         bill: const OrderBill(itemTotal: 710, mrpTotal: 730, deliveryFee: 0, couponCode: 'FRESH20'),
@@ -229,8 +231,9 @@ void main() {
       expect(api.last.path, '/orders');
       expect(api.last.data, {
         'items': [
-          {'productId': 'p1', 'variantId': 'v2', 'quantity': 2, 'isAddon': false},
-          {'productId': 'masala', 'quantity': 1, 'isAddon': true},
+          // The same { variantId, grams, quantity } lines as the admin's walk-in orders.
+          {'variantId': 'p1', 'grams': 1000, 'quantity': 2},
+          {'variantId': 'masala', 'grams': 50, 'quantity': 1},
         ],
         'addressId': 'a1',
         'paymentMethod': 'cash',

@@ -26,7 +26,7 @@ List<Order> mockOrders(DateTime now) {
     final base = OrderBill.forLines(lines, deliveryFee: 0);
     return base.copyWith(
       deliveryFee: mockStoreSettings.deliveryFeeFor(base.itemTotal),
-      taxes: mockStoreSettings.taxesFor(base.itemTotal),
+      taxes: mockStoreSettings.taxesFor(lines),
       discount: discount,
       couponCode: coupon,
     );

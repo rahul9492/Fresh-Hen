@@ -114,7 +114,7 @@ Future<Uint8List> buildInvoicePdf(Order order, StoreSettings seller) async {
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Text(
-                        'Fresh Hen',
+                        seller.storeName,
                         style: pw.TextStyle(
                           fontSize: 22,
                           fontWeight: pw.FontWeight.bold,

@@ -22,8 +22,10 @@ _ProductVariant _$ProductVariantFromJson(Map<String, dynamic> json) =>
     _ProductVariant(
       id: json['id'] as String,
       label: json['label'] as String,
+      grams: (json['grams'] as num?)?.toInt(),
       price: (json['price'] as num).toInt(),
       mrp: (json['mrp'] as num?)?.toInt(),
+      maxQuantity: (json['maxQuantity'] as num?)?.toInt(),
       inStock: json['inStock'] as bool? ?? true,
     );
 
@@ -31,8 +33,10 @@ Map<String, dynamic> _$ProductVariantToJson(_ProductVariant instance) =>
     <String, dynamic>{
       'id': instance.id,
       'label': instance.label,
+      'grams': instance.grams,
       'price': instance.price,
       'mrp': instance.mrp,
+      'maxQuantity': instance.maxQuantity,
       'inStock': instance.inStock,
     };
 
@@ -41,7 +45,9 @@ _Accompaniment _$AccompanimentFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       name: json['name'] as String,
       weight: json['weight'] as String,
+      grams: (json['grams'] as num?)?.toInt(),
       price: (json['price'] as num).toInt(),
+      taxPercent: (json['taxPercent'] as num?)?.toInt() ?? 0,
       rating: (json['rating'] as num).toDouble(),
       ratingCount: (json['ratingCount'] as num).toInt(),
       image: json['image'] as String,
@@ -53,7 +59,9 @@ Map<String, dynamic> _$AccompanimentToJson(_Accompaniment instance) =>
       'id': instance.id,
       'name': instance.name,
       'weight': instance.weight,
+      'grams': instance.grams,
       'price': instance.price,
+      'taxPercent': instance.taxPercent,
       'rating': instance.rating,
       'ratingCount': instance.ratingCount,
       'image': instance.image,
@@ -78,6 +86,7 @@ _Product _$ProductFromJson(Map<String, dynamic> json) => _Product(
           ?.map((e) => Accompaniment.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const <Accompaniment>[],
+  taxPercent: (json['taxPercent'] as num?)?.toInt() ?? 0,
   isPopular: json['isPopular'] as bool? ?? false,
   isRecommended: json['isRecommended'] as bool? ?? false,
 );
@@ -92,6 +101,7 @@ Map<String, dynamic> _$ProductToJson(_Product instance) => <String, dynamic>{
   'ratingCount': instance.ratingCount,
   'variants': instance.variants,
   'accompaniments': instance.accompaniments,
+  'taxPercent': instance.taxPercent,
   'isPopular': instance.isPopular,
   'isRecommended': instance.isRecommended,
 };

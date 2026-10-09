@@ -102,7 +102,7 @@ final class AddressesProvider
   }
 }
 
-String _$addressesHash() => r'56b31945ea2b141c30accdc084661519ea186621';
+String _$addressesHash() => r'a7a46fe8ac9a29646566f75d3ab288a6790b2bd4';
 
 /// The signed-in customer's saved addresses. Shows the copy cached on the
 /// device at once, then refreshes from the server. Changes show immediately

@@ -96,7 +96,7 @@ OrderBill checkoutBill(Ref ref) {
   final bill = OrderBill.forLines(lines, deliveryFee: 0);
   return bill.copyWith(
     deliveryFee: settings.deliveryFeeFor(bill.itemTotal),
-    taxes: settings.taxesFor(bill.itemTotal),
+    taxes: settings.taxesFor(lines),
     discount: usable ? coupon.discountFor(bill.itemTotal) : 0,
     couponCode: usable ? coupon.code : null,
   );

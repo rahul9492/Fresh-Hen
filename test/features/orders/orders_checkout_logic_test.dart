@@ -253,11 +253,13 @@ void main() {
     });
 
     test('taxes: packaging plus rounded percentage, nothing on an empty cart', () {
-      const s = StoreSettings(packagingFee: 5, taxPercent: 5);
-      expect(s.taxesFor(0), 0);
-      expect(s.taxesFor(100), 10);
-      expect(s.taxesFor(130), 12); // 5 + 6.5 rounds up to 7 -> 12
-      expect(const StoreSettings().taxesFor(500), 0);
+      const s = StoreSettings(packagingFee: 5);
+      CartLine line(int price, int tax) =>
+          CartLine(id: '$price', productId: '$price', name: 'x', unitLabel: '1 kg', image: '', unitPrice: price, taxPercent: tax);
+      expect(s.taxesFor(const []), 0);
+      expect(s.taxesFor([line(100, 5)]), 10);
+      expect(s.taxesFor([line(130, 5)]), 12); // 5 + 6.5 rounds up to 7 -> 12
+      expect(const StoreSettings().taxesFor([line(500, 0)]), 0);
     });
 
     test('pincodes: an empty list serves everyone, a list only its entries', () {

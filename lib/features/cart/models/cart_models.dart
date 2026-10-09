@@ -25,6 +25,15 @@ abstract class CartLine with _$CartLine {
     int? unitMrp,
     @Default(1) int quantity,
     @Default(false) bool isAddon,
+
+    /// The pack's order limit when it was added; null means no limit.
+    int? maxQuantity,
+
+    /// Pack weight in grams; with [productId] it names the pack when ordering.
+    int? grams,
+
+    /// GST % of the item, charged on [total].
+    @Default(0) int taxPercent,
   }) = _CartLine;
 
   factory CartLine.fromJson(Map<String, dynamic> json) => _$CartLineFromJson(json);
@@ -38,6 +47,9 @@ abstract class CartLine with _$CartLine {
         image: product.image,
         unitPrice: variant.price,
         unitMrp: variant.mrp,
+        maxQuantity: variant.maxQuantity,
+        grams: variant.grams,
+        taxPercent: product.taxPercent,
       );
 
   factory CartLine.fromAccompaniment(Accompaniment item) => CartLine(
@@ -48,6 +60,8 @@ abstract class CartLine with _$CartLine {
         image: item.image,
         unitPrice: item.price,
         isAddon: true,
+        grams: item.grams,
+        taxPercent: item.taxPercent,
       );
 
   int get total => unitPrice * quantity;
@@ -55,6 +69,12 @@ abstract class CartLine with _$CartLine {
   int get mrpTotal => (unitMrp != null && unitMrp! > unitPrice ? unitMrp! : unitPrice) * quantity;
 
   bool get isDiscounted => mrpTotal > total;
+
+  /// GST on this line, unrounded; the bill rounds the sum once.
+  double get tax => total * taxPercent / 100;
+
+  /// [quantity] capped at the pack's order limit.
+  int capped(int quantity) => maxQuantity != null && quantity > maxQuantity! ? maxQuantity! : quantity;
 }
 
 @freezed
